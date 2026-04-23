@@ -17,11 +17,11 @@ yolo = [
 ]
 
 [project.scripts]
-inat-download = "inaturalist_downloader.downloader:main"
-inat-extract-species = "inaturalist_downloader.species_extractor:main"
-inat-prepare-split = "inaturalist_downloader.split:main"
-inat-check-images = "inaturalist_downloader.check_images:main"
-inat-check-coverage = "inaturalist_downloader.check_coverage:main"
+inat-download = "inaturalist_downloader.commands.download:main"
+inat-extract-species = "inaturalist_downloader.commands.extract_species:main"
+inat-prepare-split = "inaturalist_downloader.commands.prepare_split:main"
+inat-check-images = "inaturalist_downloader.commands.check_images:main"
+inat-check-coverage = "inaturalist_downloader.commands.check_coverage:main"
 
 [tool.setuptools.packages.find]
 include = ["inaturalist_downloader*"]
