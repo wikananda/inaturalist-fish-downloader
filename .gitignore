@@ -1,8 +1,13 @@
 .DS_Store
 downloads/*
+downloads_raw/*
 dataset_split/*
+manifests/*
 !dataset_split/.gitkeep
 !downloads/.gitkeep
+!downloads_raw/.gitkeep
 __pycache__/*
 *.pyc
 *.log
+docs/*
+species_temp.txt

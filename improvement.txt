@@ -1,0 +1,17 @@
+1. Download (iNat)
+   - research grade
+   - alive only
+
+2. YOLO detection
+   - discard if no fish
+   - discard if too small
+   - crop fish (with padding)
+
+3. CLIP filtering
+   - keep only underwater-like context
+   - remove human / market / irrelevant
+
+4. Quality filter
+   - remove blurry / low-res images
+
+5. (Optional) Score & keep top %
