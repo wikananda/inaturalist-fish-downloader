@@ -14,6 +14,7 @@ import json
 import math
 import re
 import shutil
+import sys
 import threading
 import time
 from pathlib import Path
@@ -44,6 +45,9 @@ USER_AGENT = "inaturalist-downloader/1.0"
 VALID_GRADES = {"any", "research", "needs_id", "casual"}
 PRINT_LOCK = threading.Lock()
 MANIFEST_LOCK = threading.Lock()
+DETECTOR_LOCK = threading.Lock()
+DETECTOR_MODEL = None
+DETECTOR_MODEL_PATH = None
 ALIVE_OR_DEAD_TERM_ID = 17
 ALIVE_TERM_VALUE_ID = 18
 
@@ -303,6 +307,66 @@ def parse_args() -> argparse.Namespace:
             "Reject near-empty images whose grayscale max-min intensity range is below "
             "this value. Use 0 to disable. Default: 10"
         ),
+    )
+    parser.add_argument(
+        "--enable-detection",
+        action="store_true",
+        help="Run YOLO fish detection after image validation and save accepted crops.",
+    )
+    parser.add_argument(
+        "--detector-weights",
+        default=None,
+        help="Path to YOLO detector weights, for example models/fish-yolo.pt.",
+    )
+    parser.add_argument(
+        "--detector-device",
+        default=None,
+        help="Optional YOLO device, for example 'cpu', 'mps', or '0'. Default: Ultralytics auto-select.",
+    )
+    parser.add_argument(
+        "--detector-confidence",
+        type=float,
+        default=0.25,
+        help="Minimum YOLO detection confidence. Default: 0.25",
+    )
+    parser.add_argument(
+        "--detector-imgsz",
+        type=int,
+        default=640,
+        help="YOLO inference image size. Default: 640",
+    )
+    parser.add_argument(
+        "--detector-class-names",
+        default=None,
+        help=(
+            "Optional comma-separated class names to accept as fish. "
+            "If omitted, all detector classes are accepted."
+        ),
+    )
+    parser.add_argument(
+        "--detector-class-ids",
+        default=None,
+        help=(
+            "Optional comma-separated numeric class IDs to accept as fish. "
+            "If omitted, all detector class IDs are accepted."
+        ),
+    )
+    parser.add_argument(
+        "--min-fish-area-ratio",
+        type=float,
+        default=0.03,
+        help="Reject detections whose box area / image area is below this value. Default: 0.03",
+    )
+    parser.add_argument(
+        "--crop-padding",
+        type=float,
+        default=0.15,
+        help="Padding around the selected fish bounding box as a fraction of box size. Default: 0.15",
+    )
+    parser.add_argument(
+        "--allow-multiple-fish",
+        action="store_true",
+        help="Allow images with multiple fish detections; otherwise reject them for cleaner few-shot classes.",
     )
     return parser.parse_args()
 
@@ -594,6 +658,37 @@ def candidate_limit_for_args(args: argparse.Namespace) -> int:
     return candidate_limit
 
 
+def parse_csv_set(value: Optional[str]) -> set[str]:
+    """Parse a comma-separated CLI value into a normalized string set.
+
+    Args:
+        value: Comma-separated text or `None`.
+
+    Returns:
+        Case-folded, stripped values. Empty items are ignored.
+    """
+    if not value:
+        return set()
+    return {item.strip().casefold() for item in value.split(",") if item.strip()}
+
+
+def parse_csv_int_set(value: Optional[str]) -> set[int]:
+    """Parse comma-separated integer IDs from a CLI value.
+
+    Args:
+        value: Comma-separated integers or `None`.
+
+    Returns:
+        Parsed integer set.
+
+    Raises:
+        ValueError: If any item is not an integer.
+    """
+    if not value:
+        return set()
+    return {int(item.strip()) for item in value.split(",") if item.strip()}
+
+
 def validate_image(path: Path, args: argparse.Namespace) -> tuple[bool, Optional[str], dict]:
     """Run phase-2 integrity and basic quality checks on a downloaded image.
 
@@ -700,6 +795,205 @@ def save_accepted_image(raw_path: Path, accepted_path: Path, overwrite: bool) ->
                 image = image.convert("RGB")
         image.save(accepted_path, format=image_format, **save_kwargs)
     return "accepted"
+
+
+def save_pil_image(image, destination: Path, image_format: Optional[str]) -> None:
+    """Save a Pillow image while handling JPEG mode/quality details.
+
+    Args:
+        image: Pillow image object to save.
+        destination: Output path.
+        image_format: Preferred format from the source image, or `None`.
+    """
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    output_format = image_format or "JPEG"
+    save_kwargs = {}
+    if output_format.upper() in {"JPEG", "JPG"}:
+        save_kwargs = {"quality": 95}
+        if image.mode not in {"RGB", "L"}:
+            image = image.convert("RGB")
+    image.save(destination, format=output_format, **save_kwargs)
+
+
+def get_detector_model(weights_path: str):
+    """Load and cache the YOLO detector model.
+
+    Args:
+        weights_path: Path to an Ultralytics-compatible YOLO weights file.
+
+    Returns:
+        Cached YOLO model instance.
+
+    Raises:
+        RuntimeError: If `ultralytics` is not installed.
+    """
+    global DETECTOR_MODEL, DETECTOR_MODEL_PATH
+
+    with DETECTOR_LOCK:
+        if DETECTOR_MODEL is not None and DETECTOR_MODEL_PATH == weights_path:
+            return DETECTOR_MODEL
+
+        try:
+            from ultralytics import YOLO
+        except Exception as exc:
+            raise RuntimeError(
+                "YOLO detection requires a working Ultralytics install in the "
+                f"current Python interpreter ({sys.executable}). Original import "
+                f"error: {type(exc).__name__}: {exc}"
+            ) from exc
+
+        DETECTOR_MODEL = YOLO(weights_path)
+        DETECTOR_MODEL_PATH = weights_path
+        return DETECTOR_MODEL
+
+
+def detection_class_allowed(
+    class_id: int,
+    class_name: str,
+    allowed_class_ids: set[int],
+    allowed_class_names: set[str],
+) -> bool:
+    """Return whether a detector class should be treated as fish.
+
+    Args:
+        class_id: Numeric model class ID.
+        class_name: Model class name.
+        allowed_class_ids: Optional accepted class IDs. Empty means no ID filter.
+        allowed_class_names: Optional accepted names. Empty means no name filter.
+
+    Returns:
+        `True` when the class passes all configured filters.
+    """
+    if allowed_class_ids and class_id not in allowed_class_ids:
+        return False
+    if allowed_class_names and class_name.casefold() not in allowed_class_names:
+        return False
+    return True
+
+
+def run_fish_detection(
+    raw_path: Path,
+    accepted_path: Path,
+    args: argparse.Namespace,
+) -> tuple[bool, Optional[str], dict]:
+    """Run YOLO detection, reject bad detections, and save a padded fish crop.
+
+    Args:
+        raw_path: Raw candidate image path.
+        accepted_path: Destination path for the accepted crop.
+        args: Parsed CLI options containing detector settings.
+
+    Returns:
+        Tuple of `(is_valid, reject_reason, metrics)`. When valid, the cropped
+        fish image has already been written to `accepted_path`.
+    """
+    if Image is None or ImageOps is None:
+        return False, "pillow_not_installed", {"enabled": True}
+
+    model = get_detector_model(args.detector_weights)
+    allowed_class_ids = args.detector_class_id_set
+    allowed_class_names = args.detector_class_name_set
+
+    with Image.open(raw_path) as source_image:
+        image_format = source_image.format
+        image = ImageOps.exif_transpose(source_image)
+        if image.mode not in {"RGB", "L"}:
+            image = image.convert("RGB")
+
+        width, height = image.size
+        image_area = max(width * height, 1)
+
+        predict_kwargs = {
+            "source": image,
+            "conf": args.detector_confidence,
+            "imgsz": args.detector_imgsz,
+            "verbose": False,
+        }
+        if args.detector_device:
+            predict_kwargs["device"] = args.detector_device
+
+        with DETECTOR_LOCK:
+            results = model.predict(**predict_kwargs)
+
+        result = results[0]
+        raw_boxes = []
+        if result.boxes is not None:
+            xyxy_values = result.boxes.xyxy.cpu().tolist()
+            conf_values = result.boxes.conf.cpu().tolist()
+            cls_values = result.boxes.cls.cpu().tolist()
+            names = result.names or {}
+
+            for xyxy, confidence, class_value in zip(
+                xyxy_values, conf_values, cls_values
+            ):
+                class_id = int(class_value)
+                class_name = str(names.get(class_id, class_id))
+                if not detection_class_allowed(
+                    class_id,
+                    class_name,
+                    allowed_class_ids,
+                    allowed_class_names,
+                ):
+                    continue
+
+                x1, y1, x2, y2 = [float(value) for value in xyxy]
+                box_width = max(0.0, x2 - x1)
+                box_height = max(0.0, y2 - y1)
+                area_ratio = (box_width * box_height) / image_area
+                raw_boxes.append(
+                    {
+                        "bbox_xyxy": [round(x1, 2), round(y1, 2), round(x2, 2), round(y2, 2)],
+                        "confidence": round(float(confidence), 6),
+                        "class_id": class_id,
+                        "class_name": class_name,
+                        "area_ratio": round(area_ratio, 6),
+                        "selection_score": float(confidence) * area_ratio,
+                    }
+                )
+
+        metrics = {
+            "enabled": True,
+            "model": args.detector_weights,
+            "confidence_threshold": args.detector_confidence,
+            "raw_detection_count": int(0 if result.boxes is None else len(result.boxes)),
+            "fish_detection_count": len(raw_boxes),
+            "min_fish_area_ratio": args.min_fish_area_ratio,
+            "crop_padding": args.crop_padding,
+            "allowed_class_ids": sorted(allowed_class_ids),
+            "allowed_class_names": sorted(allowed_class_names),
+        }
+
+        if not raw_boxes:
+            return False, "no_fish_detected", metrics
+
+        if len(raw_boxes) > 1 and not args.allow_multiple_fish:
+            metrics["detections"] = raw_boxes
+            return False, "multiple_fish_detected", metrics
+
+        selected = max(raw_boxes, key=lambda item: item["selection_score"])
+        metrics["selected_detection"] = {
+            key: value for key, value in selected.items() if key != "selection_score"
+        }
+
+        if selected["area_ratio"] < args.min_fish_area_ratio:
+            return False, "fish_too_small", metrics
+
+        x1, y1, x2, y2 = selected["bbox_xyxy"]
+        box_width = x2 - x1
+        box_height = y2 - y1
+        pad_x = box_width * args.crop_padding
+        pad_y = box_height * args.crop_padding
+        crop_box = (
+            max(0, int(x1 - pad_x)),
+            max(0, int(y1 - pad_y)),
+            min(width, int(x2 + pad_x)),
+            min(height, int(y2 + pad_y)),
+        )
+        metrics["crop_box_xyxy"] = list(crop_box)
+
+        crop = image.crop(crop_box)
+        save_pil_image(crop, accepted_path, image_format)
+        return True, None, metrics
 
 
 def http_stream_to_file(url: str, destination: Path, retries: int = 5) -> None:
@@ -1007,6 +1301,7 @@ def download_species_images(
             **downloaded,
             "accepted_path": str(accepted_image_path),
             "validation": {},
+            "detection": {},
         }
 
         if args.skip_image_validation:
@@ -1030,11 +1325,27 @@ def download_species_images(
             unused_valid += 1
             continue
 
-        accept_status = save_accepted_image(
-            raw_path=raw_path,
-            accepted_path=accepted_image_path,
-            overwrite=args.overwrite,
-        )
+        if args.enable_detection:
+            is_detected, reject_reason, detection_metrics = run_fish_detection(
+                raw_path=raw_path,
+                accepted_path=accepted_image_path,
+                args=args,
+            )
+            record["detection"] = detection_metrics
+            if not is_detected:
+                record["status"] = "rejected"
+                record["reject_reason"] = reject_reason
+                rejected_records.append(record)
+                safe_print(f"  rejected: {candidate['filename']} ({reject_reason})")
+                continue
+            accept_status = "accepted_crop"
+        else:
+            accept_status = save_accepted_image(
+                raw_path=raw_path,
+                accepted_path=accepted_image_path,
+                overwrite=args.overwrite,
+            )
+
         record["status"] = accept_status
         record["reject_reason"] = None
         accepted_records.append(record)
@@ -1108,6 +1419,33 @@ def main() -> None:
         raise SystemExit("--max-aspect-ratio must be greater than or equal to 0")
     if args.min_intensity_range < 0:
         raise SystemExit("--min-intensity-range must be greater than or equal to 0")
+    if args.enable_detection:
+        if not args.detector_weights:
+            raise SystemExit("--enable-detection requires --detector-weights")
+        if args.detector_confidence < 0 or args.detector_confidence > 1:
+            raise SystemExit("--detector-confidence must be between 0 and 1")
+        if args.detector_imgsz <= 0:
+            raise SystemExit("--detector-imgsz must be greater than 0")
+        if args.min_fish_area_ratio < 0 or args.min_fish_area_ratio > 1:
+            raise SystemExit("--min-fish-area-ratio must be between 0 and 1")
+        if args.crop_padding < 0:
+            raise SystemExit("--crop-padding must be greater than or equal to 0")
+        try:
+            args.detector_class_id_set = parse_csv_int_set(args.detector_class_ids)
+        except ValueError as exc:
+            raise SystemExit("--detector-class-ids must be comma-separated integers") from exc
+        args.detector_class_name_set = parse_csv_set(args.detector_class_names)
+        try:
+            from ultralytics import YOLO  # noqa: F401
+        except Exception as exc:
+            raise SystemExit(
+                "YOLO detection requires a working Ultralytics install in the "
+                f"current Python interpreter ({sys.executable}). Original import "
+                f"error: {type(exc).__name__}: {exc}"
+            ) from exc
+    else:
+        args.detector_class_id_set = set()
+        args.detector_class_name_set = set()
 
     species_file = Path(args.species_file)
     output_dir = Path(args.output_dir)
