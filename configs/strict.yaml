@@ -1,0 +1,29 @@
+inat:
+  quality_grade: research
+  photo_size: original
+  exclude_captive: true
+
+download:
+  images_per_species: 30
+  candidate_multiplier: 5.0
+  max_candidates_per_species: 150
+
+validation:
+  min_width: 640
+  min_height: 640
+  min_file_size_kb: 20
+  max_aspect_ratio: 3.5
+  min_intensity_range: 12
+
+detection:
+  enable: true
+  weights: models/fish-yolo.pt
+  confidence: 0.3
+  min_fish_area_ratio: 0.04
+  crop_padding: 0.15
+  allow_multiple_fish: false
+
+clip:
+  enable: true
+  model: openai/clip-vit-base-patch32
+  threshold: 0.08

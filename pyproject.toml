@@ -9,6 +9,7 @@ description = "Utilities for extracting fish species from iNaturalist and buildi
 requires-python = ">=3.10"
 dependencies = [
   "Pillow>=10",
+  "omegaconf>=2.3",
 ]
 
 [project.optional-dependencies]

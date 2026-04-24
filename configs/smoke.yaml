@@ -1,0 +1,30 @@
+paths:
+  species_file: species.txt
+
+inat:
+  quality_grade: research
+  photo_size: original
+
+download:
+  images_per_species: 2
+  candidate_multiplier: 2.0
+  max_candidates_per_species: 4
+  species_workers: 1
+  download_workers: 2
+
+validation:
+  min_width: 512
+  min_height: 512
+
+detection:
+  enable: true
+  weights: models/fish-yolo.pt
+  confidence: 0.25
+  min_fish_area_ratio: 0.03
+  crop_padding: 0.15
+  allow_multiple_fish: false
+
+clip:
+  enable: true
+  model: openai/clip-vit-base-patch32
+  threshold: 0.05

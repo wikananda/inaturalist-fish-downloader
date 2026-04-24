@@ -73,7 +73,12 @@ def run_fish_detection(
         return False, "pillow_not_installed", {"enabled": True}
 
     if accepted_path.exists() and not args.overwrite:
-        return True, None, {"enabled": True, "saved": "existing", "model": args.detector_weights}
+        return True, None, {
+            "enabled": True,
+            "saved": "existing",
+            "created_output": False,
+            "model": args.detector_weights,
+        }
 
     model = get_detector_model(args.detector_weights)
     allowed_class_ids = args.detector_class_id_set
@@ -144,6 +149,7 @@ def run_fish_detection(
         metrics = {
             "enabled": True,
             "model": args.detector_weights,
+            "created_output": False,
             "confidence_threshold": args.detector_confidence,
             "raw_detection_count": int(0 if result.boxes is None else len(result.boxes)),
             "fish_detection_count": len(raw_boxes),
@@ -183,4 +189,6 @@ def run_fish_detection(
 
         crop = image.crop(crop_box)
         save_pil_image(crop, accepted_path, image_format)
+        metrics["saved"] = "written"
+        metrics["created_output"] = True
         return True, None, metrics

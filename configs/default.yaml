@@ -1,0 +1,57 @@
+paths:
+  species_file: species.txt
+  output_dir: downloads
+  raw_dir: downloads_raw
+  manifest_dir: manifests
+
+inat:
+  quality_grade: research
+  photo_size: original
+  place_id: null
+  exclude_captive: false
+  alive_only: false
+  term_id: null
+  term_value_id: null
+  per_page: 100
+  max_pages: 100
+  license_code: null
+  sleep_seconds: 0.0
+  include_subspecies: false
+  retries: 5
+
+download:
+  images_per_species: 30
+  candidate_multiplier: 1.0
+  max_candidates_per_species: null
+  overwrite: false
+  redownload: null
+  species_workers: 5
+  download_workers: 10
+
+validation:
+  skip_image_validation: false
+  min_width: 512
+  min_height: 512
+  min_file_size_kb: 10
+  max_aspect_ratio: 4.0
+  min_intensity_range: 10
+
+detection:
+  enable: false
+  weights: null
+  device: null
+  confidence: 0.25
+  imgsz: 640
+  class_names: null
+  class_ids: null
+  min_fish_area_ratio: 0.03
+  crop_padding: 0.15
+  allow_multiple_fish: false
+
+clip:
+  enable: false
+  model: openai/clip-vit-base-patch32
+  cache_dir: models
+  device: null
+  threshold: 0.05
+  prompts_file: null

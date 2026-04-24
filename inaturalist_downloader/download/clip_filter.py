@@ -12,6 +12,7 @@ CLIP_LOCK = threading.Lock()
 CLIP_MODEL = None
 CLIP_PROCESSOR = None
 CLIP_MODEL_NAME = None
+CLIP_CACHE_DIR = None
 
 DEFAULT_POSITIVE_PROMPTS = [
     "an underwater photo of a fish",
@@ -51,12 +52,17 @@ def validate_clip_import() -> None:
         raise RuntimeError(_transformers_error_message(exc)) from exc
 
 
-def get_clip_components(model_name: str):
+def get_clip_components(model_name: str, cache_dir: Optional[str]):
     """Load and cache CLIP model and processor instances."""
-    global CLIP_MODEL, CLIP_PROCESSOR, CLIP_MODEL_NAME
+    global CLIP_MODEL, CLIP_PROCESSOR, CLIP_MODEL_NAME, CLIP_CACHE_DIR
 
     with CLIP_LOCK:
-        if CLIP_MODEL is not None and CLIP_PROCESSOR is not None and CLIP_MODEL_NAME == model_name:
+        if (
+            CLIP_MODEL is not None
+            and CLIP_PROCESSOR is not None
+            and CLIP_MODEL_NAME == model_name
+            and CLIP_CACHE_DIR == cache_dir
+        ):
             return CLIP_MODEL, CLIP_PROCESSOR
 
         try:
@@ -64,12 +70,19 @@ def get_clip_components(model_name: str):
         except Exception as exc:
             raise RuntimeError(_transformers_error_message(exc)) from exc
 
-        processor = CLIPProcessor.from_pretrained(model_name)
-        model = CLIPModel.from_pretrained(model_name)
+        load_kwargs = {}
+        if cache_dir:
+            cache_path = Path(cache_dir)
+            cache_path.mkdir(parents=True, exist_ok=True)
+            load_kwargs["cache_dir"] = str(cache_path)
+
+        processor = CLIPProcessor.from_pretrained(model_name, **load_kwargs)
+        model = CLIPModel.from_pretrained(model_name, **load_kwargs)
 
         CLIP_MODEL = model
         CLIP_PROCESSOR = processor
         CLIP_MODEL_NAME = model_name
+        CLIP_CACHE_DIR = cache_dir
         return CLIP_MODEL, CLIP_PROCESSOR
 
 
@@ -131,7 +144,7 @@ def run_clip_filter(
     negative_prompts = args.clip_negative_prompts
     all_prompts = positive_prompts + negative_prompts
 
-    model, processor = get_clip_components(args.clip_model)
+    model, processor = get_clip_components(args.clip_model, args.clip_cache_dir)
     device = resolve_clip_device(args)
     model = model.to(device)
     model.eval()
@@ -167,6 +180,7 @@ def run_clip_filter(
     metrics = {
         "enabled": True,
         "model": args.clip_model,
+        "cache_dir": args.clip_cache_dir,
         "device": str(device),
         "threshold": args.clip_threshold,
         "positive_prompt_count": len(positive_prompts),

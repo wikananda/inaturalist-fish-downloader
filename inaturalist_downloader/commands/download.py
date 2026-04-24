@@ -24,6 +24,23 @@ from ..common.manifest import append_jsonl, append_species_summary
 from ..common.utils import load_species, safe_print, slugify
 
 
+def _planned_output_path(accepted_species_dir: Path, filename: str) -> str:
+    """Return the deterministic output path for a candidate image."""
+    return str(accepted_species_dir / filename)
+
+
+def _update_output_state(
+    record: dict,
+    target_output_path: Path,
+    *,
+    saved_output: bool,
+) -> None:
+    """Attach final output-path state to a manifest record."""
+    record["target_output_path"] = str(target_output_path)
+    record["saved_output_path"] = str(target_output_path) if saved_output else None
+    record["output_path_exists"] = target_output_path.exists()
+
+
 def download_species_images(
     species_name: str,
     args,
@@ -65,7 +82,11 @@ def download_species_images(
             {
                 **candidate,
                 "raw_path": str(raw_species_dir / candidate["filename"]),
-                "accepted_path": str(accepted_species_dir / candidate["filename"]),
+                "target_output_path": _planned_output_path(
+                    accepted_species_dir, candidate["filename"]
+                ),
+                "saved_output_path": None,
+                "output_path_exists": (accepted_species_dir / candidate["filename"]).exists(),
             }
             for candidate in jobs
         ],
@@ -106,9 +127,13 @@ def download_species_images(
                     "download_status": "failed",
                     "download_error": str(exc),
                     "raw_path": str(raw_species_dir / failed["filename"]),
-                    "accepted_path": None,
                     "reject_reason": "download_failed",
                 }
+                _update_output_state(
+                    failed_record,
+                    accepted_species_dir / failed["filename"],
+                    saved_output=False,
+                )
                 download_failures.append(failed_record)
                 safe_print(f"  failed photo {photo_id}: {exc}")
 
@@ -125,11 +150,11 @@ def download_species_images(
         accepted_image_path = accepted_species_dir / candidate["filename"]
         record = {
             **downloaded,
-            "accepted_path": str(accepted_image_path),
             "validation": {},
             "detection": {},
             "clip": {},
         }
+        _update_output_state(record, accepted_image_path, saved_output=False)
 
         if args.skip_image_validation:
             is_valid, reject_reason, metrics = True, None, {}
@@ -141,6 +166,7 @@ def download_species_images(
         if not is_valid:
             record["status"] = "rejected"
             record["reject_reason"] = reject_reason
+            _update_output_state(record, accepted_image_path, saved_output=False)
             rejected_records.append(record)
             safe_print(f"  rejected: {candidate['filename']} ({reject_reason})")
             continue
@@ -148,6 +174,7 @@ def download_species_images(
         if len(accepted_records) >= args.images_per_species:
             record["status"] = "unused"
             record["reject_reason"] = "accepted_target_reached"
+            _update_output_state(record, accepted_image_path, saved_output=False)
             rejected_records.append(record)
             unused_valid += 1
             continue
@@ -162,6 +189,7 @@ def download_species_images(
             if not is_detected:
                 record["status"] = "rejected"
                 record["reject_reason"] = reject_reason
+                _update_output_state(record, accepted_image_path, saved_output=False)
                 rejected_records.append(record)
                 safe_print(f"  rejected: {candidate['filename']} ({reject_reason})")
                 continue
@@ -181,10 +209,12 @@ def download_species_images(
             )
             record["clip"] = clip_metrics
             if not is_clip_ok:
-                if args.enable_detection and accepted_image_path.exists():
+                created_output = bool(record["detection"].get("created_output"))
+                if args.enable_detection and created_output and accepted_image_path.exists():
                     accepted_image_path.unlink()
                 record["status"] = "rejected"
                 record["reject_reason"] = reject_reason
+                _update_output_state(record, accepted_image_path, saved_output=False)
                 rejected_records.append(record)
                 safe_print(f"  rejected: {candidate['filename']} ({reject_reason})")
                 continue
@@ -198,6 +228,7 @@ def download_species_images(
 
         record["status"] = accept_status
         record["reject_reason"] = None
+        _update_output_state(record, accepted_image_path, saved_output=True)
         accepted_records.append(record)
         safe_print(f"  {accept_status}: {accepted_image_path.name}")
 
