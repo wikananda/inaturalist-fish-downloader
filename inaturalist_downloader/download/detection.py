@@ -72,6 +72,9 @@ def run_fish_detection(
     if not pillow_available():
         return False, "pillow_not_installed", {"enabled": True}
 
+    if accepted_path.exists() and not args.overwrite:
+        return True, None, {"enabled": True, "saved": "existing", "model": args.detector_weights}
+
     model = get_detector_model(args.detector_weights)
     allowed_class_ids = args.detector_class_id_set
     allowed_class_names = args.detector_class_name_set

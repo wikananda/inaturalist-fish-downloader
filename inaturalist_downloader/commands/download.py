@@ -16,6 +16,7 @@ from pathlib import Path
 
 from ..download.candidates import collect_photo_jobs, download_photo_job
 from ..download.cli import output_paths, parse_args, validate_args
+from ..download.clip_filter import run_clip_filter
 from ..download.detection import run_fish_detection
 from ..download.image_quality import save_accepted_image, validate_image
 from ..common.inat import resolve_taxon_id
@@ -127,6 +128,7 @@ def download_species_images(
             "accepted_path": str(accepted_image_path),
             "validation": {},
             "detection": {},
+            "clip": {},
         }
 
         if args.skip_image_validation:
@@ -163,8 +165,31 @@ def download_species_images(
                 rejected_records.append(record)
                 safe_print(f"  rejected: {candidate['filename']} ({reject_reason})")
                 continue
-            accept_status = "accepted_crop"
+            accept_status = (
+                "accepted_crop_existing"
+                if detection_metrics.get("saved") == "existing"
+                else "accepted_crop"
+            )
+            clip_source_path = accepted_image_path
         else:
+            clip_source_path = raw_path
+
+        if args.enable_clip_filter:
+            is_clip_ok, reject_reason, clip_metrics = run_clip_filter(
+                image_path=clip_source_path,
+                args=args,
+            )
+            record["clip"] = clip_metrics
+            if not is_clip_ok:
+                if args.enable_detection and accepted_image_path.exists():
+                    accepted_image_path.unlink()
+                record["status"] = "rejected"
+                record["reject_reason"] = reject_reason
+                rejected_records.append(record)
+                safe_print(f"  rejected: {candidate['filename']} ({reject_reason})")
+                continue
+
+        if not args.enable_detection:
             accept_status = save_accepted_image(
                 raw_path=raw_path,
                 accepted_path=accepted_image_path,

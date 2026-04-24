@@ -15,6 +15,9 @@ dependencies = [
 yolo = [
   "ultralytics>=8",
 ]
+clip = [
+  "transformers>=4.40",
+]
 
 [project.scripts]
 inat-download = "inaturalist_downloader.commands.download:main"

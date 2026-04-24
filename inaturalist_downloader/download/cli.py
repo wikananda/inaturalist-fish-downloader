@@ -1,6 +1,7 @@
 """CLI parser and argument validation for the downloader command."""
 
 import argparse
+import json
 from pathlib import Path
 
 from ..common.config import (
@@ -13,6 +14,7 @@ from ..common.config import (
     IMAGES_PER_SPECIES,
     VALID_GRADES,
 )
+from .clip_filter import load_clip_prompts, validate_clip_import
 from .detection import validate_detector_import
 from .image_quality import pillow_available
 from ..common.utils import parse_csv_int_set, parse_csv_set
@@ -271,6 +273,32 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Allow images with multiple fish detections; otherwise reject them for cleaner few-shot classes.",
     )
+    parser.add_argument(
+        "--enable-clip-filter",
+        action="store_true",
+        help="Run CLIP context filtering after detection/cropping or accepted image preparation.",
+    )
+    parser.add_argument(
+        "--clip-model",
+        default="openai/clip-vit-base-patch32",
+        help="CLIP model name or local path for Transformers. Default: openai/clip-vit-base-patch32",
+    )
+    parser.add_argument(
+        "--clip-device",
+        default=None,
+        help="Optional CLIP device, for example 'cpu', 'mps', or 'cuda'. Default: auto-select.",
+    )
+    parser.add_argument(
+        "--clip-threshold",
+        type=float,
+        default=0.05,
+        help="Minimum CLIP context score margin required to accept an image. Default: 0.05",
+    )
+    parser.add_argument(
+        "--clip-prompts-file",
+        default=None,
+        help="Optional JSON file defining positive/negative CLIP prompts.",
+    )
     return parser.parse_args()
 
 
@@ -333,6 +361,22 @@ def validate_args(args: argparse.Namespace) -> None:
     else:
         args.detector_class_id_set = set()
         args.detector_class_name_set = set()
+
+    if args.enable_clip_filter:
+        try:
+            validate_clip_import()
+        except RuntimeError as exc:
+            raise SystemExit(str(exc)) from exc
+        try:
+            (
+                args.clip_positive_prompts,
+                args.clip_negative_prompts,
+            ) = load_clip_prompts(args.clip_prompts_file)
+        except (FileNotFoundError, ValueError, json.JSONDecodeError) as exc:
+            raise SystemExit(f"Invalid CLIP prompts configuration: {exc}") from exc
+    else:
+        args.clip_positive_prompts = []
+        args.clip_negative_prompts = []
 
 
 def output_paths(args: argparse.Namespace) -> tuple[Path, Path, Path, Path]:
