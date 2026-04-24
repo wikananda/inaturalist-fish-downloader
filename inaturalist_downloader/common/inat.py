@@ -59,9 +59,11 @@ def iter_observation_photos(
     term_id: Optional[int],
     term_value_id: Optional[str],
     retries: int = 5,
+    start_page: int = 1,
 ) -> Iterator[dict]:
     """Yield photo metadata from matching iNaturalist observations."""
-    for page in range(1, max_pages + 1):
+    end_page = start_page + max_pages - 1
+    for page in range(start_page, end_page + 1):
         params = {
             "taxon_id": taxon_id,
             "photos": "true",
@@ -92,6 +94,7 @@ def iter_observation_photos(
             user = observation.get("user") or {}
             for photo in observation.get("photos", []):
                 yield {
+                    "_page": page,
                     "observation_id": observation.get("id"),
                     "photo_id": photo.get("id"),
                     "url": photo.get("url"),

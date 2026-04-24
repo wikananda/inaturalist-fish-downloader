@@ -39,3 +39,17 @@ run_id	species_name	canonical_name	taxon_id	candidates	downloaded	download_faile
 20260424-212445	Heniochus varius	Heniochus varius	102638	4	4	0	3	0	1
 20260424-212445	Heniochus acuminatus	Heniochus acuminatus	102631	4	4	0	3	1	0
 20260424-212445	Chaetodon baronessa	Chaetodon baronessa	97146	4	4	0	3	0	1
+20260424-221048	Chaetodon kleinii	Chaetodon kleinii	97167	122	122	122	0	10	4	108	False
+20260424-221048	Chaetodon adiergastos	Chaetodon adiergastos	97139	108	108	108	0	10	4	94	False
+20260424-221048	Chaetodon vagabundus	Chaetodon vagabundus	48747	127	127	127	0	10	4	113	False
+20260424-221048	Heniochus varius	Heniochus varius	102638	122	122	122	0	10	1	111	False
+20260424-222644	Chaetodon vagabundus	Chaetodon vagabundus	48747	30	30	30	0	10	2	18	False
+20260424-222644	Heniochus varius	Heniochus varius	102638	30	30	30	0	10	0	20	False
+20260424-222644	Heniochus acuminatus	Heniochus acuminatus	102631	30	30	30	0	10	4	16	False
+20260424-222644	Chaetodon kleinii	Chaetodon kleinii	97167	30	30	30	0	10	1	19	False
+20260424-222644	Chaetodon adiergastos	Chaetodon adiergastos	97139	30	30	30	0	10	2	18	False
+20260424-222644	Chaetodon baronessa	Chaetodon baronessa	97146	30	30	30	0	10	0	20	False
+20260424-222644	Chaetodon melannotus	Chaetodon melannotus	97174	30	30	30	0	10	0	20	False
+20260424-222644	Chaetodon lunulatus	Chaetodon lunulatus	48743	30	30	30	0	10	1	19	False
+20260424-222644	Chaetodon decussatus	Chaetodon decussatus	97154	30	30	30	0	10	1	19	False
+20260424-222644	Chaetodon rafflesii	Chaetodon rafflesii	97193	30	30	30	0	10	1	19	False

@@ -53,5 +53,5 @@ clip:
   model: openai/clip-vit-base-patch32
   cache_dir: models
   device: null
-  threshold: 0.05
+  threshold: 0.1
   prompts_file: null

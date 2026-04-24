@@ -6,11 +6,11 @@ inat:
   photo_size: original
 
 download:
-  images_per_species: 3
+  images_per_species: 10
   candidate_multiplier: 2.0
-  max_candidates_per_species: 4
-  species_workers: 1
-  download_workers: 2
+  max_candidates_per_species: 30
+  species_workers: 5
+  download_workers: 10
 
 validation:
   min_width: 224
