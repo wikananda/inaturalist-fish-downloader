@@ -10,4 +10,5 @@ __pycache__/*
 *.pyc
 *.log
 docs/*
+models/*
 species_temp.txt
