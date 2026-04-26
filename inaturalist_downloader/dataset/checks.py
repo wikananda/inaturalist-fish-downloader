@@ -14,6 +14,11 @@ def count_images(folder: Path) -> int:
     )
 
 
+def species_name_from_folder_slug(value: str) -> str:
+    """Convert a downloader species folder slug back into a taxon query string."""
+    return " ".join(part for part in value.strip().split("_") if part)
+
+
 def load_species_set(path: Path) -> set[str]:
     """Load a newline-delimited species file as a set."""
     if not path.exists():

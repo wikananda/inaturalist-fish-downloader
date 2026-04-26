@@ -3,7 +3,7 @@
 import argparse
 from pathlib import Path
 
-from ..dataset.checks import count_images
+from ..dataset.checks import count_images, species_name_from_folder_slug
 
 
 def parse_args() -> argparse.Namespace:
@@ -20,7 +20,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--redownload-file",
         default="redownload.txt",
-        help="Where to write species below target. Default: redownload.txt",
+        help=(
+            "Where to write species below target. The file is written as taxon query "
+            "names, not folder slugs. Default: redownload.txt"
+        ),
     )
     return parser.parse_args()
 
@@ -41,7 +44,7 @@ def main() -> None:
         print(f"{folder.name}: {image_count}/{args.target}")
 
         if image_count < args.target:
-            not_meeting_target.append(folder.name)
+            not_meeting_target.append(species_name_from_folder_slug(folder.name))
 
     print("\nFolders not meeting the target count:")
     if not_meeting_target:

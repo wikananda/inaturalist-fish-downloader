@@ -16,18 +16,23 @@ CLIP_CACHE_DIR = None
 
 DEFAULT_POSITIVE_PROMPTS = [
     "an underwater photo of a fish",
-    "a fish swimming in the ocean",
-    "a fish on a coral reef",
-    "a wildlife photo of a fish",
+    "a fish swimming underwater",
+    "a fish in a natural aquatic environment",
+    "a fish swimming in a river",
+    "a fish in murky water",
 ]
 
 DEFAULT_NEGATIVE_PROMPTS = [
     "two or more fishes swimming closely together",
-    "a fish in a market",
-    "a dead fish on a table",
     "a person holding a fish",
+    "a fish out of water",
+    "a fish on a fishing rod",
+    "a fish caught by a hook",
+    "a dead fish on a table",
+    "a fish in a market",
     "a cooked fish on a plate",
-    "a drawing or illustration of a fish",
+    "a person fishing",
+    "a hand holding a fish",
 ]
 
 

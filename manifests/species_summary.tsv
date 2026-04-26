@@ -1,55 +1,104 @@
-run_id	species_name	canonical_name	taxon_id	candidates	downloaded	download_failed	accepted	rejected	unused_valid
-20260424-203724	Chaetodon kleinii	Chaetodon kleinii	97167	4	4	0	2	2	0
-20260424-203724	Chaetodon adiergastos	Chaetodon adiergastos	97139	4	4	0	2	2	0
-20260424-203724	Heniochus varius	Heniochus varius	102638	4	4	0	2	2	0
-20260424-203724	Heniochus acuminatus	Heniochus acuminatus	102631	4	4	0	0	4	0
-20260424-203724	Chaetodon baronessa	Chaetodon baronessa	97146	4	4	0	3	0	1
-20260424-205403	Chaetodon kleinii	Chaetodon kleinii	97167	4	4	0	1	3	0
-20260424-205403	Chaetodon adiergastos	Chaetodon adiergastos	97139	4	4	0	2	2	0
-20260424-205403	Heniochus varius	Heniochus varius	102638	4	4	0	2	2	0
-20260424-205403	Heniochus acuminatus	Heniochus acuminatus	102631	4	4	0	0	4	0
-20260424-205403	Chaetodon baronessa	Chaetodon baronessa	97146	4	4	0	3	0	1
-20260424-205838	Chaetodon kleinii	Chaetodon kleinii	97167	4	4	0	1	3	0
-20260424-205838	Chaetodon adiergastos	Chaetodon adiergastos	97139	4	4	0	2	2	0
-20260424-205838	Heniochus varius	Heniochus varius	102638	4	4	0	2	2	0
-20260424-205838	Heniochus acuminatus	Heniochus acuminatus	102631	4	4	0	0	4	0
-20260424-205838	Chaetodon baronessa	Chaetodon baronessa	97146	4	4	0	3	0	1
-20260424-210451	Chaetodon kleinii	Chaetodon kleinii	97167	4	4	0	2	2	0
-20260424-210451	Chaetodon adiergastos	Chaetodon adiergastos	97139	4	4	0	3	0	1
-20260424-210451	Heniochus varius	Heniochus varius	102638	4	4	0	2	2	0
-20260424-210451	Heniochus acuminatus	Heniochus acuminatus	102631	4	4	0	3	1	0
-20260424-210451	Chaetodon baronessa	Chaetodon baronessa	97146	4	4	0	3	0	1
-20260424-210852	Chaetodon kleinii	Chaetodon kleinii	97167	4	4	0	3	1	0
-20260424-210852	Chaetodon adiergastos	Chaetodon adiergastos	97139	4	4	0	3	0	1
-20260424-210852	Heniochus varius	Heniochus varius	102638	4	4	0	2	2	0
-20260424-210852	Heniochus acuminatus	Heniochus acuminatus	102631	4	4	0	3	1	0
-20260424-210852	Chaetodon baronessa	Chaetodon baronessa	97146	4	4	0	3	0	1
-20260424-211509	Chaetodon kleinii	Chaetodon kleinii	97167	4	4	0	3	1	0
-20260424-211509	Chaetodon adiergastos	Chaetodon adiergastos	97139	4	4	0	3	0	1
-20260424-211509	Heniochus varius	Heniochus varius	102638	4	4	0	3	0	1
-20260424-211509	Heniochus acuminatus	Heniochus acuminatus	102631	4	4	0	3	1	0
-20260424-211509	Chaetodon baronessa	Chaetodon baronessa	97146	4	4	0	3	0	1
-20260424-211958	Chaetodon kleinii	Chaetodon kleinii	97167	4	4	0	3	1	0
-20260424-211958	Chaetodon adiergastos	Chaetodon adiergastos	97139	4	4	0	3	0	1
-20260424-211958	Heniochus varius	Heniochus varius	102638	4	4	0	3	0	1
-20260424-211958	Heniochus acuminatus	Heniochus acuminatus	102631	4	4	0	3	1	0
-20260424-211958	Chaetodon baronessa	Chaetodon baronessa	97146	4	4	0	3	0	1
-20260424-212445	Chaetodon kleinii	Chaetodon kleinii	97167	4	4	0	3	1	0
-20260424-212445	Chaetodon adiergastos	Chaetodon adiergastos	97139	4	4	0	3	1	0
-20260424-212445	Heniochus varius	Heniochus varius	102638	4	4	0	3	0	1
-20260424-212445	Heniochus acuminatus	Heniochus acuminatus	102631	4	4	0	3	1	0
-20260424-212445	Chaetodon baronessa	Chaetodon baronessa	97146	4	4	0	3	0	1
-20260424-221048	Chaetodon kleinii	Chaetodon kleinii	97167	122	122	122	0	10	4	108	False
-20260424-221048	Chaetodon adiergastos	Chaetodon adiergastos	97139	108	108	108	0	10	4	94	False
-20260424-221048	Chaetodon vagabundus	Chaetodon vagabundus	48747	127	127	127	0	10	4	113	False
-20260424-221048	Heniochus varius	Heniochus varius	102638	122	122	122	0	10	1	111	False
-20260424-222644	Chaetodon vagabundus	Chaetodon vagabundus	48747	30	30	30	0	10	2	18	False
-20260424-222644	Heniochus varius	Heniochus varius	102638	30	30	30	0	10	0	20	False
-20260424-222644	Heniochus acuminatus	Heniochus acuminatus	102631	30	30	30	0	10	4	16	False
-20260424-222644	Chaetodon kleinii	Chaetodon kleinii	97167	30	30	30	0	10	1	19	False
-20260424-222644	Chaetodon adiergastos	Chaetodon adiergastos	97139	30	30	30	0	10	2	18	False
-20260424-222644	Chaetodon baronessa	Chaetodon baronessa	97146	30	30	30	0	10	0	20	False
-20260424-222644	Chaetodon melannotus	Chaetodon melannotus	97174	30	30	30	0	10	0	20	False
-20260424-222644	Chaetodon lunulatus	Chaetodon lunulatus	48743	30	30	30	0	10	1	19	False
-20260424-222644	Chaetodon decussatus	Chaetodon decussatus	97154	30	30	30	0	10	1	19	False
-20260424-222644	Chaetodon rafflesii	Chaetodon rafflesii	97193	30	30	30	0	10	1	19	False
+run_id	species_name	canonical_name	taxon_id	candidates	scanned_candidates	downloaded	download_failed	accepted	rejected	unused_valid	search_exhausted
+20260424-230044	Scarus tricolor	Scarus tricolor	112167	111	111	111	0	60	27	24	False
+20260424-230044	Chaetodon baronessa	Chaetodon baronessa	97146	110	110	110	0	60	25	25	False
+20260424-230044	Chaetodon kleinii	Chaetodon kleinii	97167	126	126	126	0	60	32	34	False
+20260424-230044	Chlorurus spilurus	Chlorurus spilurus	187233	140	140	140	0	60	34	46	False
+20260424-230044	Scarus niger	Scarus niger	68025	143	143	143	0	60	19	64	False
+20260424-230044	Chaetodon rafflesii	Chaetodon rafflesii	97193	130	130	130	0	60	38	32	False
+20260424-230044	Scarus rubroviolaceus	Scarus rubroviolaceus	83297	127	127	127	0	60	35	32	False
+20260424-230044	Heniochus acuminatus	Heniochus acuminatus	102631	127	127	127	0	60	38	29	False
+20260424-230044	Heniochus varius	Heniochus varius	102638	121	121	121	0	60	57	4	False
+20260424-230044	Chlorurus bleekeri	Chlorurus bleekeri	97637	129	129	129	0	60	53	16	False
+20260424-230044	Acanthurus pyroferus	Acanthurus pyroferus	153279	122	122	122	0	60	25	37	False
+20260424-230044	Ctenochaetus striatus	Ctenochaetus striatus	180389	119	119	119	0	60	35	24	False
+20260424-230044	Scarus psittacus	Scarus psittacus	52498	128	128	128	0	60	39	29	False
+20260424-230044	Acanthurus lineatus	Acanthurus lineatus	135283	144	144	144	0	60	16	68	False
+20260424-230044	Scarus dimidiatus	Scarus dimidiatus	112138	116	116	116	0	60	46	10	False
+20260424-230044	Chaetodon adiergastos	Chaetodon adiergastos	97139	222	222	222	0	60	58	104	False
+20260424-230044	Scarus spinus	Scarus spinus	112165	123	123	123	0	60	61	2	False
+20260424-230044	Naso vlamingii	Naso vlamingii	106624	131	131	131	0	60	46	25	False
+20260424-230044	Scarus ghobban	Scarus ghobban	84175	152	152	152	0	60	52	40	False
+20260424-230044	Bolbometopon muricatum	Bolbometopon muricatum	95867	294	294	294	0	60	98	136	False
+20260424-230044	Zebrasoma velifer	Zebrasoma velifer	424818	126	126	126	0	60	30	36	False
+20260424-230044	Zebrasoma scopas	Zebrasoma scopas	49641	129	129	129	0	60	32	37	False
+20260424-230044	Acanthurus olivaceus	Acanthurus olivaceus	121704	144	144	144	0	60	32	52	False
+20260424-230044	Acanthurus nigricauda	Acanthurus nigricauda	121194	118	118	118	0	60	33	25	False
+20260424-230044	Acanthurus nigricans	Acanthurus nigricans	121193	126	126	126	0	60	48	18	False
+20260424-230044	Naso brachycentron	Naso brachycentron	153281	132	132	132	0	60	48	24	False
+20260424-230044	Thalassoma hardwicke	Thalassoma hardwicke	67963	132	132	132	0	60	33	39	False
+20260424-230044	Thalassoma lunare	Thalassoma lunare	113980	139	139	139	0	60	31	48	False
+20260424-230044	Naso lituratus	Naso lituratus	52451	132	132	132	0	60	53	19	False
+20260424-230044	Halichoeres hortulanus	Halichoeres hortulanus	102045	143	143	143	0	60	18	65	False
+20260424-230044	Coris gaimard	Coris gaimard	52323	135	135	135	0	60	10	65	False
+20260424-230044	Labroides dimidiatus	Labroides dimidiatus	103901	131	131	131	0	60	59	12	False
+20260424-230044	Oxycheilinus bimaculatus	Oxycheilinus bimaculatus	108074	138	138	138	0	60	23	55	False
+20260424-230044	Bodianus dictynna	Bodianus dictynna	95820	117	117	117	0	60	28	29	False
+20260424-230044	Halichoeres hartzfeldii	Halichoeres hartzfeldii	102044	112	112	112	0	60	16	36	False
+20260424-230044	Halichoeres chrysus	Halichoeres chrysus	102038	120	120	120	0	60	49	11	False
+20260424-230044	Cephalopholis miniata	Cephalopholis miniata	49639	124	124	124	0	60	16	48	False
+20260424-230044	Epinephelus fasciatus	Epinephelus fasciatus	100099	120	120	120	0	60	13	47	False
+20260424-230044	Hemigymnus melapterus	Hemigymnus melapterus	102580	118	118	118	0	60	27	31	False
+20260424-230044	Cephalopholis argus	Cephalopholis argus	52456	144	144	144	0	60	21	63	False
+20260424-230044	Cephalopholis urodeta	Cephalopholis urodeta	97007	114	114	114	0	60	24	30	False
+20260424-230044	Epinephelus merra	Epinephelus merra	100121	142	142	142	0	60	43	39	False
+20260424-230044	Cephalopholis cyanostigma	Cephalopholis cyanostigma	96992	132	132	132	0	60	30	42	False
+20260424-230044	Aethaloperca rogaa	Aethaloperca rogaa	93453	138	138	138	0	60	39	39	False
+20260424-230044	Variola albimarginata	Variola albimarginata	114929	130	130	130	0	60	15	55	False
+20260424-230044	Epinephelus areolatus	Epinephelus areolatus	100077	123	123	123	0	60	57	6	False
+20260424-230044	Pomacanthus semicirculatus	Pomacanthus semicirculatus	110019	136	136	136	0	60	45	31	False
+20260424-230044	Centropyge vrolikii	Centropyge vrolikii	96966	129	129	129	0	60	28	41	False
+20260424-230044	Centropyge tibicen	Centropyge tibicen	96964	123	123	123	0	60	23	40	False
+20260424-230044	Centropyge eibli	Centropyge eibli	96944	136	136	136	0	60	34	42	False
+20260424-230044	Apolemichthys trimaculatus	Apolemichthys trimaculatus	94416	133	133	133	0	60	40	33	False
+20260424-230044	Pomacanthus navarchus	Pomacanthus navarchus	110017	114	114	114	0	60	29	25	False
+20260424-230044	Genicanthus lamarck	Genicanthus lamarck	101333	117	117	117	0	60	19	38	False
+20260424-230044	Platax pinnatus	Platax pinnatus	132399	126	126	126	0	60	38	28	False
+20260424-230044	Pygoplites diacanthus	Pygoplites diacanthus	111389	126	126	126	0	60	13	53	False
+20260424-230044	Platax teira	Platax teira	69859	174	174	174	0	60	82	32	False
+20260424-230044	Amphiprion clarkii	Amphiprion clarkii	136345	179	179	179	0	60	72	47	False
+20260424-230044	Platax orbicularis	Platax orbicularis	69858	144	144	144	0	60	36	48	False
+20260424-230044	Amblyglyphidodon aureus	Amblyglyphidodon aureus	134155	126	126	126	0	60	30	36	False
+20260424-230044	Platax boersii	Platax boersii	120990	125	125	125	0	60	59	6	False
+20260424-230044	Dascyllus trimaculatus	Dascyllus trimaculatus	49303	150	150	150	0	60	70	20	False
+20260424-230044	Pomacentrus moluccensis	Pomacentrus moluccensis	181028	123	123	123	0	60	54	9	False
+20260424-230044	Pomacentrus coelestis	Pomacentrus coelestis	132371	129	129	129	0	60	33	36	False
+20260424-230044	Amphiprion polymnus	Amphiprion polymnus	119430	137	137	137	0	60	69	8	False
+20260424-230044	Parupeneus barberinus	Parupeneus barberinus	196838	125	125	125	0	60	42	23	False
+20260424-230044	Abudefduf vaigiensis	Abudefduf vaigiensis	49403	269	269	269	0	60	105	104	False
+20260424-230044	Amphiprion percula	Amphiprion percula	1599546	300	300	300	0	60	175	65	False
+20260424-230044	Upeneus tragula	Upeneus tragula	119432	125	125	125	0	60	50	15	False
+20260424-230044	Parupeneus macronemus	Parupeneus macronemus	196837	115	115	115	0	60	36	19	False
+20260424-230044	Amphiprion perideraion	Amphiprion perideraion	134156	141	141	141	0	60	65	16	False
+20260424-230044	Parupeneus multifasciatus	Parupeneus multifasciatus	131234	122	122	122	0	60	43	19	False
+20260424-230044	Dascyllus reticulatus	Dascyllus reticulatus	179872	226	226	226	0	60	78	88	False
+20260424-230044	Parupeneus heptacantha	Parupeneus heptacantha	272556	112	112	112	0	60	29	23	False
+20260424-230044	Lutjanus decussatus	Lutjanus decussatus	104856	110	110	110	0	60	33	17	False
+20260424-230044	Mulloidichthys flavolineatus	Mulloidichthys flavolineatus	123346	274	274	274	0	60	130	84	False
+20260424-230044	Siganus vulpinus	Siganus vulpinus	318323	221	221	221	0	60	58	103	False
+20260424-230044	Lutjanus gibbus	Lutjanus gibbus	142704	127	127	127	0	60	67	0	False
+20260424-230044	Macolor macularis	Macolor macularis	135281	218	218	218	0	60	60	98	False
+20260424-230044	Siganus virgatus	Siganus virgatus	180395	245	245	245	0	60	98	87	False
+20260424-230044	Siganus guttatus	Siganus guttatus	180402	262	262	262	0	60	77	125	False
+20260424-230044	Siganus puellus	Siganus puellus	135218	250	250	250	0	60	107	83	False
+20260424-230044	Lutjanus monostigma	Lutjanus monostigma	121001	117	117	117	0	60	48	9	False
+20260424-230044	Mulloidichthys vanicolensis	Mulloidichthys vanicolensis	122682	502	502	502	0	60	401	41	False
+20260424-230044	Canthigaster valentini	Canthigaster valentini	129549	128	128	128	0	60	13	55	False
+20260424-230044	Caesio caerulaurea	Caesio caerulaurea	96400	249	249	249	0	60	181	8	False
+20260424-230044	Plectorhinchus polytaenia	Plectorhinchus polytaenia	135279	120	120	120	0	60	48	12	False
+20260424-230044	Arothron hispidus	Arothron hispidus	144017	148	148	148	0	60	26	62	False
+20260424-230044	Lutjanus bengalensis	Lutjanus bengalensis	447971	201	201	201	0	36	165	0	True
+20260424-230044	Arothron nigropunctatus	Arothron nigropunctatus	119385	142	142	142	0	60	24	58	False
+20260424-230044	Arothron manilensis	Arothron manilensis	196935	132	132	132	0	60	45	27	False
+20260424-230044	Plectorhinchus chaetodonoides	Plectorhinchus chaetodonoides	122002	147	147	147	0	60	78	9	False
+20260424-230044	Plectorhinchus vittatus	Plectorhinchus vittatus	120999	259	259	259	0	60	92	107	False
+20260424-230044	Canthigaster compressa	Canthigaster compressa	196943	118	118	118	0	60	14	44	False
+20260424-230044	Arothron caeruleopunctatus	Arothron caeruleopunctatus	153278	127	127	127	0	60	14	53	False
+20260424-230044	Canthigaster bennetti	Canthigaster bennetti	196933	133	133	133	0	60	22	51	False
+20260424-230044	Canthigaster papua	Canthigaster papua	196932	124	124	124	0	60	9	55	False
+20260424-230044	Pterocaesio tile	Pterocaesio tile	183187	388	388	388	0	60	254	74	False
+20260425-225723	centropyge bicolor	Centropyge bicolor	96939	116	116	116	0	60	36	20	False
+20260425-225723	pomacanthus imperator	Pomacanthus imperator	84181	140	140	140	0	60	32	48	False
+20260425-225723	lutjanus bengalensis	Lutjanus bengalensis	447971	201	201	201	0	31	170	0	True
+20260425-225723	cephalopholis sonnerati	Cephalopholis sonnerati	97004	285	285	285	0	60	87	138	False
+20260425-230435	lutjanus bengalensis	Lutjanus bengalensis	447971	201	201	201	0	31	170	0	True
+20260425-231722	lutjanus bengalensis	Lutjanus bengalensis	447971	201	201	201	0	60	79	62	False

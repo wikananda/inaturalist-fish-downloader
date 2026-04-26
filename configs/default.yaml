@@ -20,13 +20,13 @@ inat:
   retries: 5
 
 download:
-  images_per_species: 50
+  images_per_species: 60
   candidate_multiplier: 1.0
   max_candidates_per_species: null
   overwrite: false
   redownload: null
-  species_workers: 5
-  download_workers: 10
+  species_workers: 10
+  download_workers: 20
 
 validation:
   skip_image_validation: false
@@ -37,21 +37,21 @@ validation:
   min_intensity_range: 10
 
 detection:
-  enable: false
-  weights: null
-  device: null
-  confidence: 0.25
+  enable: true
+  weights: models/fish-yolo.pt
+  device: mps
+  confidence: 0.5
   imgsz: 640
   class_names: null
   class_ids: null
-  min_fish_area_ratio: 0.03
+  min_fish_area_ratio: 0.02
   crop_padding: 0.15
-  allow_multiple_fish: false
+  allow_multiple_fish: true
 
 clip:
   enable: true
   model: openai/clip-vit-base-patch32
   cache_dir: models
   device: null
-  threshold: 0.1
+  threshold: 0.5
   prompts_file: null
