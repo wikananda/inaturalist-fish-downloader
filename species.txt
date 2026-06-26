@@ -98,3 +98,17 @@ Arothron caeruleopunctatus
 Canthigaster compressa
 Canthigaster bennetti
 Canthigaster papua
+Sphyraena barracuda
+Sphyraena qenie
+Sphyraena forsteri
+Mola alexandrini
+Cheilinus undulatus
+Caranx ignobilis
+Caranx melampygus
+Gymnothorax javanicus
+Lutjanus bohar
+Mobula alfredi
+Triaenodon obesus
+Carcharhinus melanopterus
+Scomberomorus commerson
+Euthynnus affinis

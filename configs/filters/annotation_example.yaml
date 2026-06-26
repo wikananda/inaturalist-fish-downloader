@@ -1,0 +1,8 @@
+inat:
+  # Replace these IDs with the iNaturalist annotation term/value pair you want.
+  # Existing shortcuts:
+  # - alive_only: true maps to Alive or Dead = Alive.
+  term_id: null
+  term_value_id: null
+  query_params:
+    without_term_id: null

@@ -73,10 +73,12 @@ inat-check-coverage --species-file species.txt --split-dir .
 
 ## Configuration
 
-Downloader profiles live in `configs/`. The effective config is merged in this order: `configs/default.yaml`, optional `--config`, then CLI overrides. Print the final merged config with:
+Downloader profiles live in `configs/`. The effective config is merged in this order: `configs/default.yaml`, filter presets listed by the effective profile config, optional `--config`, then CLI overrides. Print the final merged config with:
 
 ```bash
 inat-download --config smoke --print-config
 ```
+
+Reusable iNaturalist observation filter presets live in `configs/filters/`. Add them to a download profile with `inat.filter_files` to experiment with quality grade, captive/alive, photo license, annotations, ordering, and raw `/observations` query parameters. The default profile excludes juvenile observations and uses commercial-safe photo licenses in this order: `cc0`, `cc-by`, then `cc-by-sa`.
 
 More details are in `docs/configuration.md`, `docs/yolo_setup.md`, and `docs/clip_setup.md`.

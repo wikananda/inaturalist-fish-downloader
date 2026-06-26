@@ -1,0 +1,4 @@
+inat:
+  query_params:
+    without_term_id: 1
+    without_term_value_id: 8

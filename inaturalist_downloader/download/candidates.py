@@ -52,6 +52,8 @@ def collect_photo_jobs(
     pages_to_scan: int,
     candidate_limit: Optional[int] = None,
     retries: int = 5,
+    license_code: Optional[str] = None,
+    license_priority: Optional[int] = None,
 ) -> tuple[list[dict], int, bool]:
     """Build one refill batch of candidate photo records for a species."""
     jobs = []
@@ -70,11 +72,14 @@ def collect_photo_jobs(
         quality_grade=args.quality_grade,
         per_page=args.per_page,
         max_pages=actual_pages_to_scan,
-        license_code=args.license_code,
+        license_code=license_code,
         place_id=args.place_id,
         exclude_captive=args.exclude_captive,
         term_id=term_id,
         term_value_id=term_value_id,
+        order_by=args.order_by,
+        order=args.order,
+        query_params=args.query_params,
         retries=retries,
         start_page=start_page,
     ):
@@ -102,6 +107,8 @@ def collect_photo_jobs(
                 "photo_url": image_url,
                 "source_photo_url": raw_url,
                 "filename": filename,
+                "requested_license_code": license_code,
+                "license_priority": license_priority,
                 "license_code": photo.get("license_code"),
                 "quality_grade": photo.get("quality_grade"),
                 "place_id": args.place_id,

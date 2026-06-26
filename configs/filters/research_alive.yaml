@@ -1,0 +1,6 @@
+inat:
+  quality_grade: research
+  alive_only: true
+  exclude_captive: true
+  order_by: votes
+  order: desc

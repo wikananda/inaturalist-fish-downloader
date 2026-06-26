@@ -46,6 +46,21 @@ def _update_output_state(
     record["output_path_exists"] = target_output_path.exists()
 
 
+def _license_search_plan(args) -> list[str | None]:
+    """Return the ordered photo-license search plan for one species."""
+    if args.license_preference:
+        return list(args.license_preference)
+    return [args.license_code]
+
+
+def _is_blocked_license(record: dict, args) -> bool:
+    license_code = record.get("license_code")
+    return bool(
+        license_code
+        and str(license_code).strip().lower() in args.blocked_license_code_set
+    )
+
+
 def download_species_images(
     species_name: str,
     args,
@@ -74,43 +89,61 @@ def download_species_images(
     download_failures = []
     unused_valid = 0
     total_candidates_scanned = 0
-    next_page = 1
+    license_plan = _license_search_plan(args)
+    next_pages = [1 for _ in license_plan]
+    exhausted_licenses = [False for _ in license_plan]
+    license_index = 0
     seen_photo_ids: set[int] = set()
     search_exhausted = False
     batch_index = 0
 
     while len(accepted_records) < args.images_per_species:
+        while license_index < len(license_plan) and exhausted_licenses[license_index]:
+            license_index += 1
+        if license_index >= len(license_plan):
+            search_exhausted = True
+            break
+
         remaining_capacity = remaining_candidate_capacity(args, total_candidates_scanned)
         if remaining_capacity is not None and remaining_capacity <= 0:
             break
 
+        current_license = license_plan[license_index]
         pages_to_scan = candidate_pages_per_batch(args)
         batch_index += 1
-        batch_start_page = next_page
+        batch_start_page = next_pages[license_index]
         jobs, next_page, batch_exhausted = collect_photo_jobs(
             taxon_id=taxon_id,
             species_name=species_name,
             canonical_name=canonical_name,
             args=args,
-            start_page=next_page,
+            start_page=batch_start_page,
             seen_photo_ids=seen_photo_ids,
             pages_to_scan=pages_to_scan,
             candidate_limit=remaining_capacity,
             retries=args.retries,
+            license_code=current_license,
+            license_priority=license_index + 1 if current_license else None,
         )
+        next_pages[license_index] = next_page
 
         if not jobs:
-            search_exhausted = batch_exhausted
+            exhausted_licenses[license_index] = batch_exhausted or next_page > args.max_pages
+            search_exhausted = all(exhausted_licenses)
             if search_exhausted and total_candidates_scanned == 0:
                 safe_print("  no photos found")
-            if search_exhausted or next_page > args.max_pages:
+            if exhausted_licenses[license_index]:
+                license_index += 1
+            if search_exhausted:
                 break
             continue
 
         total_candidates_scanned += len(jobs)
-        search_exhausted = batch_exhausted
+        exhausted_licenses[license_index] = batch_exhausted or next_page > args.max_pages
+        search_exhausted = all(exhausted_licenses)
+        license_label = current_license or "any license"
         safe_print(
-            f"  batch {batch_index}: scanning page {batch_start_page} "
+            f"  batch {batch_index}: {license_label} page {batch_start_page} "
             f"-> collected {len(jobs)} candidates"
         )
 
@@ -130,12 +163,41 @@ def download_species_images(
             ],
         )
 
+        blocked_jobs = []
+        downloadable_jobs = []
+        for candidate in jobs:
+            if _is_blocked_license(candidate, args):
+                blocked_record = {
+                    **candidate,
+                    "status": "rejected",
+                    "download_status": "skipped",
+                    "download_error": None,
+                    "raw_path": str(raw_species_dir / candidate["filename"]),
+                    "reject_reason": "blocked_license",
+                    "validation": {},
+                    "detection": {},
+                    "clip": {},
+                }
+                _update_output_state(
+                    blocked_record,
+                    accepted_species_dir / candidate["filename"],
+                    saved_output=False,
+                )
+                blocked_jobs.append(blocked_record)
+                safe_print(
+                    f"  rejected: {candidate['filename']} "
+                    f"(blocked_license: {candidate.get('license_code')})"
+                )
+            else:
+                downloadable_jobs.append(candidate)
+        rejected_records.extend(blocked_jobs)
+
         downloaded_by_photo_id = {}
         with concurrent.futures.ThreadPoolExecutor(
             max_workers=args.download_workers
         ) as executor:
             future_to_photo = {}
-            for candidate in jobs:
+            for candidate in downloadable_jobs:
                 photo_id = candidate["photo_id"]
                 destination = raw_species_dir / candidate["filename"]
                 future = executor.submit(
@@ -156,7 +218,9 @@ def download_species_images(
                     safe_print(f"  {result['download_status']}: {result['filename']}")
                 except Exception as exc:
                     failed = next(
-                        candidate for candidate in jobs if candidate["photo_id"] == photo_id
+                        candidate
+                        for candidate in downloadable_jobs
+                        if candidate["photo_id"] == photo_id
                     )
                     failed_record = {
                         **failed,
@@ -174,7 +238,7 @@ def download_species_images(
                     download_failures.append(failed_record)
                     safe_print(f"  failed photo {photo_id}: {exc}")
 
-        for candidate in jobs:
+        for candidate in downloadable_jobs:
             downloaded = downloaded_by_photo_id.get(candidate["photo_id"])
             if downloaded is None:
                 continue
@@ -265,8 +329,8 @@ def download_species_images(
             accepted_records.append(record)
             safe_print(f"  {accept_status}: {accepted_image_path.name}")
 
-        if search_exhausted:
-            break
+        if exhausted_licenses[license_index]:
+            license_index += 1
 
     append_jsonl(accepted_path, accepted_records)
     append_jsonl(rejected_path, [*download_failures, *rejected_records])

@@ -2,6 +2,7 @@
 
 import argparse
 import re
+from collections.abc import Mapping
 from typing import Iterator, Optional
 
 from .config import ALIVE_OR_DEAD_TERM_ID, ALIVE_TERM_VALUE_ID
@@ -58,6 +59,9 @@ def iter_observation_photos(
     exclude_captive: bool,
     term_id: Optional[int],
     term_value_id: Optional[str],
+    order_by: str,
+    order: str,
+    query_params: Optional[Mapping[str, object]] = None,
     retries: int = 5,
     start_page: int = 1,
 ) -> Iterator[dict]:
@@ -69,9 +73,10 @@ def iter_observation_photos(
             "photos": "true",
             "page": page,
             "per_page": per_page,
-            "order_by": "votes",
-            "order": "desc",
+            "order_by": order_by,
+            "order": order,
         }
+        params.update(_normalizable_query_params(query_params or {}))
         if quality_grade != "any":
             params["quality_grade"] = quality_grade
         if license_code:
@@ -107,6 +112,21 @@ def iter_observation_photos(
                     "user_id": user.get("id"),
                     "user_login": user.get("login"),
                 }
+
+
+def _normalizable_query_params(query_params: Mapping[str, object]) -> dict[str, object]:
+    """Prepare optional raw iNaturalist API params for query-string encoding."""
+    normalized = {}
+    for key, value in query_params.items():
+        if value is None:
+            continue
+        if isinstance(value, bool):
+            normalized[key] = str(value).lower()
+        elif isinstance(value, (list, tuple, set)):
+            normalized[key] = ",".join(str(item) for item in value)
+        else:
+            normalized[key] = value
+    return normalized
 
 
 def photo_url_for_size(url: str, size: str) -> str:

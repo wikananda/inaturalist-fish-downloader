@@ -15,7 +15,7 @@ from .image_quality import pillow_available
 CONFIG_DIR = Path(__file__).resolve().parents[2] / "configs"
 DEFAULT_CONFIG_PATH = CONFIG_DIR / "default.yaml"
 
-FIELD_TO_PATH = {
+CLI_FIELD_TO_PATH = {
     "species_file": "paths.species_file",
     "output_dir": "paths.output_dir",
     "raw_dir": "paths.raw_dir",
@@ -30,6 +30,8 @@ FIELD_TO_PATH = {
     "alive_only": "inat.alive_only",
     "term_id": "inat.term_id",
     "term_value_id": "inat.term_value_id",
+    "order_by": "inat.order_by",
+    "order": "inat.order",
     "per_page": "inat.per_page",
     "max_pages": "inat.max_pages",
     "license_code": "inat.license_code",
@@ -62,6 +64,18 @@ FIELD_TO_PATH = {
     "clip_device": "clip.device",
     "clip_threshold": "clip.threshold",
     "clip_prompts_file": "clip.prompts_file",
+}
+
+FILE_ONLY_FIELD_TO_PATH = {
+    "filter_files": "inat.filter_files",
+    "query_params": "inat.query_params",
+    "license_preference": "inat.license_preference",
+    "blocked_license_codes": "inat.blocked_license_codes",
+}
+
+FIELD_TO_PATH = {
+    **CLI_FIELD_TO_PATH,
+    **FILE_ONLY_FIELD_TO_PATH,
 }
 
 BOOL_FIELDS = {
@@ -105,6 +119,7 @@ FLOAT_FIELDS = {
 CHOICE_FIELDS = {
     "quality_grade": ["any", "research", "needs_id", "casual"],
     "photo_size": ["square", "thumb", "small", "medium", "large", "original"],
+    "order": ["asc", "desc"],
 }
 
 HELP_TEXT = {
@@ -122,6 +137,8 @@ HELP_TEXT = {
     "alive_only": "Require the iNaturalist Alive or Dead annotation to be Alive.",
     "term_id": "Optional iNaturalist annotation term_id filter.",
     "term_value_id": "Optional iNaturalist annotation term_value_id filter, e.g. '18' or '2,6'.",
+    "order_by": "iNaturalist observation ordering field.",
+    "order": "iNaturalist observation ordering direction.",
     "per_page": "Observations to request per API page. Max is typically 200.",
     "max_pages": "Maximum observation pages to scan per species.",
     "license_code": "Optional photo license filter, for example 'cc-by' or 'cc-by-nc'.",
@@ -160,6 +177,17 @@ OPTION_NAMES = {
     "license_code": "--license",
 }
 
+PROTECTED_QUERY_PARAMS = {"taxon_id", "photos", "page", "per_page"}
+VALID_LICENSE_CODES = {
+    "cc0",
+    "cc-by",
+    "cc-by-sa",
+    "cc-by-nd",
+    "cc-by-nc",
+    "cc-by-nc-sa",
+    "cc-by-nc-nd",
+}
+
 
 def _repo_config_candidates(value: str) -> list[Path]:
     raw = Path(value)
@@ -171,12 +199,31 @@ def _repo_config_candidates(value: str) -> list[Path]:
     return candidates
 
 
+def _filter_config_candidates(value: str, profile_path: Path) -> list[Path]:
+    raw = Path(value)
+    candidates = [raw]
+    if not raw.suffix:
+        candidates.append(CONFIG_DIR / "filters" / f"{value}.yaml")
+        candidates.append(CONFIG_DIR / "filters" / f"{value}.yml")
+    candidates.append(CONFIG_DIR / raw)
+    candidates.append(profile_path.parent / raw)
+    return candidates
+
+
 def resolve_config_path(value: str) -> Path:
     """Resolve a user-provided config reference to a real YAML path."""
     for candidate in _repo_config_candidates(value):
         if candidate.exists():
             return candidate.resolve()
     raise FileNotFoundError(f"Config file not found: {value}")
+
+
+def resolve_filter_config_path(value: str, profile_path: Path) -> Path:
+    """Resolve a filter preset reference from a downloader config profile."""
+    for candidate in _filter_config_candidates(value, profile_path):
+        if candidate.exists():
+            return candidate.resolve()
+    raise FileNotFoundError(f"Filter config file not found: {value}")
 
 
 def _nested_get(data: dict[str, Any], dotted_path: str) -> Any:
@@ -208,7 +255,7 @@ def build_override_config(overrides: dict[str, Any]):
     """Convert flat CLI override values into nested OmegaConf structure."""
     data: dict[str, Any] = {}
     for field, value in overrides.items():
-        dotted_path = FIELD_TO_PATH[field]
+        dotted_path = CLI_FIELD_TO_PATH[field]
         current = data
         parts = dotted_path.split(".")
         for part in parts[:-1]:
@@ -220,6 +267,44 @@ def build_override_config(overrides: dict[str, Any]):
 def effective_config_yaml(cfg) -> str:
     """Render the merged downloader config as YAML."""
     return OmegaConf.to_yaml(cfg, resolve=True)
+
+
+def _list_filter_files(cfg) -> list[str]:
+    filter_files = _nested_get(OmegaConf.to_container(cfg, resolve=True), "inat.filter_files")
+    if filter_files in (None, ""):
+        return []
+    if isinstance(filter_files, str):
+        return [filter_files]
+    if isinstance(filter_files, list):
+        return [str(value) for value in filter_files]
+    raise SystemExit("inat.filter_files must be a string or list of strings")
+
+
+def _normalize_license_list(value: Any, field_name: str) -> list[str]:
+    if value in (None, ""):
+        return []
+    if not isinstance(value, list):
+        raise SystemExit(f"inat.{field_name} must be a list of license codes")
+    normalized = [str(item).strip().lower() for item in value if str(item).strip()]
+    invalid = sorted(set(normalized).difference(VALID_LICENSE_CODES))
+    if invalid:
+        raise SystemExit(
+            f"inat.{field_name} contains invalid license codes: "
+            + ", ".join(invalid)
+        )
+    return normalized
+
+
+def _query_param_license_values(value: Any) -> set[str]:
+    if value in (None, ""):
+        return set()
+    if isinstance(value, str):
+        raw_values = value.split(",")
+    elif isinstance(value, list):
+        raw_values = value
+    else:
+        raw_values = [value]
+    return {str(item).strip().lower() for item in raw_values if str(item).strip()}
 
 
 def build_parser(defaults: dict[str, Any]) -> argparse.ArgumentParser:
@@ -238,7 +323,7 @@ def build_parser(defaults: dict[str, Any]) -> argparse.ArgumentParser:
         help="Print the effective merged config and exit.",
     )
 
-    for field in FIELD_TO_PATH:
+    for field in CLI_FIELD_TO_PATH:
         option = OPTION_NAMES.get(field, f"--{field.replace('_', '-')}")
         help_text = HELP_TEXT[field]
         default_value = defaults.get(field)
@@ -275,11 +360,20 @@ def parse_args() -> argparse.Namespace:
     config_value = cli_overrides.pop("config", None)
     print_config = cli_overrides.pop("print_config", False)
 
+    profile_cfg = OmegaConf.create({})
     merged_cfg = default_cfg
     config_path = DEFAULT_CONFIG_PATH.resolve()
     if config_value:
         config_path = resolve_config_path(config_value)
-        merged_cfg = OmegaConf.merge(merged_cfg, OmegaConf.load(config_path))
+        if config_path != DEFAULT_CONFIG_PATH.resolve():
+            profile_cfg = OmegaConf.load(config_path)
+    preliminary_cfg = OmegaConf.merge(default_cfg, profile_cfg)
+    filter_paths = [
+        resolve_filter_config_path(filter_file, config_path)
+        for filter_file in _list_filter_files(preliminary_cfg)
+    ]
+    filter_cfgs = [OmegaConf.load(path) for path in filter_paths]
+    merged_cfg = OmegaConf.merge(default_cfg, *filter_cfgs, profile_cfg)
     if cli_overrides:
         merged_cfg = OmegaConf.merge(merged_cfg, build_override_config(cli_overrides))
 
@@ -316,6 +410,47 @@ def validate_args(args: argparse.Namespace) -> None:
         raise SystemExit("--download-workers must be greater than 0")
     if args.term_value_id and args.term_id is None and not args.alive_only:
         raise SystemExit("--term-value-id requires --term-id unless --alive-only is used")
+    if not isinstance(args.query_params, dict):
+        raise SystemExit("inat.query_params must be a mapping of iNaturalist API parameters")
+    blocked_params = sorted(PROTECTED_QUERY_PARAMS.intersection(args.query_params))
+    if blocked_params:
+        raise SystemExit(
+            "inat.query_params cannot set protected parameters: "
+            + ", ".join(blocked_params)
+        )
+    args.blocked_license_codes = _normalize_license_list(
+        args.blocked_license_codes, "blocked_license_codes"
+    )
+    args.blocked_license_code_set = set(args.blocked_license_codes)
+    args.license_preference = _normalize_license_list(
+        args.license_preference, "license_preference"
+    )
+    blocked_preferred = sorted(
+        set(args.license_preference).intersection(args.blocked_license_code_set)
+    )
+    if blocked_preferred:
+        raise SystemExit(
+            "inat.license_preference cannot include blocked licenses: "
+            + ", ".join(blocked_preferred)
+        )
+    if args.license_code:
+        args.license_code = str(args.license_code).strip().lower()
+        if args.license_code not in VALID_LICENSE_CODES:
+            raise SystemExit(f"--license contains an invalid license code: {args.license_code}")
+        if args.license_code in args.blocked_license_code_set:
+            raise SystemExit(f"--license cannot use blocked license: {args.license_code}")
+    for query_license_field in ("photo_license", "license"):
+        query_license_values = _query_param_license_values(
+            args.query_params.get(query_license_field)
+        )
+        blocked_query_values = sorted(
+            query_license_values.intersection(args.blocked_license_code_set)
+        )
+        if blocked_query_values:
+            raise SystemExit(
+                f"inat.query_params.{query_license_field} cannot include blocked licenses: "
+                + ", ".join(blocked_query_values)
+            )
     if not args.skip_image_validation and not pillow_available():
         raise SystemExit(
             "Pillow is required for image validation. Install pillow or use --skip-image-validation."
