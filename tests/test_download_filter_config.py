@@ -1,16 +1,17 @@
 import argparse
 import sys
 import tempfile
+import types
 import unittest
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from omegaconf import OmegaConf
 
 from inaturalist_downloader.common.inat import iter_observation_photos
 from inaturalist_downloader.commands.download import download_species_images
 from inaturalist_downloader.download.cli import merge_filter_configs, parse_args, validate_args
-from inaturalist_downloader.download.detection import DetectionOutput
+from inaturalist_downloader.download.detection import DetectionOutput, ensure_sam3_model_files
 
 
 class DownloadFilterConfigTests(unittest.TestCase):
@@ -113,6 +114,57 @@ class DownloadFilterConfigTests(unittest.TestCase):
         self.assertEqual(params["licensed"], "true")
         self.assertEqual(params["photo_license"], "cc-by,cc-by-nc")
         self.assertNotIn("ignored", params)
+
+    def test_ensure_sam3_model_files_uses_existing_checkpoint(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_path = Path(temp_dir)
+            checkpoint = temp_path / "sam3.pt"
+            checkpoint.write_bytes(b"checkpoint")
+            args = argparse.Namespace(
+                sam_checkpoint_path=str(checkpoint),
+                sam_model_dir=str(temp_path / "models"),
+                sam_checkpoint_filename="sam3.pt",
+            )
+            fake_hub = types.SimpleNamespace(hf_hub_download=Mock())
+
+            with patch.dict(sys.modules, {"huggingface_hub": fake_hub}):
+                resolved = ensure_sam3_model_files(args)
+
+        self.assertEqual(resolved, checkpoint)
+        self.assertEqual(args.sam_checkpoint_path, str(checkpoint))
+        fake_hub.hf_hub_download.assert_not_called()
+
+    def test_ensure_sam3_model_files_downloads_config_and_checkpoint(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            model_dir = Path(temp_dir) / "models" / "sam3"
+            checkpoint = model_dir / "sam3.pt"
+            args = argparse.Namespace(
+                sam_checkpoint_path=None,
+                sam_model_dir=str(model_dir),
+                sam_repo_id="facebook/sam3",
+                sam_config_filename="config.json",
+                sam_checkpoint_filename="sam3.pt",
+            )
+
+            def hf_hub_download(repo_id, filename, local_dir):
+                path = Path(local_dir) / filename
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_bytes(b"model")
+                return str(path)
+
+            fake_hub = types.SimpleNamespace(
+                hf_hub_download=Mock(side_effect=hf_hub_download)
+            )
+
+            with patch.dict(sys.modules, {"huggingface_hub": fake_hub}):
+                resolved = ensure_sam3_model_files(args)
+
+        self.assertEqual(resolved, checkpoint)
+        self.assertEqual(args.sam_checkpoint_path, str(checkpoint))
+        self.assertEqual(
+            [call.kwargs["filename"] for call in fake_hub.hf_hub_download.call_args_list],
+            ["config.json", "sam3.pt"],
+        )
 
     def test_validate_args_rejects_protected_raw_query_params(self):
         args = argparse.Namespace(

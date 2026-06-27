@@ -8,3 +8,5 @@ detection:
   sam_min_mask_area_ratio: 0.02
   sam_crop_padding: 0.15
   sam_save_all_instances: true
+  sam_preload: true
+  sam_model_dir: models/sam3

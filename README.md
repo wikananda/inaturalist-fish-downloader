@@ -111,7 +111,7 @@ To run the downloader with SAM 3 cropping instead of YOLO:
 inat-download --config sam3
 ```
 
-SAM 3 saves one crop per detected fish instance. If a source photo contains multiple fish, those crops are marked `species_verification: unverified` in the accepted manifest because SAM segments fish but does not prove they are the same species as the iNaturalist observation label.
+SAM 3 saves one crop per detected fish instance. If a source photo contains multiple fish, those crops are marked `species_verification: unverified` in the accepted manifest because SAM segments fish but does not prove they are the same species as the iNaturalist observation label. The `sam3` profile preloads the gated Hugging Face files before any image download starts and stores them under `models/sam3/`. Authenticate first with `huggingface-cli login` or set `HF_TOKEN` on SSH servers.
 
 ## Configuration
 

@@ -15,6 +15,7 @@ DETECTOR_MODEL_PATH = None
 SAM3_LOCK = threading.Lock()
 SAM3_MODEL = None
 SAM3_MODEL_DEVICE = None
+SAM3_MODEL_CHECKPOINT_PATH = None
 
 
 @dataclass
@@ -80,6 +81,58 @@ def validate_detector_import() -> None:
         from ultralytics import YOLO  # noqa: F401
     except Exception as exc:
         raise RuntimeError(_ultralytics_error_message(exc)) from exc
+
+
+def ensure_sam3_model_files(args: argparse.Namespace) -> Path:
+    """Ensure SAM 3 model files exist locally and return the checkpoint path."""
+    checkpoint_path = _sam3_checkpoint_path(args)
+    if checkpoint_path.exists():
+        args.sam_checkpoint_path = str(checkpoint_path)
+        return checkpoint_path
+
+    model_dir = Path(args.sam_model_dir)
+    model_dir.mkdir(parents=True, exist_ok=True)
+
+    try:
+        from huggingface_hub import hf_hub_download
+    except Exception as exc:
+        raise RuntimeError(_sam3_huggingface_error_message(exc)) from exc
+
+    try:
+        hf_hub_download(
+            repo_id=args.sam_repo_id,
+            filename=args.sam_config_filename,
+            local_dir=str(model_dir),
+        )
+        downloaded_checkpoint = hf_hub_download(
+            repo_id=args.sam_repo_id,
+            filename=args.sam_checkpoint_filename,
+            local_dir=str(model_dir),
+        )
+    except Exception as exc:
+        raise RuntimeError(_sam3_huggingface_error_message(exc)) from exc
+
+    checkpoint_path = Path(downloaded_checkpoint)
+    args.sam_checkpoint_path = str(checkpoint_path)
+    return checkpoint_path
+
+
+def _sam3_checkpoint_path(args: argparse.Namespace) -> Path:
+    if getattr(args, "sam_checkpoint_path", None):
+        return Path(args.sam_checkpoint_path)
+    return Path(args.sam_model_dir) / args.sam_checkpoint_filename
+
+
+def _sam3_huggingface_error_message(exc: Exception) -> str:
+    import sys
+
+    return (
+        "SAM 3 model predownload failed. Make sure this Python interpreter "
+        f"({sys.executable}) has huggingface_hub installed, your Hugging Face "
+        "account has access to the gated SAM 3 repository, and the server is "
+        "authenticated with `huggingface-cli login` or HF_TOKEN. Original error: "
+        f"{type(exc).__name__}: {exc}"
+    )
 
 
 def run_fish_detection_outputs(
@@ -275,7 +328,11 @@ def run_sam3_detection_outputs(
         return [], "sam3_not_available", metrics
 
     try:
-        model = get_sam3_model(build_sam3_image_model, args.detector_device)
+        model = get_sam3_model(
+            build_sam3_image_model,
+            args.detector_device,
+            getattr(args, "sam_checkpoint_path", None),
+        )
         processor = Sam3Processor(model)
         with Image.open(raw_path) as source_image:
             image_format = source_image.format
@@ -365,21 +422,31 @@ def run_sam3_detection_outputs(
         return [], "sam3_error", metrics
 
 
-def get_sam3_model(build_sam3_image_model, device: Optional[str]):
+def get_sam3_model(
+    build_sam3_image_model,
+    device: Optional[str],
+    checkpoint_path: Optional[str] = None,
+):
     """Load and cache the SAM 3 image model."""
-    global SAM3_MODEL, SAM3_MODEL_DEVICE
+    global SAM3_MODEL, SAM3_MODEL_DEVICE, SAM3_MODEL_CHECKPOINT_PATH
 
     target_device = _resolve_device(device)
+    resolved_checkpoint_path = str(checkpoint_path) if checkpoint_path else None
     with SAM3_LOCK:
-        if SAM3_MODEL is not None and SAM3_MODEL_DEVICE == target_device:
+        if (
+            SAM3_MODEL is not None
+            and SAM3_MODEL_DEVICE == target_device
+            and SAM3_MODEL_CHECKPOINT_PATH == resolved_checkpoint_path
+        ):
             return SAM3_MODEL
-        model = build_sam3_image_model()
+        model = build_sam3_image_model(checkpoint_path=resolved_checkpoint_path)
         if target_device and target_device != "auto" and hasattr(model, "to"):
             model = model.to(target_device)
         if hasattr(model, "eval"):
             model.eval()
         SAM3_MODEL = model
         SAM3_MODEL_DEVICE = target_device
+        SAM3_MODEL_CHECKPOINT_PATH = resolved_checkpoint_path
         return model
 
 

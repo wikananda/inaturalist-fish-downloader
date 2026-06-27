@@ -22,7 +22,7 @@ from ..download.candidates import (
 )
 from ..download.cli import output_paths, parse_args, validate_args
 from ..download.clip_filter import run_clip_filter
-from ..download.detection import run_fish_detection_outputs
+from ..download.detection import ensure_sam3_model_files, run_fish_detection_outputs
 from ..download.image_quality import save_accepted_image, validate_image
 from ..common.inat import resolve_taxon_id
 from ..common.manifest import append_jsonl, append_species_summary
@@ -450,6 +450,17 @@ def main() -> None:
     species_list = load_species(species_file)
     if not species_list:
         raise SystemExit(f"No species found in {species_file}")
+
+    if args.enable_detection and args.detection_backend == "sam3" and args.sam_preload:
+        safe_print(
+            f"Preparing SAM 3 model files in {args.sam_model_dir} "
+            f"from {args.sam_repo_id}..."
+        )
+        try:
+            checkpoint_path = ensure_sam3_model_files(args)
+        except RuntimeError as exc:
+            raise SystemExit(str(exc)) from exc
+        safe_print(f"SAM 3 checkpoint ready: {checkpoint_path}")
 
     with concurrent.futures.ThreadPoolExecutor(
         max_workers=args.species_workers
