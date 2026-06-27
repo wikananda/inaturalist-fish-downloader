@@ -1,0 +1,6 @@
+# PyTorch CUDA 12.8 wheels for Linux GPU servers.
+# Keep this separate because the PyTorch wheel index should not be used for
+# every package in requirements-server.txt.
+--index-url https://download.pytorch.org/whl/cu128
+torch>=2.7
+torchvision>=0.22

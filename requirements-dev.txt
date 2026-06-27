@@ -1,0 +1,2 @@
+# Local development and test dependencies.
+-e .[all,dev]

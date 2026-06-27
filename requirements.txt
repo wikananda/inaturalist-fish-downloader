@@ -1,0 +1,3 @@
+# Base package install.
+# Includes config loading and image validation dependencies.
+-e .

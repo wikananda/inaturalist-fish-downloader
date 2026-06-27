@@ -15,9 +15,29 @@ Optional filters need extra dependencies:
 ```bash
 pip install -e '.[yolo]'
 pip install -e '.[clip]'
+pip install -e '.[sam3]'
+pip install -e '.[all]'
 ```
 
 YOLO detection also expects trained fish detector weights, for example `models/fish-yolo.pt`.
+
+For an SSH Linux server, use Python 3.12 when you want SAM 3 cropping:
+
+```bash
+python3.12 -m venv .venv
+source .venv/bin/activate
+python -m pip install -U pip setuptools wheel
+python -m pip install -r requirements.txt
+```
+
+For a CUDA server running YOLO, CLIP, and SAM 3:
+
+```bash
+python -m pip install -r requirements-torch-cu128.txt
+python -m pip install -r requirements-server.txt
+```
+
+If your server uses a different CUDA version, install the matching PyTorch wheels from the PyTorch selector first, then run `requirements-server.txt`.
 
 ## Quick Usage
 

@@ -1,0 +1,8 @@
+# Full server install for downloader + YOLO + CLIP + SAM3 runtime deps.
+#
+# For CUDA servers, install the matching PyTorch CUDA wheels first, for example:
+#   python -m pip install -r requirements-torch-cu128.txt
+#
+# Then install this file:
+#   python -m pip install -r requirements-server.txt
+-e .[all]
