@@ -120,6 +120,63 @@ def ensure_sam3_model_files(args: argparse.Namespace) -> Path:
     return checkpoint_path
 
 
+def preload_sam3_model(args: argparse.Namespace) -> Path:
+    """Download every SAM 3 weight and build + warm the model before any image work.
+
+    ``ensure_sam3_model_files`` only fetches the main checkpoint/config. SAM 3.1 also
+    pulls auxiliary encoder weights (e.g. ``pytorch_model.bin``) when the model is
+    *built*, and may fetch the text backbone on the first ``set_text_prompt`` call.
+    Building and running one warmup inference here forces all of those downloads to
+    happen up front -- and caches the model in the module global so worker threads
+    reuse it (no lazy download, no per-thread rebuild race).
+    """
+    checkpoint_path = ensure_sam3_model_files(args)
+
+    if not pillow_available():
+        raise RuntimeError("SAM 3 preload requires Pillow, which is not installed.")
+
+    try:
+        from sam3.model.sam3_image_processor import Sam3Processor
+        from sam3.model_builder import build_sam3_image_model
+    except Exception as exc:
+        raise RuntimeError(
+            f"SAM 3 package is not importable: {type(exc).__name__}: {exc}"
+        ) from exc
+
+    # Use the SAME effective precision the workers resolve, so the cached model
+    # matches their get_sam3_model() cache key and is reused as-is.
+    effective_dtype, effective_autocast = _resolve_sam_precision(
+        args.detector_device, args.sam_dtype, args.sam_autocast
+    )
+    target_device = _resolve_device(args.detector_device) or "cpu"
+
+    try:
+        model = get_sam3_model(
+            build_sam3_image_model,
+            args.detector_device,
+            getattr(args, "sam_checkpoint_path", None),
+            effective_dtype,
+            effective_autocast,
+        )
+        # Warmup: run the full set_image -> set_text_prompt path once so the text
+        # backbone and any remaining lazy weights are fetched before the run starts.
+        processor = Sam3Processor(model, device=target_device)
+        warmup_image = Image.new("RGB", (64, 64), color=(127, 127, 127))
+        with _sam_inference_context(
+            target_device,
+            dtype_name=effective_dtype,
+            autocast=effective_autocast,
+        ):
+            state = processor.set_image(warmup_image)
+            processor.set_text_prompt(state=state, prompt=args.sam_prompt)
+    except Exception as exc:
+        raise RuntimeError(
+            f"SAM 3 model failed to load/warm up: {type(exc).__name__}: {exc}"
+        ) from exc
+
+    return checkpoint_path
+
+
 def _sam3_checkpoint_path(args: argparse.Namespace) -> Path:
     if getattr(args, "sam_checkpoint_path", None):
         return Path(args.sam_checkpoint_path)
