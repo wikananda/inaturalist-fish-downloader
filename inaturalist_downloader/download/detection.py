@@ -461,7 +461,12 @@ def get_sam3_model(
 
     target_device = _resolve_device(device) or "cpu"
     resolved_checkpoint_path = str(checkpoint_path) if checkpoint_path else None
-    torch_dtype = _resolve_sam_torch_dtype(dtype_name)
+    # Under autocast, keep master weights in float32 and let autocast cast eligible
+    # ops (matmul/linear) to the compute dtype on the fly -- this matches Meta's
+    # SAM 3 quickstart. Pre-casting the whole model to bf16 breaks the ops autocast
+    # leaves in float32, producing "mat1 and mat2 must have the same dtype" errors.
+    weight_dtype_name = "float32" if autocast else dtype_name
+    torch_dtype = _resolve_sam_torch_dtype(weight_dtype_name)
     with SAM3_LOCK:
         if (
             SAM3_MODEL is not None
