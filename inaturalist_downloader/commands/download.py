@@ -22,7 +22,7 @@ from ..download.candidates import (
 )
 from ..download.cli import output_paths, parse_args, validate_args
 from ..download.clip_filter import run_clip_filter
-from ..download.detection import run_fish_detection
+from ..download.detection import run_fish_detection_outputs
 from ..download.image_quality import save_accepted_image, validate_image
 from ..common.inat import resolve_taxon_id
 from ..common.manifest import append_jsonl, append_species_summary
@@ -59,6 +59,13 @@ def _is_blocked_license(record: dict, args) -> bool:
         license_code
         and str(license_code).strip().lower() in args.blocked_license_code_set
     )
+
+
+def _reject_message(reason: str | None, metrics: dict | None = None) -> str:
+    """Return a compact reject reason with the underlying tool error when present."""
+    if metrics and metrics.get("error"):
+        return f"{reason}: {metrics['error']}"
+    return str(reason)
 
 
 def download_species_images(
@@ -265,7 +272,10 @@ def download_species_images(
                 record["reject_reason"] = reject_reason
                 _update_output_state(record, accepted_image_path, saved_output=False)
                 rejected_records.append(record)
-                safe_print(f"  rejected: {candidate['filename']} ({reject_reason})")
+                safe_print(
+                    f"  rejected: {candidate['filename']} "
+                    f"({_reject_message(reject_reason, metrics)})"
+                )
                 continue
 
             if len(accepted_records) >= args.images_per_species:
@@ -277,25 +287,81 @@ def download_species_images(
                 continue
 
             if args.enable_detection:
-                is_detected, reject_reason, detection_metrics = run_fish_detection(
+                remaining_slots = args.images_per_species - len(accepted_records)
+                detection_outputs, reject_reason, detection_metrics = run_fish_detection_outputs(
                     raw_path=raw_path,
                     accepted_path=accepted_image_path,
                     args=args,
+                    max_outputs=remaining_slots,
                 )
                 record["detection"] = detection_metrics
-                if not is_detected:
+                if not detection_outputs:
                     record["status"] = "rejected"
                     record["reject_reason"] = reject_reason
                     _update_output_state(record, accepted_image_path, saved_output=False)
                     rejected_records.append(record)
-                    safe_print(f"  rejected: {candidate['filename']} ({reject_reason})")
+                    safe_print(
+                        f"  rejected: {candidate['filename']} "
+                        f"({_reject_message(reject_reason, detection_metrics)})"
+                    )
                     continue
-                accept_status = (
-                    "accepted_crop_existing"
-                    if detection_metrics.get("saved") == "existing"
-                    else "accepted_crop"
-                )
-                clip_source_path = accepted_image_path
+
+                for detection_output in detection_outputs:
+                    if len(accepted_records) >= args.images_per_species:
+                        break
+
+                    output_record = {
+                        **record,
+                        "filename": detection_output.accepted_path.name,
+                        "detection": detection_output.metrics,
+                        "clip": {},
+                        "instance_index": detection_output.instance_index,
+                        "instance_count": detection_output.instance_count,
+                        "species_verification": detection_output.species_verification,
+                    }
+                    _update_output_state(
+                        output_record,
+                        detection_output.accepted_path,
+                        saved_output=False,
+                    )
+
+                    if args.enable_clip_filter:
+                        is_clip_ok, reject_reason, clip_metrics = run_clip_filter(
+                            image_path=detection_output.clip_source_path,
+                            args=args,
+                        )
+                        output_record["clip"] = clip_metrics
+                        if not is_clip_ok:
+                            if (
+                                detection_output.created_output
+                                and detection_output.accepted_path.exists()
+                            ):
+                                detection_output.accepted_path.unlink()
+                            output_record["status"] = "rejected"
+                            output_record["reject_reason"] = reject_reason
+                            _update_output_state(
+                                output_record,
+                                detection_output.accepted_path,
+                                saved_output=False,
+                            )
+                            rejected_records.append(output_record)
+                            safe_print(
+                                f"  rejected: {detection_output.accepted_path.name} "
+                                f"({_reject_message(reject_reason, clip_metrics)})"
+                            )
+                            continue
+
+                    output_record["status"] = detection_output.status
+                    output_record["reject_reason"] = None
+                    _update_output_state(
+                        output_record,
+                        detection_output.accepted_path,
+                        saved_output=True,
+                    )
+                    accepted_records.append(output_record)
+                    safe_print(f"  {detection_output.status}: {detection_output.accepted_path.name}")
+
+                continue
             else:
                 clip_source_path = raw_path
 
@@ -313,7 +379,10 @@ def download_species_images(
                     record["reject_reason"] = reject_reason
                     _update_output_state(record, accepted_image_path, saved_output=False)
                     rejected_records.append(record)
-                    safe_print(f"  rejected: {candidate['filename']} ({reject_reason})")
+                    safe_print(
+                        f"  rejected: {candidate['filename']} "
+                        f"({_reject_message(reject_reason, clip_metrics)})"
+                    )
                     continue
 
             if not args.enable_detection:

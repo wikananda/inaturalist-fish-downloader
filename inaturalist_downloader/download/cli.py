@@ -49,6 +49,7 @@ CLI_FIELD_TO_PATH = {
     "max_aspect_ratio": "validation.max_aspect_ratio",
     "min_intensity_range": "validation.min_intensity_range",
     "enable_detection": "detection.enable",
+    "detection_backend": "detection.backend",
     "detector_weights": "detection.weights",
     "detector_device": "detection.device",
     "detector_confidence": "detection.confidence",
@@ -58,6 +59,12 @@ CLI_FIELD_TO_PATH = {
     "min_fish_area_ratio": "detection.min_fish_area_ratio",
     "crop_padding": "detection.crop_padding",
     "allow_multiple_fish": "detection.allow_multiple_fish",
+    "sam_prompt": "detection.sam_prompt",
+    "sam_score_threshold": "detection.sam_score_threshold",
+    "sam_max_instances_per_image": "detection.sam_max_instances_per_image",
+    "sam_min_mask_area_ratio": "detection.sam_min_mask_area_ratio",
+    "sam_crop_padding": "detection.sam_crop_padding",
+    "sam_save_all_instances": "detection.sam_save_all_instances",
     "enable_clip_filter": "clip.enable",
     "clip_model": "clip.model",
     "clip_cache_dir": "clip.cache_dir",
@@ -86,6 +93,7 @@ BOOL_FIELDS = {
     "skip_image_validation",
     "enable_detection",
     "allow_multiple_fish",
+    "sam_save_all_instances",
     "enable_clip_filter",
 }
 
@@ -103,6 +111,7 @@ INT_FIELDS = {
     "min_height",
     "min_file_size_kb",
     "detector_imgsz",
+    "sam_max_instances_per_image",
 }
 
 FLOAT_FIELDS = {
@@ -113,6 +122,9 @@ FLOAT_FIELDS = {
     "detector_confidence",
     "min_fish_area_ratio",
     "crop_padding",
+    "sam_score_threshold",
+    "sam_min_mask_area_ratio",
+    "sam_crop_padding",
     "clip_threshold",
 }
 
@@ -120,6 +132,7 @@ CHOICE_FIELDS = {
     "quality_grade": ["any", "research", "needs_id", "casual"],
     "photo_size": ["square", "thumb", "small", "medium", "large", "original"],
     "order": ["asc", "desc"],
+    "detection_backend": ["yolo", "sam3"],
 }
 
 HELP_TEXT = {
@@ -155,7 +168,8 @@ HELP_TEXT = {
     "min_file_size_kb": "Minimum accepted file size in KB.",
     "max_aspect_ratio": "Reject images whose longer side / shorter side exceeds this value.",
     "min_intensity_range": "Reject near-empty images whose grayscale max-min intensity range is below this value.",
-    "enable_detection": "Run YOLO fish detection after image validation and save accepted crops.",
+    "enable_detection": "Run fish detection after image validation and save accepted crops.",
+    "detection_backend": "Detection backend to use for accepted crop generation.",
     "detector_weights": "Path to YOLO detector weights, for example models/fish-yolo.pt.",
     "detector_device": "Optional YOLO device, for example 'cpu', 'mps', or '0'.",
     "detector_confidence": "Minimum YOLO detection confidence.",
@@ -165,6 +179,12 @@ HELP_TEXT = {
     "min_fish_area_ratio": "Reject detections whose box area / image area is below this value.",
     "crop_padding": "Padding around the selected fish bounding box as a fraction of box size.",
     "allow_multiple_fish": "Allow images with multiple fish detections; otherwise reject them for cleaner few-shot classes.",
+    "sam_prompt": "SAM 3 text prompt used to find fish instances.",
+    "sam_score_threshold": "Minimum SAM 3 instance score.",
+    "sam_max_instances_per_image": "Optional cap on SAM 3 crops saved from one source image.",
+    "sam_min_mask_area_ratio": "Reject SAM 3 masks below this image-area ratio.",
+    "sam_crop_padding": "Padding around each SAM 3 instance crop as a fraction of box size.",
+    "sam_save_all_instances": "Save every selected SAM 3 fish instance instead of only the highest-scoring one.",
     "enable_clip_filter": "Run CLIP context filtering after detection/cropping or accepted image preparation.",
     "clip_model": "CLIP model name or local path for Transformers.",
     "clip_cache_dir": "Directory used to cache downloaded CLIP model files.",
@@ -467,7 +487,7 @@ def validate_args(args: argparse.Namespace) -> None:
         raise SystemExit("--min-intensity-range must be greater than or equal to 0")
 
     if args.enable_detection:
-        if not args.detector_weights:
+        if args.detection_backend == "yolo" and not args.detector_weights:
             raise SystemExit("--enable-detection requires --detector-weights")
         if args.detector_confidence < 0 or args.detector_confidence > 1:
             raise SystemExit("--detector-confidence must be between 0 and 1")
@@ -477,15 +497,27 @@ def validate_args(args: argparse.Namespace) -> None:
             raise SystemExit("--min-fish-area-ratio must be between 0 and 1")
         if args.crop_padding < 0:
             raise SystemExit("--crop-padding must be greater than or equal to 0")
+        if args.sam_score_threshold < 0 or args.sam_score_threshold > 1:
+            raise SystemExit("--sam-score-threshold must be between 0 and 1")
+        if args.sam_min_mask_area_ratio < 0 or args.sam_min_mask_area_ratio > 1:
+            raise SystemExit("--sam-min-mask-area-ratio must be between 0 and 1")
+        if args.sam_crop_padding < 0:
+            raise SystemExit("--sam-crop-padding must be greater than or equal to 0")
+        if (
+            args.sam_max_instances_per_image is not None
+            and args.sam_max_instances_per_image <= 0
+        ):
+            raise SystemExit("--sam-max-instances-per-image must be greater than 0")
         try:
             args.detector_class_id_set = parse_csv_int_set(args.detector_class_ids)
         except ValueError as exc:
             raise SystemExit("--detector-class-ids must be comma-separated integers") from exc
         args.detector_class_name_set = parse_csv_set(args.detector_class_names)
-        try:
-            validate_detector_import()
-        except RuntimeError as exc:
-            raise SystemExit(str(exc)) from exc
+        if args.detection_backend == "yolo":
+            try:
+                validate_detector_import()
+            except RuntimeError as exc:
+                raise SystemExit(str(exc)) from exc
     else:
         args.detector_class_id_set = set()
         args.detector_class_name_set = set()

@@ -8,6 +8,7 @@ from unittest.mock import patch
 from inaturalist_downloader.common.inat import iter_observation_photos
 from inaturalist_downloader.commands.download import download_species_images
 from inaturalist_downloader.download.cli import parse_args, validate_args
+from inaturalist_downloader.download.detection import DetectionOutput
 
 
 class DownloadFilterConfigTests(unittest.TestCase):
@@ -211,6 +212,74 @@ class DownloadFilterConfigTests(unittest.TestCase):
 
         download_photo_job.assert_not_called()
 
+    def test_download_species_images_accepts_multiple_sam_outputs(self):
+        args = self._download_args(images_per_species=2)
+        args.enable_detection = True
+        args.detection_backend = "sam3"
+
+        def download_photo_job(candidate, destination, overwrite, sleep_seconds, retries):
+            return {**candidate, "raw_path": str(destination), "download_status": "downloaded"}
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_path = Path(temp_dir)
+            output_dir = temp_path / "downloads"
+            manifest_dir = temp_path / "manifests"
+            manifest_dir.mkdir()
+            first_output = output_dir / "test_fish" / "fish__inst_1.jpg"
+            second_output = output_dir / "test_fish" / "fish__inst_2.jpg"
+            detection_outputs = [
+                DetectionOutput(
+                    accepted_path=first_output,
+                    status="accepted_crop",
+                    metrics={"backend": "sam3", "instance_index": 1},
+                    clip_source_path=first_output,
+                    instance_index=1,
+                    instance_count=2,
+                    species_verification="unverified",
+                    created_output=True,
+                ),
+                DetectionOutput(
+                    accepted_path=second_output,
+                    status="accepted_crop",
+                    metrics={"backend": "sam3", "instance_index": 2},
+                    clip_source_path=second_output,
+                    instance_index=2,
+                    instance_count=2,
+                    species_verification="unverified",
+                    created_output=True,
+                ),
+            ]
+
+            with patch(
+                "inaturalist_downloader.commands.download.resolve_taxon_id",
+                return_value=(1, "Test fish"),
+            ), patch(
+                "inaturalist_downloader.commands.download.collect_photo_jobs",
+                return_value=([self._candidate(1, "cc0")], 2, True),
+            ), patch(
+                "inaturalist_downloader.commands.download.download_photo_job",
+                side_effect=download_photo_job,
+            ), patch(
+                "inaturalist_downloader.commands.download.run_fish_detection_outputs",
+                return_value=(detection_outputs, None, {"backend": "sam3"}),
+            ):
+                download_species_images(
+                    "Test fish",
+                    args,
+                    output_dir,
+                    temp_path / "raw",
+                    manifest_dir,
+                )
+
+            accepted_lines = [
+                line for line in (manifest_dir / "accepted.jsonl").read_text().splitlines()
+                if line.strip()
+            ]
+
+        self.assertEqual(len(accepted_lines), 2)
+        self.assertIn("fish__inst_1.jpg", accepted_lines[0])
+        self.assertIn('"species_verification": "unverified"', accepted_lines[0])
+
     def _download_args(self, images_per_species=1):
         return argparse.Namespace(
             images_per_species=images_per_species,
@@ -239,6 +308,7 @@ class DownloadFilterConfigTests(unittest.TestCase):
             download_workers=1,
             skip_image_validation=True,
             enable_detection=False,
+            detection_backend="yolo",
             enable_clip_filter=False,
         )
 

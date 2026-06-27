@@ -9,7 +9,7 @@ inat:
     - not_juvenile
     - commercial_licenses
   quality_grade: research
-  photo_size: small
+  photo_size: medium
   place_id: null
   exclude_captive: true
   alive_only: false
@@ -28,7 +28,7 @@ inat:
   retries: 5
 
 download:
-  images_per_species: 50
+  images_per_species: 100
   candidate_multiplier: 1.5
   max_candidates_per_species: null
   overwrite: false
@@ -40,12 +40,13 @@ validation:
   skip_image_validation: false
   min_width: 64
   min_height: 64
-  min_file_size_kb: 10
+  min_file_size_kb: 5
   max_aspect_ratio: 4.0
   min_intensity_range: 10
 
 detection:
   enable: true
+  backend: yolo
   weights: models/fish-yolo.pt
   device: mps
   confidence: 0.5
@@ -55,6 +56,12 @@ detection:
   min_fish_area_ratio: 0.02
   crop_padding: 0.15
   allow_multiple_fish: true
+  sam_prompt: fish
+  sam_score_threshold: 0.0
+  sam_max_instances_per_image: null
+  sam_min_mask_area_ratio: 0.02
+  sam_crop_padding: 0.15
+  sam_save_all_instances: true
 
 clip:
   enable: true

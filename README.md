@@ -71,6 +71,28 @@ inat-prepare-split --images-dir downloads --output-dir dataset_split --mode copy
 inat-check-coverage --species-file species.txt --split-dir .
 ```
 
+7. Benchmark YOLO vs SAM 3 crop quality on existing raw downloads:
+
+```bash
+inat-benchmark-croppers \
+  --manifest manifests/candidates.jsonl \
+  --raw-dir downloads_raw \
+  --output-dir benchmarks/croppers \
+  --max-images 100 \
+  --max-per-species 10 \
+  --backends both
+```
+
+The benchmark writes `metrics.csv`, `summary.json`, backend crops, and contact sheets without changing `downloads/` or existing manifests. SAM 3 is optional; use `--backends yolo` when SAM 3 is not installed.
+
+To run the downloader with SAM 3 cropping instead of YOLO:
+
+```bash
+inat-download --config sam3
+```
+
+SAM 3 saves one crop per detected fish instance. If a source photo contains multiple fish, those crops are marked `species_verification: unverified` in the accepted manifest because SAM segments fish but does not prove they are the same species as the iNaturalist observation label.
+
 ## Configuration
 
 Downloader profiles live in `configs/`. The effective config is merged in this order: `configs/default.yaml`, filter presets listed by the effective profile config, optional `--config`, then CLI overrides. Print the final merged config with:

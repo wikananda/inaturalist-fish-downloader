@@ -26,6 +26,7 @@ inat-extract-species = "inaturalist_downloader.commands.extract_species:main"
 inat-prepare-split = "inaturalist_downloader.commands.prepare_split:main"
 inat-check-images = "inaturalist_downloader.commands.check_images:main"
 inat-check-coverage = "inaturalist_downloader.commands.check_coverage:main"
+inat-benchmark-croppers = "inaturalist_downloader.commands.benchmark_croppers:main"
 
 [tool.setuptools.packages.find]
 include = ["inaturalist_downloader*"]
