@@ -449,7 +449,7 @@ def get_sam3_model(
     global SAM3_MODEL, SAM3_MODEL_AUTOCAST, SAM3_MODEL_CHECKPOINT_PATH
     global SAM3_MODEL_DEVICE, SAM3_MODEL_DTYPE
 
-    target_device = _resolve_device(device)
+    target_device = _resolve_device(device) or "cpu"
     resolved_checkpoint_path = str(checkpoint_path) if checkpoint_path else None
     torch_dtype = _resolve_sam_torch_dtype(dtype_name)
     with SAM3_LOCK:
@@ -461,7 +461,12 @@ def get_sam3_model(
             and SAM3_MODEL_AUTOCAST == autocast
         ):
             return SAM3_MODEL
-        model = build_sam3_image_model(checkpoint_path=resolved_checkpoint_path)
+        model = build_sam3_image_model(
+            checkpoint_path=resolved_checkpoint_path,
+            device=target_device,
+        )
+        if not autocast:
+            _disable_sam_internal_bf16_contexts(model)
         if target_device and target_device != "auto" and hasattr(model, "to"):
             model = model.to(device=target_device, dtype=torch_dtype)
         elif hasattr(model, "to"):
@@ -583,6 +588,27 @@ def _sam_inference_context(device: Optional[str], *, dtype_name: str, autocast: 
         )
     except (RuntimeError, ValueError):
         return nullcontext()
+
+
+def _disable_sam_internal_bf16_contexts(model) -> int:
+    """Exit SAM's long-lived BF16 autocast contexts when stable float inference is requested."""
+    disabled = 0
+    modules = model.modules() if hasattr(model, "modules") else [model]
+    for module in modules:
+        context = getattr(module, "bf16_context", None)
+        if context is None or not hasattr(context, "__exit__"):
+            continue
+        try:
+            context.__exit__(None, None, None)
+        except RuntimeError:
+            continue
+        else:
+            disabled += 1
+            try:
+                module.bf16_context = nullcontext()
+            except Exception:
+                pass
+    return disabled
 
 
 def _padded_crop_box(

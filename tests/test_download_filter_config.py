@@ -14,6 +14,7 @@ from inaturalist_downloader.download.cli import merge_filter_configs, parse_args
 from inaturalist_downloader.download import detection as detection_module
 from inaturalist_downloader.download.detection import (
     DetectionOutput,
+    _disable_sam_internal_bf16_contexts,
     ensure_sam3_model_files,
     get_sam3_model,
     run_sam3_detection_outputs,
@@ -182,9 +183,10 @@ class DownloadFilterConfigTests(unittest.TestCase):
 
     def test_get_sam3_model_cache_includes_dtype_and_autocast(self):
         class FakeModel:
-            def __init__(self):
+            def __init__(self, context=None):
                 self.to_calls = []
                 self.eval_called = False
+                self.bf16_context = context
 
             def to(self, **kwargs):
                 self.to_calls.append(kwargs)
@@ -193,16 +195,30 @@ class DownloadFilterConfigTests(unittest.TestCase):
             def eval(self):
                 self.eval_called = True
 
+            def modules(self):
+                return [self]
+
+        class FakeContext:
+            def __init__(self):
+                self.exit_called = False
+
+            def __exit__(self, exc_type, exc, traceback):
+                self.exit_called = True
+                return False
+
         fake_torch = types.SimpleNamespace(
             float32="float32",
             float16="float16",
             bfloat16="bfloat16",
         )
         built = []
+        contexts = []
 
-        def builder(checkpoint_path=None):
-            model = FakeModel()
-            built.append((checkpoint_path, model))
+        def builder(checkpoint_path=None, device=None):
+            context = FakeContext()
+            contexts.append(context)
+            model = FakeModel(context)
+            built.append((checkpoint_path, device, model))
             return model
 
         self._reset_sam3_model_cache()
@@ -236,8 +252,41 @@ class DownloadFilterConfigTests(unittest.TestCase):
         self.assertIsNot(first, third)
         self.assertEqual(len(built), 2)
         self.assertEqual(built[0][0], "models/sam3.1/sam3.1_multiplex.pt")
+        self.assertEqual(built[0][1], "cuda")
         self.assertEqual(first.to_calls[0], {"device": "cuda", "dtype": "float32"})
         self.assertTrue(first.eval_called)
+        self.assertTrue(contexts[0].exit_called)
+        self.assertFalse(contexts[1].exit_called)
+
+    def test_disable_sam_internal_bf16_contexts_exits_module_contexts(self):
+        class FakeContext:
+            def __init__(self):
+                self.exit_called = False
+
+            def __exit__(self, exc_type, exc, traceback):
+                self.exit_called = True
+                return False
+
+        class FakeModule:
+            def __init__(self, context=None):
+                self.bf16_context = context
+
+        class FakeModel:
+            def __init__(self):
+                self.first_context = FakeContext()
+                self.second_context = FakeContext()
+                self.first = FakeModule(self.first_context)
+                self.second = FakeModule(self.second_context)
+
+            def modules(self):
+                return [self.first, self.second]
+
+        model = FakeModel()
+        disabled = _disable_sam_internal_bf16_contexts(model)
+
+        self.assertEqual(disabled, 2)
+        self.assertTrue(model.first_context.exit_called)
+        self.assertTrue(model.second_context.exit_called)
 
     def test_sam3_detection_metrics_include_dtype_autocast_and_device(self):
         class FakeAutocast:
@@ -326,6 +375,10 @@ class DownloadFilterConfigTests(unittest.TestCase):
         self.assertEqual(metrics["dtype"], "float32")
         self.assertFalse(metrics["autocast"])
         self.assertEqual(metrics["device"], "cpu")
+        builder_module.build_sam3_image_model.assert_called_once_with(
+            checkpoint_path="models/sam3.1/sam3.1_multiplex.pt",
+            device="cpu",
+        )
         fake_torch.autocast.assert_called_once_with(
             device_type="cpu",
             enabled=False,
