@@ -209,6 +209,8 @@ def run_fish_detection_outputs(
     backend = getattr(args, "detection_backend", "yolo")
     if backend == "sam3":
         return run_sam3_detection_outputs(raw_path, accepted_path, args, max_outputs)
+    if backend == "cascade":
+        return run_cascade_detection_outputs(raw_path, accepted_path, args, max_outputs)
 
     is_detected, reject_reason, metrics = run_fish_detection(raw_path, accepted_path, args)
     if not is_detected:
@@ -230,6 +232,87 @@ def run_fish_detection_outputs(
     ], None, metrics
 
 
+def _yolo_detect_boxes(image, args) -> tuple[list[dict], dict]:
+    """Run YOLO on a prepared RGB/L image and return (raw fish boxes, base metrics).
+
+    Shared by the single-crop YOLO path (`run_fish_detection`) and the cascade path
+    (`run_cascade_detection_outputs`). Boxes are pixel `[x1, y1, x2, y2]`.
+    """
+    width, height = image.size
+    image_area = max(width * height, 1)
+
+    model = get_detector_model(args.detector_weights)
+    allowed_class_ids = args.detector_class_id_set
+    allowed_class_names = args.detector_class_name_set
+
+    predict_kwargs = {
+        "source": image,
+        "conf": args.detector_confidence,
+        "imgsz": args.detector_imgsz,
+        "verbose": False,
+    }
+    if args.detector_device:
+        predict_kwargs["device"] = args.detector_device
+
+    with DETECTOR_LOCK:
+        results = model.predict(**predict_kwargs)
+
+    result = results[0]
+    raw_boxes = []
+    if result.boxes is not None:
+        xyxy_values = result.boxes.xyxy.cpu().tolist()
+        conf_values = result.boxes.conf.cpu().tolist()
+        cls_values = result.boxes.cls.cpu().tolist()
+        names = result.names or {}
+
+        for xyxy, confidence, class_value in zip(
+            xyxy_values, conf_values, cls_values
+        ):
+            class_id = int(class_value)
+            class_name = str(names.get(class_id, class_id))
+            if not detection_class_allowed(
+                class_id,
+                class_name,
+                allowed_class_ids,
+                allowed_class_names,
+            ):
+                continue
+
+            x1, y1, x2, y2 = [float(value) for value in xyxy]
+            box_width = max(0.0, x2 - x1)
+            box_height = max(0.0, y2 - y1)
+            area_ratio = (box_width * box_height) / image_area
+            raw_boxes.append(
+                {
+                    "bbox_xyxy": [
+                        round(x1, 2),
+                        round(y1, 2),
+                        round(x2, 2),
+                        round(y2, 2),
+                    ],
+                    "confidence": round(float(confidence), 6),
+                    "class_id": class_id,
+                    "class_name": class_name,
+                    "area_ratio": round(area_ratio, 6),
+                    "selection_score": float(confidence) * area_ratio,
+                }
+            )
+
+    metrics = {
+        "enabled": True,
+        "model": args.detector_weights,
+        "created_output": False,
+        "confidence_threshold": args.detector_confidence,
+        "raw_detection_count": int(0 if result.boxes is None else len(result.boxes)),
+        "fish_detection_count": len(raw_boxes),
+        "min_fish_area_ratio": args.min_fish_area_ratio,
+        "crop_padding": args.crop_padding,
+        "allowed_class_ids": sorted(allowed_class_ids),
+        "allowed_class_names": sorted(allowed_class_names),
+    }
+    return raw_boxes, metrics
+
+
 def run_fish_detection(
     raw_path: Path,
     accepted_path: Path,
@@ -247,10 +330,6 @@ def run_fish_detection(
             "model": args.detector_weights,
         }
 
-    model = get_detector_model(args.detector_weights)
-    allowed_class_ids = args.detector_class_id_set
-    allowed_class_names = args.detector_class_name_set
-
     with Image.open(raw_path) as source_image:
         image_format = source_image.format
         image = ImageOps.exif_transpose(source_image)
@@ -258,73 +337,7 @@ def run_fish_detection(
             image = image.convert("RGB")
 
         width, height = image.size
-        image_area = max(width * height, 1)
-
-        predict_kwargs = {
-            "source": image,
-            "conf": args.detector_confidence,
-            "imgsz": args.detector_imgsz,
-            "verbose": False,
-        }
-        if args.detector_device:
-            predict_kwargs["device"] = args.detector_device
-
-        with DETECTOR_LOCK:
-            results = model.predict(**predict_kwargs)
-
-        result = results[0]
-        raw_boxes = []
-        if result.boxes is not None:
-            xyxy_values = result.boxes.xyxy.cpu().tolist()
-            conf_values = result.boxes.conf.cpu().tolist()
-            cls_values = result.boxes.cls.cpu().tolist()
-            names = result.names or {}
-
-            for xyxy, confidence, class_value in zip(
-                xyxy_values, conf_values, cls_values
-            ):
-                class_id = int(class_value)
-                class_name = str(names.get(class_id, class_id))
-                if not detection_class_allowed(
-                    class_id,
-                    class_name,
-                    allowed_class_ids,
-                    allowed_class_names,
-                ):
-                    continue
-
-                x1, y1, x2, y2 = [float(value) for value in xyxy]
-                box_width = max(0.0, x2 - x1)
-                box_height = max(0.0, y2 - y1)
-                area_ratio = (box_width * box_height) / image_area
-                raw_boxes.append(
-                    {
-                        "bbox_xyxy": [
-                            round(x1, 2),
-                            round(y1, 2),
-                            round(x2, 2),
-                            round(y2, 2),
-                        ],
-                        "confidence": round(float(confidence), 6),
-                        "class_id": class_id,
-                        "class_name": class_name,
-                        "area_ratio": round(area_ratio, 6),
-                        "selection_score": float(confidence) * area_ratio,
-                    }
-                )
-
-        metrics = {
-            "enabled": True,
-            "model": args.detector_weights,
-            "created_output": False,
-            "confidence_threshold": args.detector_confidence,
-            "raw_detection_count": int(0 if result.boxes is None else len(result.boxes)),
-            "fish_detection_count": len(raw_boxes),
-            "min_fish_area_ratio": args.min_fish_area_ratio,
-            "crop_padding": args.crop_padding,
-            "allowed_class_ids": sorted(allowed_class_ids),
-            "allowed_class_names": sorted(allowed_class_names),
-        }
+        raw_boxes, metrics = _yolo_detect_boxes(image, args)
 
         if not raw_boxes:
             return False, "no_fish_detected", metrics
@@ -341,16 +354,11 @@ def run_fish_detection(
         if selected["area_ratio"] < args.min_fish_area_ratio:
             return False, "fish_too_small", metrics
 
-        x1, y1, x2, y2 = selected["bbox_xyxy"]
-        box_width = x2 - x1
-        box_height = y2 - y1
-        pad_x = box_width * args.crop_padding
-        pad_y = box_height * args.crop_padding
-        crop_box = (
-            max(0, int(x1 - pad_x)),
-            max(0, int(y1 - pad_y)),
-            min(width, int(x2 + pad_x)),
-            min(height, int(y2 + pad_y)),
+        crop_box = _padded_crop_box(
+            tuple(selected["bbox_xyxy"]),
+            width=width,
+            height=height,
+            padding=args.crop_padding,
         )
         metrics["crop_box_xyxy"] = list(crop_box)
 
@@ -359,6 +367,219 @@ def run_fish_detection(
         metrics["saved"] = "written"
         metrics["created_output"] = True
         return True, None, metrics
+
+
+def _yolo_box_to_sam_prompt(box, width: int, height: int) -> list[float]:
+    """Convert a pixel [x1,y1,x2,y2] box to SAM's normalized [cx,cy,w,h] in [0,1]."""
+    x1, y1, x2, y2 = [float(v) for v in box[:4]]
+    cx = ((x1 + x2) / 2.0) / max(width, 1)
+    cy = ((y1 + y2) / 2.0) / max(height, 1)
+    bw = max(0.0, x2 - x1) / max(width, 1)
+    bh = max(0.0, y2 - y1) / max(height, 1)
+
+    def _clamp(value: float) -> float:
+        return min(1.0, max(0.0, value))
+
+    return [_clamp(cx), _clamp(cy), _clamp(bw), _clamp(bh)]
+
+
+def _box_iou(a, b) -> float:
+    """Intersection-over-union of two pixel [x1,y1,x2,y2] boxes."""
+    ax1, ay1, ax2, ay2 = [float(v) for v in a[:4]]
+    bx1, by1, bx2, by2 = [float(v) for v in b[:4]]
+    ix1, iy1 = max(ax1, bx1), max(ay1, by1)
+    ix2, iy2 = min(ax2, bx2), min(ay2, by2)
+    inter = max(0.0, ix2 - ix1) * max(0.0, iy2 - iy1)
+    area_a = max(0.0, ax2 - ax1) * max(0.0, ay2 - ay1)
+    area_b = max(0.0, bx2 - bx1) * max(0.0, by2 - by1)
+    union = area_a + area_b - inter
+    return inter / union if union > 0 else 0.0
+
+
+def run_cascade_detection_outputs(
+    raw_path: Path,
+    accepted_path: Path,
+    args: argparse.Namespace,
+    max_outputs: Optional[int] = None,
+) -> tuple[list[DetectionOutput], Optional[str], dict]:
+    """YOLO detect -> SAM 3 box-prompt refine -> one crop per fish (background kept).
+
+    YOLO supplies fish boxes; each box is fed to SAM 3 as a positive geometric prompt
+    to obtain a tighter mask bbox. We crop the (padded) refined bbox but keep all pixels
+    inside it (no masking). If SAM returns nothing for a box, we fall back to the YOLO
+    box crop so no detection is lost.
+    """
+    metrics: dict[str, Any] = {
+        "enabled": True,
+        "backend": "cascade",
+        "yolo_model": args.detector_weights,
+        "sam_model": getattr(args, "sam_repo_id", "sam3"),
+        "device": None,
+        "created_output": False,
+        "confidence_threshold": args.sam_score_threshold,
+        "crop_padding": args.crop_padding,
+        "sam_crop_padding": args.sam_crop_padding,
+    }
+    if not pillow_available():
+        return [], "pillow_not_installed", metrics
+
+    started = time.perf_counter()
+    try:
+        from sam3.model.sam3_image_processor import Sam3Processor
+        from sam3.model_builder import build_sam3_image_model
+    except Exception as exc:
+        metrics["error"] = f"{type(exc).__name__}: {exc}"
+        metrics["inference_seconds"] = round(time.perf_counter() - started, 6)
+        return [], "sam3_not_available", metrics
+
+    try:
+        target_device = _resolve_device(args.detector_device) or "cpu"
+        metrics["device"] = target_device
+        effective_dtype, effective_autocast = _resolve_sam_precision(
+            args.detector_device, args.sam_dtype, args.sam_autocast
+        )
+        metrics["dtype"] = effective_dtype
+        metrics["autocast"] = effective_autocast
+
+        with Image.open(raw_path) as source_image:
+            image_format = source_image.format
+            image = ImageOps.exif_transpose(source_image)
+            if image.mode != "RGB":
+                image = image.convert("RGB")
+            width, height = image.size
+
+            raw_boxes, yolo_metrics = _yolo_detect_boxes(image, args)
+            metrics["yolo"] = yolo_metrics
+            boxes = [
+                box
+                for box in raw_boxes
+                if box["area_ratio"] >= args.min_fish_area_ratio
+            ]
+            boxes.sort(key=lambda box: box["selection_score"], reverse=True)
+            metrics["yolo_fish_count"] = len(boxes)
+            if not boxes:
+                metrics["inference_seconds"] = round(time.perf_counter() - started, 6)
+                return [], "no_fish_detected", metrics
+
+            if not args.sam_save_all_instances or not args.allow_multiple_fish:
+                boxes = boxes[:1]
+            if args.sam_max_instances_per_image is not None:
+                boxes = boxes[: args.sam_max_instances_per_image]
+            if max_outputs is not None:
+                boxes = boxes[:max_outputs]
+
+            model = get_sam3_model(
+                build_sam3_image_model,
+                args.detector_device,
+                getattr(args, "sam_checkpoint_path", None),
+                effective_dtype,
+                effective_autocast,
+            )
+            processor = Sam3Processor(
+                model,
+                device=target_device,
+                confidence_threshold=args.sam_score_threshold,
+            )
+
+            instance_count = len(boxes)
+            species_verification = (
+                "unverified" if instance_count > 1 else "inat_taxon_assumed"
+            )
+            outputs: list[DetectionOutput] = []
+
+            with _sam_inference_context(
+                target_device,
+                dtype_name=effective_dtype,
+                autocast=effective_autocast,
+            ):
+                state = processor.set_image(image)
+                for index, box in enumerate(boxes, start=1):
+                    yolo_box = box["bbox_xyxy"]
+                    refine = "fallback_yolo"
+                    sam_score = None
+                    crop_box = _padded_crop_box(
+                        tuple(yolo_box),
+                        width=width,
+                        height=height,
+                        padding=args.crop_padding,
+                    )
+                    try:
+                        processor.reset_all_prompts(state)
+                        sam_prompt = _yolo_box_to_sam_prompt(yolo_box, width, height)
+                        output = processor.add_geometric_prompt(
+                            box=sam_prompt, label=True, state=state
+                        )
+                        instances = select_sam3_instances(
+                            masks=output.get("masks"),
+                            boxes=output.get("boxes"),
+                            scores=output.get("scores"),
+                            width=width,
+                            height=height,
+                            score_threshold=args.sam_score_threshold,
+                            min_mask_area_ratio=args.sam_min_mask_area_ratio,
+                            crop_padding=args.sam_crop_padding,
+                        )
+                        if instances:
+                            best = max(
+                                instances,
+                                key=lambda inst: _box_iou(inst["bbox_xyxy"], yolo_box),
+                            )
+                            crop_box = best["crop_box_xyxy"]
+                            sam_score = best["score"]
+                            refine = "sam_refined"
+                    except Exception as exc:
+                        metrics.setdefault("sam_warnings", []).append(
+                            f"{type(exc).__name__}: {exc}"
+                        )
+
+                    output_path = _instance_path(accepted_path, index)
+                    if output_path.exists() and not args.overwrite:
+                        status = "accepted_crop_existing"
+                        created_output = False
+                    else:
+                        crop = image.crop(crop_box)
+                        save_pil_image(crop, output_path, image_format)
+                        status = "accepted_crop"
+                        created_output = True
+                        metrics["created_output"] = True
+
+                    instance_metrics = {
+                        **metrics,
+                        "instance_index": index,
+                        "instance_count": instance_count,
+                        "species_verification": species_verification,
+                        "selected_detection": {
+                            "yolo_bbox_xyxy": list(yolo_box),
+                            "yolo_confidence": box["confidence"],
+                            "refine": refine,
+                            "sam_score": (
+                                round(sam_score, 6) if sam_score is not None else None
+                            ),
+                            "crop_box_xyxy": list(crop_box),
+                        },
+                    }
+                    outputs.append(
+                        DetectionOutput(
+                            accepted_path=output_path,
+                            status=status,
+                            metrics=instance_metrics,
+                            clip_source_path=output_path,
+                            instance_index=index,
+                            instance_count=instance_count,
+                            species_verification=species_verification,
+                            created_output=created_output,
+                        )
+                    )
+
+            metrics["inference_seconds"] = round(time.perf_counter() - started, 6)
+            metrics["fish_detection_count"] = len(outputs)
+            if not outputs:
+                return [], "no_fish_detected", metrics
+            return outputs, None, metrics
+    except Exception as exc:
+        metrics["error"] = f"{type(exc).__name__}: {exc}"
+        metrics["inference_seconds"] = round(time.perf_counter() - started, 6)
+        return [], "cascade_error", metrics
 
 
 def run_sam3_detection_outputs(

@@ -1,4 +1,5 @@
 import argparse
+import shutil
 import sys
 import tempfile
 import types
@@ -11,13 +12,19 @@ from omegaconf import OmegaConf
 from inaturalist_downloader.common.inat import iter_observation_photos
 from inaturalist_downloader.commands.download import download_species_images
 from inaturalist_downloader.download.cli import merge_filter_configs, parse_args, validate_args
+from inaturalist_downloader.download import clip_filter as clip_module
 from inaturalist_downloader.download import detection as detection_module
+from inaturalist_downloader.download.clip_filter import preload_clip_model
 from inaturalist_downloader.download.detection import (
     DetectionOutput,
+    _box_iou,
     _disable_sam_internal_bf16_contexts,
     _resolve_sam_precision,
+    _yolo_box_to_sam_prompt,
     ensure_sam3_model_files,
     get_sam3_model,
+    run_cascade_detection_outputs,
+    run_fish_detection_outputs,
     run_sam3_detection_outputs,
 )
 
@@ -411,6 +418,242 @@ class DownloadFilterConfigTests(unittest.TestCase):
         # otherwise SAM 3 silently filters everything at its 0.5 default.
         self.assertEqual(captured_thresholds, [0.3])
         self.assertEqual(metrics["confidence_threshold"], 0.3)
+
+    def test_cascade_helpers_box_conversion_and_iou(self):
+        # pixel [x1,y1,x2,y2] -> normalized [cx,cy,w,h]
+        self.assertEqual(
+            _yolo_box_to_sam_prompt([0.0, 0.0, 50.0, 100.0], 100, 100),
+            [0.25, 0.5, 0.5, 1.0],
+        )
+        # out-of-range values are clamped to [0, 1]
+        self.assertEqual(
+            _yolo_box_to_sam_prompt([-10.0, -10.0, 200.0, 200.0], 100, 100),
+            [0.95, 0.95, 1.0, 1.0],
+        )
+        self.assertEqual(_box_iou([0, 0, 10, 10], [0, 0, 10, 10]), 1.0)
+        self.assertEqual(_box_iou([0, 0, 10, 10], [20, 20, 30, 30]), 0.0)
+
+    def _run_cascade(self, yolo_boxes, sam_output):
+        """Helper: run run_cascade_detection_outputs with YOLO + SAM faked out."""
+
+        class FakeModel:
+            def to(self, **kwargs):
+                return self
+
+            def eval(self):
+                return None
+
+            def modules(self):
+                return [self]
+
+        class FakeProcessor:
+            def __init__(self, model, device="cuda", confidence_threshold=0.5):
+                self.device = device
+                self.reset_calls = 0
+
+            def set_image(self, image):
+                return {"image_set": True}
+
+            def reset_all_prompts(self, state):
+                self.reset_calls += 1
+                return state
+
+            def add_geometric_prompt(self, box, label, state):
+                return sam_output
+
+        class FakeAutocast:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, exc_type, exc, traceback):
+                return False
+
+        fake_torch = types.SimpleNamespace(
+            float32="float32",
+            float16="float16",
+            bfloat16="bfloat16",
+            autocast=Mock(return_value=FakeAutocast()),
+        )
+        processor_module = types.ModuleType("sam3.model.sam3_image_processor")
+        processor_module.Sam3Processor = FakeProcessor
+        builder_module = types.ModuleType("sam3.model_builder")
+        builder_module.build_sam3_image_model = Mock(return_value=FakeModel())
+
+        def fake_yolo(image, args):
+            return list(yolo_boxes), {"enabled": True, "fish_detection_count": len(yolo_boxes)}
+
+        from PIL import Image
+
+        temp_dir = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, temp_dir, ignore_errors=True)
+        temp_path = Path(temp_dir)
+        raw_path = temp_path / "raw.jpg"
+        accepted_path = temp_path / "accepted.jpg"
+        Image.new("RGB", (64, 64), color="blue").save(raw_path)
+        args = argparse.Namespace(
+            detector_weights="models/fish-yolo.pt",
+            detector_device="cpu",
+            sam_repo_id="facebook/sam3.1",
+            sam_checkpoint_path="models/sam3.1/sam3.1_multiplex.pt",
+            sam_dtype="float32",
+            sam_autocast=False,
+            sam_score_threshold=0.0,
+            sam_min_mask_area_ratio=0.0,
+            sam_crop_padding=0.0,
+            sam_save_all_instances=True,
+            sam_max_instances_per_image=None,
+            min_fish_area_ratio=0.0,
+            allow_multiple_fish=True,
+            crop_padding=0.0,
+            overwrite=True,
+        )
+
+        self._reset_sam3_model_cache()
+        try:
+            with patch.object(detection_module, "_yolo_detect_boxes", fake_yolo):
+                with patch.dict(
+                    sys.modules,
+                    {
+                        "torch": fake_torch,
+                        "sam3": types.ModuleType("sam3"),
+                        "sam3.model": types.ModuleType("sam3.model"),
+                        "sam3.model.sam3_image_processor": processor_module,
+                        "sam3.model_builder": builder_module,
+                    },
+                ):
+                    outputs, reject_reason, metrics = run_cascade_detection_outputs(
+                        raw_path, accepted_path, args
+                    )
+        finally:
+            self._reset_sam3_model_cache()
+        return outputs, reject_reason, metrics, accepted_path
+
+    def test_cascade_refines_each_yolo_box(self):
+        yolo_boxes = [
+            {
+                "bbox_xyxy": [5.0, 5.0, 25.0, 25.0],
+                "confidence": 0.9,
+                "class_id": 0,
+                "class_name": "fish",
+                "area_ratio": 0.3,
+                "selection_score": 0.27,
+            },
+            {
+                "bbox_xyxy": [38.0, 38.0, 58.0, 58.0],
+                "confidence": 0.7,
+                "class_id": 0,
+                "class_name": "fish",
+                "area_ratio": 0.2,
+                "selection_score": 0.14,
+            },
+        ]
+        sam_output = {"boxes": [[10.0, 10.0, 22.0, 22.0]], "scores": [0.8], "masks": None}
+        outputs, reject_reason, metrics, accepted_path = self._run_cascade(
+            yolo_boxes, sam_output
+        )
+
+        self.assertIsNone(reject_reason)
+        self.assertEqual(len(outputs), 2)
+        self.assertEqual(metrics["backend"], "cascade")
+        self.assertEqual(metrics["yolo_fish_count"], 2)
+        for index, output in enumerate(outputs, start=1):
+            self.assertEqual(output.accepted_path.name, f"accepted__inst_{index}.jpg")
+            self.assertEqual(output.clip_source_path, output.accepted_path)
+            self.assertTrue(output.accepted_path.exists())
+            self.assertEqual(
+                output.metrics["selected_detection"]["refine"], "sam_refined"
+            )
+
+    def test_cascade_falls_back_to_yolo_box_when_sam_empty(self):
+        yolo_boxes = [
+            {
+                "bbox_xyxy": [5.0, 5.0, 25.0, 25.0],
+                "confidence": 0.9,
+                "class_id": 0,
+                "class_name": "fish",
+                "area_ratio": 0.3,
+                "selection_score": 0.27,
+            }
+        ]
+        sam_output = {"boxes": [], "scores": [], "masks": None}
+        outputs, reject_reason, metrics, accepted_path = self._run_cascade(
+            yolo_boxes, sam_output
+        )
+
+        self.assertIsNone(reject_reason)
+        self.assertEqual(len(outputs), 1)
+        detection = outputs[0].metrics["selected_detection"]
+        self.assertEqual(detection["refine"], "fallback_yolo")
+        self.assertEqual(detection["crop_box_xyxy"], [5, 5, 25, 25])
+        self.assertTrue(outputs[0].accepted_path.exists())
+
+    def test_preload_clip_model_loads_and_warms(self):
+        class FakeTensor:
+            def to(self, device):
+                return self
+
+        class FakeProcessor:
+            def __call__(self, text, images, return_tensors, padding):
+                return {"input_ids": FakeTensor(), "pixel_values": FakeTensor()}
+
+        class FakeModel:
+            def __init__(self):
+                self.eval_called = False
+                self.forward_calls = 0
+
+            def to(self, device):
+                return self
+
+            def eval(self):
+                self.eval_called = True
+
+            def __call__(self, **inputs):
+                self.forward_calls += 1
+                return {}
+
+        class FakeNoGrad:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, exc_type, exc, traceback):
+                return False
+
+        fake_torch = types.SimpleNamespace(no_grad=Mock(return_value=FakeNoGrad()))
+        fake_model = FakeModel()
+        args = argparse.Namespace(
+            clip_model="openai/clip-vit-base-patch32",
+            clip_cache_dir="models",
+            clip_device="cpu",
+        )
+
+        with patch.dict(sys.modules, {"torch": fake_torch}):
+            with patch.object(clip_module, "validate_clip_import", lambda: None):
+                with patch.object(
+                    clip_module,
+                    "get_clip_components",
+                    return_value=(fake_model, FakeProcessor()),
+                ):
+                    with patch.object(
+                        clip_module, "resolve_clip_device", return_value="cpu"
+                    ):
+                        result = preload_clip_model(args)
+
+        self.assertEqual(result, "openai/clip-vit-base-patch32")
+        self.assertTrue(fake_model.eval_called)
+        # The warmup runs exactly one forward pass so weights are fully initialized.
+        self.assertEqual(fake_model.forward_calls, 1)
+
+    def test_cascade_dispatch_routes_to_cascade(self):
+        args = argparse.Namespace(detection_backend="cascade")
+        sentinel = ([], "stub", {"backend": "cascade"})
+        with patch.object(
+            detection_module, "run_cascade_detection_outputs", return_value=sentinel
+        ) as mocked:
+            result = run_fish_detection_outputs(
+                Path("raw.jpg"), Path("accepted.jpg"), args, max_outputs=3
+            )
+        self.assertEqual(result, sentinel)
+        mocked.assert_called_once()
 
     def test_validate_args_rejects_protected_raw_query_params(self):
         args = argparse.Namespace(

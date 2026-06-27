@@ -21,8 +21,12 @@ from ..download.candidates import (
     remaining_candidate_capacity,
 )
 from ..download.cli import output_paths, parse_args, validate_args
-from ..download.clip_filter import run_clip_filter
-from ..download.detection import preload_sam3_model, run_fish_detection_outputs
+from ..download.clip_filter import preload_clip_model, run_clip_filter
+from ..download.detection import (
+    get_detector_model,
+    preload_sam3_model,
+    run_fish_detection_outputs,
+)
 from ..download.image_quality import save_accepted_image, validate_image
 from ..common.inat import resolve_taxon_id
 from ..common.manifest import append_jsonl, append_species_summary
@@ -451,19 +455,37 @@ def main() -> None:
     if not species_list:
         raise SystemExit(f"No species found in {species_file}")
 
-    if args.enable_detection and args.detection_backend == "sam3" and args.sam_preload:
-        safe_print(
-            f"Preparing SAM 3 model files in {args.sam_model_dir} "
-            f"from {args.sam_repo_id} (downloading weights + warming up model)..."
-        )
+    if args.enable_detection:
+        backend = args.detection_backend
+        # Warm the YOLO detector up front for yolo + cascade backends.
+        if backend in ("yolo", "cascade"):
+            try:
+                get_detector_model(args.detector_weights)
+                safe_print(f"YOLO detector ready: {args.detector_weights}")
+            except RuntimeError as exc:
+                raise SystemExit(str(exc)) from exc
+        # Download + warm SAM 3 up front for sam3 + cascade backends.
+        if backend in ("sam3", "cascade") and args.sam_preload:
+            safe_print(
+                f"Preparing SAM 3 model files in {args.sam_model_dir} "
+                f"from {args.sam_repo_id} (downloading weights + warming up model)..."
+            )
+            try:
+                checkpoint_path = preload_sam3_model(args)
+            except RuntimeError as exc:
+                raise SystemExit(str(exc)) from exc
+            safe_print(
+                f"SAM 3 ready: {checkpoint_path} (model built and warmed up; "
+                "all weights cached before image downloads start)."
+            )
+
+    if args.enable_clip_filter:
+        safe_print(f"Preparing CLIP model {args.clip_model} (downloading + warming up)...")
         try:
-            checkpoint_path = preload_sam3_model(args)
+            preload_clip_model(args)
         except RuntimeError as exc:
             raise SystemExit(str(exc)) from exc
-        safe_print(
-            f"SAM 3 ready: {checkpoint_path} (model built and warmed up; "
-            "all weights cached before image downloads start)."
-        )
+        safe_print(f"CLIP ready: {args.clip_model} (model loaded and warmed up).")
 
     with concurrent.futures.ThreadPoolExecutor(
         max_workers=args.species_workers

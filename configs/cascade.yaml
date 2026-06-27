@@ -1,0 +1,32 @@
+# Cascade detection: YOLO finds fish boxes -> SAM 3 box-prompt refines each into a
+# tighter crop (background kept) -> the generic CLIP filter drops junk crops.
+# Run on a CUDA box (SAM 3 bf16 autocast is CUDA-only; device: auto falls back to
+# float32/no-autocast off CUDA).
+detection:
+  enable: true
+  backend: cascade
+  device: auto
+
+  # YOLO stage (fish-specific detector supplies the boxes)
+  weights: models/fish-yolo.pt
+  confidence: 0.25
+  imgsz: 640
+  allow_multiple_fish: true
+  min_fish_area_ratio: 0.02
+  crop_padding: 0.15        # padding for the YOLO-box fallback crop
+
+  # SAM 3 box-prompt refine stage
+  sam_score_threshold: 0.0  # trust YOLO; keep the box-prompted mask, fall back if empty
+  sam_min_mask_area_ratio: 0.0
+  sam_crop_padding: 0.15
+  sam_save_all_instances: true
+  sam_max_instances_per_image: null
+  sam_preload: true
+  sam_repo_id: facebook/sam3.1
+  sam_model_dir: models/sam3.1
+  sam_checkpoint_filename: sam3.1_multiplex.pt
+  sam_dtype: bfloat16
+  sam_autocast: true
+
+clip:
+  enable: true

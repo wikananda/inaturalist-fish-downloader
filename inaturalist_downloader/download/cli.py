@@ -142,7 +142,7 @@ CHOICE_FIELDS = {
     "quality_grade": ["any", "research", "needs_id", "casual"],
     "photo_size": ["square", "thumb", "small", "medium", "large", "original"],
     "order": ["asc", "desc"],
-    "detection_backend": ["yolo", "sam3"],
+    "detection_backend": ["yolo", "sam3", "cascade"],
     "sam_dtype": ["float32", "float16", "bfloat16"],
 }
 
@@ -549,7 +549,7 @@ def validate_args(args: argparse.Namespace) -> None:
         raise SystemExit("--min-intensity-range must be greater than or equal to 0")
 
     if args.enable_detection:
-        if args.detection_backend == "yolo" and not args.detector_weights:
+        if args.detection_backend in ("yolo", "cascade") and not args.detector_weights:
             raise SystemExit("--enable-detection requires --detector-weights")
         if args.detector_confidence < 0 or args.detector_confidence > 1:
             raise SystemExit("--detector-confidence must be between 0 and 1")
@@ -580,7 +580,7 @@ def validate_args(args: argparse.Namespace) -> None:
         except ValueError as exc:
             raise SystemExit("--detector-class-ids must be comma-separated integers") from exc
         args.detector_class_name_set = parse_csv_set(args.detector_class_names)
-        if args.detection_backend == "yolo":
+        if args.detection_backend in ("yolo", "cascade"):
             try:
                 validate_detector_import()
             except RuntimeError as exc:

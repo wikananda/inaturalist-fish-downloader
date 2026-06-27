@@ -131,6 +131,46 @@ def resolve_clip_device(args: argparse.Namespace):
     return torch.device("cpu")
 
 
+def preload_clip_model(args: argparse.Namespace) -> str:
+    """Download + load the CLIP model/processor and place it on the target device.
+
+    Ensures the CLIP weights are fetched and the model is built and warmed before any
+    image download begins, instead of lazily on the first crop inside a worker thread.
+    """
+    try:
+        validate_clip_import()
+    except RuntimeError:
+        raise
+    try:
+        import torch
+
+        model, processor = get_clip_components(args.clip_model, args.clip_cache_dir)
+        device = resolve_clip_device(args)
+        model = model.to(device)
+        model.eval()
+        # Warmup: a tiny text+image forward so tokenizer/vision weights are fully
+        # initialized and any remaining lazy download happens up front.
+        if pillow_available():
+            warmup_image = Image.new("RGB", (64, 64), color=(127, 127, 127))
+            inputs = processor(
+                text=["a fish"],
+                images=warmup_image,
+                return_tensors="pt",
+                padding=True,
+            )
+            inputs = {key: value.to(device) for key, value in inputs.items()}
+            with CLIP_LOCK:
+                with torch.no_grad():
+                    model(**inputs)
+    except RuntimeError:
+        raise
+    except Exception as exc:
+        raise RuntimeError(
+            f"CLIP model failed to load/warm up: {type(exc).__name__}: {exc}"
+        ) from exc
+    return args.clip_model
+
+
 def run_clip_filter(
     image_path: Path,
     args: argparse.Namespace,
