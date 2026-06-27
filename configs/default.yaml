@@ -8,6 +8,7 @@ inat:
   filter_files:
     - not_juvenile
     - commercial_licenses
+    - not_female
   quality_grade: research
   photo_size: medium
   place_id: null

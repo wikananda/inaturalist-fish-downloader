@@ -5,9 +5,11 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
+from omegaconf import OmegaConf
+
 from inaturalist_downloader.common.inat import iter_observation_photos
 from inaturalist_downloader.commands.download import download_species_images
-from inaturalist_downloader.download.cli import parse_args, validate_args
+from inaturalist_downloader.download.cli import merge_filter_configs, parse_args, validate_args
 from inaturalist_downloader.download.detection import DetectionOutput
 
 
@@ -40,6 +42,34 @@ class DownloadFilterConfigTests(unittest.TestCase):
         self.assertTrue(args.alive_only)
         self.assertEqual(args.order_by, "votes")
         self.assertEqual(args.query_params, {"licensed": True})
+
+    def test_filter_query_param_exclusions_are_concatenated(self):
+        juvenile_filter = OmegaConf.create(
+            {
+                "inat": {
+                    "query_params": {
+                        "without_term_id": 1,
+                        "without_term_value_id": 8,
+                    }
+                }
+            }
+        )
+        female_filter = OmegaConf.create(
+            {
+                "inat": {
+                    "query_params": {
+                        "without_term_id": 9,
+                        "without_term_value_id": 10,
+                    }
+                }
+            }
+        )
+
+        merged = merge_filter_configs([juvenile_filter, female_filter])
+        query_params = OmegaConf.to_container(merged, resolve=True)["inat"]["query_params"]
+
+        self.assertEqual(query_params["without_term_id"], [1, 9])
+        self.assertEqual(query_params["without_term_value_id"], [8, 10])
 
     def test_iter_observation_photos_includes_normalized_raw_query_params(self):
         payload = {

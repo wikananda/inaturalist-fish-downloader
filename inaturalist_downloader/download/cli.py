@@ -198,6 +198,7 @@ OPTION_NAMES = {
 }
 
 PROTECTED_QUERY_PARAMS = {"taxon_id", "photos", "page", "per_page"}
+CONCATENATED_FILTER_QUERY_PARAMS = {"without_term_id", "without_term_value_id"}
 VALID_LICENSE_CODES = {
     "cc0",
     "cc-by",
@@ -315,6 +316,14 @@ def _normalize_license_list(value: Any, field_name: str) -> list[str]:
     return normalized
 
 
+def _query_param_items(value: Any) -> list[Any]:
+    if value in (None, ""):
+        return []
+    if isinstance(value, list):
+        return list(value)
+    return [value]
+
+
 def _query_param_license_values(value: Any) -> set[str]:
     if value in (None, ""):
         return set()
@@ -325,6 +334,39 @@ def _query_param_license_values(value: Any) -> set[str]:
     else:
         raw_values = [value]
     return {str(item).strip().lower() for item in raw_values if str(item).strip()}
+
+
+def merge_filter_configs(filter_cfgs: list) -> Any:
+    """Merge filter presets while preserving repeated exclusion query params."""
+    if not filter_cfgs:
+        return OmegaConf.create({})
+
+    merged = OmegaConf.merge(*filter_cfgs)
+    container = OmegaConf.to_container(merged, resolve=True)
+    if not isinstance(container, dict):
+        return merged
+
+    collected: dict[str, list[Any]] = {}
+    for filter_cfg in filter_cfgs:
+        query_params = _nested_get(
+            OmegaConf.to_container(filter_cfg, resolve=True),
+            "inat.query_params",
+        )
+        if not isinstance(query_params, dict):
+            continue
+        for key in CONCATENATED_FILTER_QUERY_PARAMS:
+            values = _query_param_items(query_params.get(key))
+            if values:
+                collected.setdefault(key, []).extend(values)
+
+    if collected:
+        inat_cfg = container.setdefault("inat", {})
+        query_params = inat_cfg.setdefault("query_params", {})
+        for key, values in collected.items():
+            query_params[key] = values
+        merged = OmegaConf.create(container)
+
+    return merged
 
 
 def build_parser(defaults: dict[str, Any]) -> argparse.ArgumentParser:
@@ -393,7 +435,8 @@ def parse_args() -> argparse.Namespace:
         for filter_file in _list_filter_files(preliminary_cfg)
     ]
     filter_cfgs = [OmegaConf.load(path) for path in filter_paths]
-    merged_cfg = OmegaConf.merge(default_cfg, *filter_cfgs, profile_cfg)
+    merged_filter_cfg = merge_filter_configs(filter_cfgs)
+    merged_cfg = OmegaConf.merge(default_cfg, merged_filter_cfg, profile_cfg)
     if cli_overrides:
         merged_cfg = OmegaConf.merge(merged_cfg, build_override_config(cli_overrides))
 

@@ -101,6 +101,6 @@ Downloader profiles live in `configs/`. The effective config is merged in this o
 inat-download --config smoke --print-config
 ```
 
-Reusable iNaturalist observation filter presets live in `configs/filters/`. Add them to a download profile with `inat.filter_files` to experiment with quality grade, captive/alive, photo license, annotations, ordering, and raw `/observations` query parameters. The default profile excludes juvenile observations and uses commercial-safe photo licenses in this order: `cc0`, `cc-by`, then `cc-by-sa`.
+Reusable iNaturalist observation filter presets live in `configs/filters/`. Add them to a download profile with `inat.filter_files` to experiment with quality grade, captive/alive, photo license, annotations, ordering, and raw `/observations` query parameters. The default profile excludes juvenile observations and uses commercial-safe photo licenses in this order: `cc0`, `cc-by`, then `cc-by-sa`. Sex filters are available as `not_female` and `not_male`; combine either with `not_juvenile` when you want to exclude one sex while keeping other observations.
 
 More details are in `docs/configuration.md`, `docs/yolo_setup.md`, and `docs/clip_setup.md`.

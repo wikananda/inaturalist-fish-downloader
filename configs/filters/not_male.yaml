@@ -1,0 +1,5 @@
+inat:
+  query_params:
+    # iNaturalist controlled term: Sex = Male.
+    without_term_id: 9
+    without_term_value_id: 11
