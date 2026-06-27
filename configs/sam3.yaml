@@ -12,5 +12,5 @@ detection:
   sam_repo_id: facebook/sam3.1
   sam_model_dir: models/sam3.1
   sam_checkpoint_filename: sam3.1_multiplex.pt
-  sam_dtype: float32
-  sam_autocast: false
+  sam_dtype: bfloat16
+  sam_autocast: true

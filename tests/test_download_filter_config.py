@@ -15,6 +15,7 @@ from inaturalist_downloader.download import detection as detection_module
 from inaturalist_downloader.download.detection import (
     DetectionOutput,
     _disable_sam_internal_bf16_contexts,
+    _resolve_sam_precision,
     ensure_sam3_model_files,
     get_sam3_model,
     run_sam3_detection_outputs,
@@ -287,6 +288,25 @@ class DownloadFilterConfigTests(unittest.TestCase):
         self.assertEqual(disabled, 2)
         self.assertTrue(model.first_context.exit_called)
         self.assertTrue(model.second_context.exit_called)
+
+    def test_resolve_sam_precision_keeps_bf16_autocast_on_cuda(self):
+        self.assertEqual(
+            _resolve_sam_precision("cuda", "bfloat16", True), ("bfloat16", True)
+        )
+
+    def test_resolve_sam_precision_falls_back_off_cuda(self):
+        # bf16 autocast is CUDA-only; MPS/CPU fall back to plain float32.
+        self.assertEqual(
+            _resolve_sam_precision("mps", "bfloat16", True), ("float32", False)
+        )
+        self.assertEqual(
+            _resolve_sam_precision("cpu", "bfloat16", True), ("float32", False)
+        )
+
+    def test_resolve_sam_precision_leaves_explicit_float32_untouched(self):
+        self.assertEqual(
+            _resolve_sam_precision("cuda", "float32", False), ("float32", False)
+        )
 
     def test_sam3_detection_metrics_include_dtype_autocast_and_device(self):
         class FakeAutocast:

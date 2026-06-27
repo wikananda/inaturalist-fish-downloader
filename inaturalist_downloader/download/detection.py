@@ -337,12 +337,22 @@ def run_sam3_detection_outputs(
     try:
         target_device = _resolve_device(args.detector_device) or "cpu"
         metrics["device"] = target_device
+        effective_dtype, effective_autocast = _resolve_sam_precision(
+            args.detector_device, args.sam_dtype, args.sam_autocast
+        )
+        metrics["dtype"] = effective_dtype
+        metrics["autocast"] = effective_autocast
+        if args.sam_autocast and not effective_autocast:
+            metrics["autocast_fallback"] = (
+                f"bfloat16 autocast requested but device '{target_device}' is not CUDA; "
+                "falling back to float32 without autocast"
+            )
         model = get_sam3_model(
             build_sam3_image_model,
             args.detector_device,
             getattr(args, "sam_checkpoint_path", None),
-            args.sam_dtype,
-            args.sam_autocast,
+            effective_dtype,
+            effective_autocast,
         )
         processor = Sam3Processor(model, device=target_device)
         with Image.open(raw_path) as source_image:
@@ -354,8 +364,8 @@ def run_sam3_detection_outputs(
 
             with _sam_inference_context(
                 target_device,
-                dtype_name=args.sam_dtype,
-                autocast=args.sam_autocast,
+                dtype_name=effective_dtype,
+                autocast=effective_autocast,
             ):
                 state = processor.set_image(image)
                 output = processor.set_text_prompt(state=state, prompt=args.sam_prompt)
@@ -553,6 +563,23 @@ def _resolve_device(device: Optional[str]) -> Optional[str]:
             return "mps"
         return "cpu"
     return device
+
+
+def _resolve_sam_precision(
+    device: Optional[str], dtype_name: str, autocast: bool
+) -> tuple[str, bool]:
+    """Resolve the effective (dtype, autocast) for SAM 3, guarding non-CUDA devices.
+
+    SAM 3 / 3.1 is designed to run under bfloat16 autocast on CUDA. That path is
+    unsupported on MPS and unhelpful on CPU, so when autocast is requested off CUDA
+    we fall back to plain float32 (no autocast) to avoid bf16/float matmul errors.
+    """
+    if not autocast:
+        return dtype_name, False
+    device_type = (_resolve_device(device) or "cpu").split(":", 1)[0]
+    if device_type != "cuda":
+        return "float32", False
+    return dtype_name, True
 
 
 def _resolve_sam_torch_dtype(dtype_name: str):
