@@ -3,6 +3,7 @@
 import argparse
 import threading
 import time
+from contextlib import nullcontext
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Optional
@@ -16,6 +17,8 @@ SAM3_LOCK = threading.Lock()
 SAM3_MODEL = None
 SAM3_MODEL_DEVICE = None
 SAM3_MODEL_CHECKPOINT_PATH = None
+SAM3_MODEL_DTYPE = None
+SAM3_MODEL_AUTOCAST = None
 
 
 @dataclass
@@ -309,6 +312,9 @@ def run_sam3_detection_outputs(
         "backend": "sam3",
         "model": getattr(args, "sam_repo_id", "sam3"),
         "checkpoint_path": getattr(args, "sam_checkpoint_path", None),
+        "dtype": args.sam_dtype,
+        "autocast": args.sam_autocast,
+        "device": None,
         "prompt": args.sam_prompt,
         "created_output": False,
         "crop_padding": args.sam_crop_padding,
@@ -329,12 +335,16 @@ def run_sam3_detection_outputs(
         return [], "sam3_not_available", metrics
 
     try:
+        target_device = _resolve_device(args.detector_device) or "cpu"
+        metrics["device"] = target_device
         model = get_sam3_model(
             build_sam3_image_model,
             args.detector_device,
             getattr(args, "sam_checkpoint_path", None),
+            args.sam_dtype,
+            args.sam_autocast,
         )
-        processor = Sam3Processor(model)
+        processor = Sam3Processor(model, device=target_device)
         with Image.open(raw_path) as source_image:
             image_format = source_image.format
             image = ImageOps.exif_transpose(source_image)
@@ -342,8 +352,13 @@ def run_sam3_detection_outputs(
                 image = image.convert("RGB")
             width, height = image.size
 
-            state = processor.set_image(image)
-            output = processor.set_text_prompt(state=state, prompt=args.sam_prompt)
+            with _sam_inference_context(
+                target_device,
+                dtype_name=args.sam_dtype,
+                autocast=args.sam_autocast,
+            ):
+                state = processor.set_image(image)
+                output = processor.set_text_prompt(state=state, prompt=args.sam_prompt)
             raw_instances = select_sam3_instances(
                 masks=output.get("masks"),
                 boxes=output.get("boxes"),
@@ -427,27 +442,37 @@ def get_sam3_model(
     build_sam3_image_model,
     device: Optional[str],
     checkpoint_path: Optional[str] = None,
+    dtype_name: str = "float32",
+    autocast: bool = False,
 ):
     """Load and cache the SAM 3 image model."""
-    global SAM3_MODEL, SAM3_MODEL_DEVICE, SAM3_MODEL_CHECKPOINT_PATH
+    global SAM3_MODEL, SAM3_MODEL_AUTOCAST, SAM3_MODEL_CHECKPOINT_PATH
+    global SAM3_MODEL_DEVICE, SAM3_MODEL_DTYPE
 
     target_device = _resolve_device(device)
     resolved_checkpoint_path = str(checkpoint_path) if checkpoint_path else None
+    torch_dtype = _resolve_sam_torch_dtype(dtype_name)
     with SAM3_LOCK:
         if (
             SAM3_MODEL is not None
             and SAM3_MODEL_DEVICE == target_device
             and SAM3_MODEL_CHECKPOINT_PATH == resolved_checkpoint_path
+            and SAM3_MODEL_DTYPE == dtype_name
+            and SAM3_MODEL_AUTOCAST == autocast
         ):
             return SAM3_MODEL
         model = build_sam3_image_model(checkpoint_path=resolved_checkpoint_path)
         if target_device and target_device != "auto" and hasattr(model, "to"):
-            model = model.to(target_device)
+            model = model.to(device=target_device, dtype=torch_dtype)
+        elif hasattr(model, "to"):
+            model = model.to(dtype=torch_dtype)
         if hasattr(model, "eval"):
             model.eval()
         SAM3_MODEL = model
         SAM3_MODEL_DEVICE = target_device
         SAM3_MODEL_CHECKPOINT_PATH = resolved_checkpoint_path
+        SAM3_MODEL_DTYPE = dtype_name
+        SAM3_MODEL_AUTOCAST = autocast
         return model
 
 
@@ -523,6 +548,41 @@ def _resolve_device(device: Optional[str]) -> Optional[str]:
             return "mps"
         return "cpu"
     return device
+
+
+def _resolve_sam_torch_dtype(dtype_name: str):
+    import torch
+
+    dtype_map = {
+        "float32": torch.float32,
+        "float16": torch.float16,
+        "bfloat16": torch.bfloat16,
+    }
+    try:
+        return dtype_map[dtype_name]
+    except KeyError as exc:
+        raise ValueError(
+            "SAM dtype must be one of: float32, float16, bfloat16"
+        ) from exc
+
+
+def _sam_inference_context(device: Optional[str], *, dtype_name: str, autocast: bool):
+    try:
+        import torch
+    except Exception:
+        return nullcontext()
+
+    device_type = (device or "cpu").split(":", 1)[0]
+    try:
+        if not autocast:
+            return torch.autocast(device_type=device_type, enabled=False)
+        return torch.autocast(
+            device_type=device_type,
+            dtype=_resolve_sam_torch_dtype(dtype_name),
+            enabled=True,
+        )
+    except (RuntimeError, ValueError):
+        return nullcontext()
 
 
 def _padded_crop_box(

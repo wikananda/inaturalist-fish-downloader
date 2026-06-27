@@ -71,6 +71,8 @@ CLI_FIELD_TO_PATH = {
     "sam_config_filename": "detection.sam_config_filename",
     "sam_checkpoint_filename": "detection.sam_checkpoint_filename",
     "sam_checkpoint_path": "detection.sam_checkpoint_path",
+    "sam_dtype": "detection.sam_dtype",
+    "sam_autocast": "detection.sam_autocast",
     "enable_clip_filter": "clip.enable",
     "clip_model": "clip.model",
     "clip_cache_dir": "clip.cache_dir",
@@ -101,6 +103,7 @@ BOOL_FIELDS = {
     "allow_multiple_fish",
     "sam_save_all_instances",
     "sam_preload",
+    "sam_autocast",
     "enable_clip_filter",
 }
 
@@ -140,6 +143,7 @@ CHOICE_FIELDS = {
     "photo_size": ["square", "thumb", "small", "medium", "large", "original"],
     "order": ["asc", "desc"],
     "detection_backend": ["yolo", "sam3"],
+    "sam_dtype": ["float32", "float16", "bfloat16"],
 }
 
 HELP_TEXT = {
@@ -198,6 +202,8 @@ HELP_TEXT = {
     "sam_config_filename": "SAM 3 config filename in the Hugging Face repository.",
     "sam_checkpoint_filename": "SAM 3 checkpoint filename in the Hugging Face repository.",
     "sam_checkpoint_path": "Optional local SAM 3 checkpoint path. When set, Hugging Face download is skipped if it exists.",
+    "sam_dtype": "Torch floating dtype used for SAM inference.",
+    "sam_autocast": "Use Torch autocast during SAM inference. Disabled by default for stable SAM 3.1 CUDA inference.",
     "enable_clip_filter": "Run CLIP context filtering after detection/cropping or accepted image preparation.",
     "clip_model": "CLIP model name or local path for Transformers.",
     "clip_cache_dir": "Directory used to cache downloaded CLIP model files.",
@@ -559,6 +565,11 @@ def validate_args(args: argparse.Namespace) -> None:
             raise SystemExit("--sam-min-mask-area-ratio must be between 0 and 1")
         if args.sam_crop_padding < 0:
             raise SystemExit("--sam-crop-padding must be greater than or equal to 0")
+        if args.sam_dtype not in CHOICE_FIELDS["sam_dtype"]:
+            raise SystemExit(
+                "--sam-dtype must be one of: "
+                + ", ".join(CHOICE_FIELDS["sam_dtype"])
+            )
         if (
             args.sam_max_instances_per_image is not None
             and args.sam_max_instances_per_image <= 0

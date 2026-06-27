@@ -11,7 +11,13 @@ from omegaconf import OmegaConf
 from inaturalist_downloader.common.inat import iter_observation_photos
 from inaturalist_downloader.commands.download import download_species_images
 from inaturalist_downloader.download.cli import merge_filter_configs, parse_args, validate_args
-from inaturalist_downloader.download.detection import DetectionOutput, ensure_sam3_model_files
+from inaturalist_downloader.download import detection as detection_module
+from inaturalist_downloader.download.detection import (
+    DetectionOutput,
+    ensure_sam3_model_files,
+    get_sam3_model,
+    run_sam3_detection_outputs,
+)
 
 
 class DownloadFilterConfigTests(unittest.TestCase):
@@ -164,6 +170,165 @@ class DownloadFilterConfigTests(unittest.TestCase):
         self.assertEqual(
             [call.kwargs["filename"] for call in fake_hub.hf_hub_download.call_args_list],
             ["config.json", "sam3.1_multiplex.pt"],
+        )
+
+    def test_validate_args_rejects_invalid_sam_dtype(self):
+        args = self._validation_args(enable_detection=True)
+        args.detection_backend = "sam3"
+        args.sam_dtype = "bf16"
+
+        with self.assertRaisesRegex(SystemExit, "--sam-dtype must be one of"):
+            validate_args(args)
+
+    def test_get_sam3_model_cache_includes_dtype_and_autocast(self):
+        class FakeModel:
+            def __init__(self):
+                self.to_calls = []
+                self.eval_called = False
+
+            def to(self, **kwargs):
+                self.to_calls.append(kwargs)
+                return self
+
+            def eval(self):
+                self.eval_called = True
+
+        fake_torch = types.SimpleNamespace(
+            float32="float32",
+            float16="float16",
+            bfloat16="bfloat16",
+        )
+        built = []
+
+        def builder(checkpoint_path=None):
+            model = FakeModel()
+            built.append((checkpoint_path, model))
+            return model
+
+        self._reset_sam3_model_cache()
+        try:
+            with patch.dict(sys.modules, {"torch": fake_torch}):
+                first = get_sam3_model(
+                    builder,
+                    "cuda",
+                    "models/sam3.1/sam3.1_multiplex.pt",
+                    "float32",
+                    False,
+                )
+                second = get_sam3_model(
+                    builder,
+                    "cuda",
+                    "models/sam3.1/sam3.1_multiplex.pt",
+                    "float32",
+                    False,
+                )
+                third = get_sam3_model(
+                    builder,
+                    "cuda",
+                    "models/sam3.1/sam3.1_multiplex.pt",
+                    "float32",
+                    True,
+                )
+        finally:
+            self._reset_sam3_model_cache()
+
+        self.assertIs(first, second)
+        self.assertIsNot(first, third)
+        self.assertEqual(len(built), 2)
+        self.assertEqual(built[0][0], "models/sam3.1/sam3.1_multiplex.pt")
+        self.assertEqual(first.to_calls[0], {"device": "cuda", "dtype": "float32"})
+        self.assertTrue(first.eval_called)
+
+    def test_sam3_detection_metrics_include_dtype_autocast_and_device(self):
+        class FakeAutocast:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, exc_type, exc, traceback):
+                return False
+
+        class FakeModel:
+            def to(self, **kwargs):
+                return self
+
+            def eval(self):
+                return None
+
+        class FakeProcessor:
+            def __init__(self, model, device="cuda", confidence_threshold=0.5):
+                self.device = device
+
+            def set_image(self, image):
+                return {}
+
+            def set_text_prompt(self, state, prompt):
+                return {
+                    "boxes": [[1.0, 1.0, 20.0, 20.0]],
+                    "scores": [0.9],
+                    "masks": None,
+                }
+
+        fake_torch = types.SimpleNamespace(
+            float32="float32",
+            float16="float16",
+            bfloat16="bfloat16",
+            autocast=Mock(return_value=FakeAutocast()),
+        )
+        processor_module = types.ModuleType("sam3.model.sam3_image_processor")
+        processor_module.Sam3Processor = FakeProcessor
+        builder_module = types.ModuleType("sam3.model_builder")
+        builder_module.build_sam3_image_model = Mock(return_value=FakeModel())
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            from PIL import Image
+
+            temp_path = Path(temp_dir)
+            raw_path = temp_path / "raw.jpg"
+            accepted_path = temp_path / "accepted.jpg"
+            Image.new("RGB", (32, 32), color="blue").save(raw_path)
+            args = argparse.Namespace(
+                detector_device="cpu",
+                sam_repo_id="facebook/sam3.1",
+                sam_checkpoint_path="models/sam3.1/sam3.1_multiplex.pt",
+                sam_dtype="float32",
+                sam_autocast=False,
+                sam_prompt="fish",
+                sam_crop_padding=0.0,
+                sam_score_threshold=0.0,
+                sam_min_mask_area_ratio=0.0,
+                sam_max_instances_per_image=None,
+                sam_save_all_instances=True,
+                overwrite=True,
+            )
+
+            self._reset_sam3_model_cache()
+            try:
+                with patch.dict(
+                    sys.modules,
+                    {
+                        "torch": fake_torch,
+                        "sam3": types.ModuleType("sam3"),
+                        "sam3.model": types.ModuleType("sam3.model"),
+                        "sam3.model.sam3_image_processor": processor_module,
+                        "sam3.model_builder": builder_module,
+                    },
+                ):
+                    outputs, reject_reason, metrics = run_sam3_detection_outputs(
+                        raw_path,
+                        accepted_path,
+                        args,
+                    )
+            finally:
+                self._reset_sam3_model_cache()
+
+        self.assertIsNone(reject_reason)
+        self.assertEqual(len(outputs), 1)
+        self.assertEqual(metrics["dtype"], "float32")
+        self.assertFalse(metrics["autocast"])
+        self.assertEqual(metrics["device"], "cpu")
+        fake_torch.autocast.assert_called_once_with(
+            device_type="cpu",
+            enabled=False,
         )
 
     def test_validate_args_rejects_protected_raw_query_params(self):
@@ -393,6 +558,53 @@ class DownloadFilterConfigTests(unittest.TestCase):
             detection_backend="yolo",
             enable_clip_filter=False,
         )
+
+    def _validation_args(self, enable_detection=False):
+        return argparse.Namespace(
+            images_per_species=1,
+            candidate_multiplier=1,
+            max_candidates_per_species=None,
+            per_page=10,
+            max_pages=1,
+            species_workers=1,
+            download_workers=1,
+            term_value_id=None,
+            term_id=None,
+            alive_only=False,
+            query_params={},
+            blocked_license_codes=[],
+            license_preference=[],
+            license_code=None,
+            skip_image_validation=True,
+            min_width=0,
+            min_height=0,
+            min_file_size_kb=0,
+            max_aspect_ratio=0,
+            min_intensity_range=0,
+            enable_detection=enable_detection,
+            detection_backend="yolo",
+            detector_weights="models/fish-yolo.pt",
+            detector_confidence=0.5,
+            detector_imgsz=640,
+            min_fish_area_ratio=0.02,
+            crop_padding=0.15,
+            sam_score_threshold=0.0,
+            sam_min_mask_area_ratio=0.02,
+            sam_crop_padding=0.15,
+            sam_dtype="float32",
+            sam_autocast=False,
+            sam_max_instances_per_image=None,
+            detector_class_ids=None,
+            detector_class_names=None,
+            enable_clip_filter=False,
+        )
+
+    def _reset_sam3_model_cache(self):
+        detection_module.SAM3_MODEL = None
+        detection_module.SAM3_MODEL_DEVICE = None
+        detection_module.SAM3_MODEL_CHECKPOINT_PATH = None
+        detection_module.SAM3_MODEL_DTYPE = None
+        detection_module.SAM3_MODEL_AUTOCAST = None
 
     def _candidate(self, photo_id, license_code):
         return {
