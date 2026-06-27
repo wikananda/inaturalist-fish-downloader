@@ -64,10 +64,10 @@ detection:
   sam_crop_padding: 0.15
   sam_save_all_instances: true
   sam_preload: true
-  sam_repo_id: facebook/sam3
-  sam_model_dir: models/sam3
+  sam_repo_id: facebook/sam3.1
+  sam_model_dir: models/sam3.1
   sam_config_filename: config.json
-  sam_checkpoint_filename: sam3.pt
+  sam_checkpoint_filename: sam3.1_multiplex.pt
   sam_checkpoint_path: null
 
 clip:

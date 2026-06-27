@@ -118,12 +118,12 @@ class DownloadFilterConfigTests(unittest.TestCase):
     def test_ensure_sam3_model_files_uses_existing_checkpoint(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             temp_path = Path(temp_dir)
-            checkpoint = temp_path / "sam3.pt"
+            checkpoint = temp_path / "sam3.1_multiplex.pt"
             checkpoint.write_bytes(b"checkpoint")
             args = argparse.Namespace(
                 sam_checkpoint_path=str(checkpoint),
                 sam_model_dir=str(temp_path / "models"),
-                sam_checkpoint_filename="sam3.pt",
+                sam_checkpoint_filename="sam3.1_multiplex.pt",
             )
             fake_hub = types.SimpleNamespace(hf_hub_download=Mock())
 
@@ -136,14 +136,14 @@ class DownloadFilterConfigTests(unittest.TestCase):
 
     def test_ensure_sam3_model_files_downloads_config_and_checkpoint(self):
         with tempfile.TemporaryDirectory() as temp_dir:
-            model_dir = Path(temp_dir) / "models" / "sam3"
-            checkpoint = model_dir / "sam3.pt"
+            model_dir = Path(temp_dir) / "models" / "sam3.1"
+            checkpoint = model_dir / "sam3.1_multiplex.pt"
             args = argparse.Namespace(
                 sam_checkpoint_path=None,
                 sam_model_dir=str(model_dir),
-                sam_repo_id="facebook/sam3",
+                sam_repo_id="facebook/sam3.1",
                 sam_config_filename="config.json",
-                sam_checkpoint_filename="sam3.pt",
+                sam_checkpoint_filename="sam3.1_multiplex.pt",
             )
 
             def hf_hub_download(repo_id, filename, local_dir):
@@ -163,7 +163,7 @@ class DownloadFilterConfigTests(unittest.TestCase):
         self.assertEqual(args.sam_checkpoint_path, str(checkpoint))
         self.assertEqual(
             [call.kwargs["filename"] for call in fake_hub.hf_hub_download.call_args_list],
-            ["config.json", "sam3.pt"],
+            ["config.json", "sam3.1_multiplex.pt"],
         )
 
     def test_validate_args_rejects_protected_raw_query_params(self):

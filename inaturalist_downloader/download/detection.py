@@ -127,9 +127,9 @@ def _sam3_huggingface_error_message(exc: Exception) -> str:
     import sys
 
     return (
-        "SAM 3 model predownload failed. Make sure this Python interpreter "
+        "SAM model predownload failed. Make sure this Python interpreter "
         f"({sys.executable}) has huggingface_hub installed, your Hugging Face "
-        "account has access to the gated SAM 3 repository, and the server is "
+        "account has access to the gated SAM repository, and the server is "
         "authenticated with `huggingface-cli login` or HF_TOKEN. Original error: "
         f"{type(exc).__name__}: {exc}"
     )
@@ -307,7 +307,8 @@ def run_sam3_detection_outputs(
     metrics: dict[str, Any] = {
         "enabled": True,
         "backend": "sam3",
-        "model": "sam3",
+        "model": getattr(args, "sam_repo_id", "sam3"),
+        "checkpoint_path": getattr(args, "sam_checkpoint_path", None),
         "prompt": args.sam_prompt,
         "created_output": False,
         "crop_padding": args.sam_crop_padding,
