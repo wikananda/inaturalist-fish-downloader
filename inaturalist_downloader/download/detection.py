@@ -160,7 +160,11 @@ def preload_sam3_model(args: argparse.Namespace) -> Path:
         )
         # Warmup: run the full set_image -> set_text_prompt path once so the text
         # backbone and any remaining lazy weights are fetched before the run starts.
-        processor = Sam3Processor(model, device=target_device)
+        processor = Sam3Processor(
+            model,
+            device=target_device,
+            confidence_threshold=args.sam_score_threshold,
+        )
         warmup_image = Image.new("RGB", (64, 64), color=(127, 127, 127))
         with _sam_inference_context(
             target_device,
@@ -376,6 +380,7 @@ def run_sam3_detection_outputs(
         "created_output": False,
         "crop_padding": args.sam_crop_padding,
         "score_threshold": args.sam_score_threshold,
+        "confidence_threshold": args.sam_score_threshold,
         "min_mask_area_ratio": args.sam_min_mask_area_ratio,
         "max_instances_per_image": args.sam_max_instances_per_image,
     }
@@ -411,7 +416,11 @@ def run_sam3_detection_outputs(
             effective_dtype,
             effective_autocast,
         )
-        processor = Sam3Processor(model, device=target_device)
+        processor = Sam3Processor(
+            model,
+            device=target_device,
+            confidence_threshold=args.sam_score_threshold,
+        )
         with Image.open(raw_path) as source_image:
             image_format = source_image.format
             image = ImageOps.exif_transpose(source_image)

@@ -3,7 +3,7 @@ detection:
   backend: sam3
   device: auto
   sam_prompt: fish
-  sam_score_threshold: 0.0
+  sam_score_threshold: 0.3
   sam_max_instances_per_image: null
   sam_min_mask_area_ratio: 0.02
   sam_crop_padding: 0.15

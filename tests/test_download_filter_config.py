@@ -323,9 +323,13 @@ class DownloadFilterConfigTests(unittest.TestCase):
             def eval(self):
                 return None
 
+        captured_thresholds = []
+
         class FakeProcessor:
             def __init__(self, model, device="cuda", confidence_threshold=0.5):
                 self.device = device
+                self.confidence_threshold = confidence_threshold
+                captured_thresholds.append(confidence_threshold)
 
             def set_image(self, image):
                 return {}
@@ -363,7 +367,7 @@ class DownloadFilterConfigTests(unittest.TestCase):
                 sam_autocast=False,
                 sam_prompt="fish",
                 sam_crop_padding=0.0,
-                sam_score_threshold=0.0,
+                sam_score_threshold=0.3,
                 sam_min_mask_area_ratio=0.0,
                 sam_max_instances_per_image=None,
                 sam_save_all_instances=True,
@@ -403,6 +407,10 @@ class DownloadFilterConfigTests(unittest.TestCase):
             device_type="cpu",
             enabled=False,
         )
+        # The pipeline threshold must reach the processor's internal confidence gate,
+        # otherwise SAM 3 silently filters everything at its 0.5 default.
+        self.assertEqual(captured_thresholds, [0.3])
+        self.assertEqual(metrics["confidence_threshold"], 0.3)
 
     def test_validate_args_rejects_protected_raw_query_params(self):
         args = argparse.Namespace(

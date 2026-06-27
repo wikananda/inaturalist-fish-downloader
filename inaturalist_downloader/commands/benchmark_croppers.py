@@ -45,6 +45,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--min-fish-area-ratio", type=float, default=0.02)
 
     parser.add_argument("--sam-prompt", default="fish")
+    parser.add_argument("--sam-score-threshold", type=float, default=0.3)
     return parser.parse_args()
 
 
@@ -126,6 +127,7 @@ def main() -> None:
                     prompt=args.sam_prompt,
                     device=args.device,
                     crop_padding=args.crop_padding,
+                    confidence_threshold=args.sam_score_threshold,
                 )
             results[backend] = result
 

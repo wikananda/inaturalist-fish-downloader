@@ -304,6 +304,7 @@ def run_sam3_cropper(
     prompt: str,
     device: Optional[str],
     crop_padding: float,
+    confidence_threshold: float = 0.3,
 ) -> CropResult:
     """Run SAM 3 text-prompt segmentation and save the selected mask box crop."""
     if not pillow_available():
@@ -325,7 +326,7 @@ def run_sam3_cropper(
 
     try:
         model = _get_sam3_model(build_sam3_image_model, device)
-        processor = Sam3Processor(model)
+        processor = Sam3Processor(model, confidence_threshold=confidence_threshold)
         with Image.open(image_path) as source_image:
             image_format = source_image.format
             image = ImageOps.exif_transpose(source_image)
