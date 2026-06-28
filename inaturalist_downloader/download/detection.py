@@ -251,8 +251,10 @@ def _yolo_detect_boxes(image, args) -> tuple[list[dict], dict]:
         "imgsz": args.detector_imgsz,
         "verbose": False,
     }
-    if args.detector_device:
-        predict_kwargs["device"] = args.detector_device
+    # Resolve auto/null to cuda/mps/cpu; ultralytics rejects "auto" (raises ValueError).
+    device = _resolve_device(args.detector_device)
+    if device:
+        predict_kwargs["device"] = device
 
     with DETECTOR_LOCK:
         results = model.predict(**predict_kwargs)

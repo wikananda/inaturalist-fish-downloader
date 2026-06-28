@@ -1,0 +1,15 @@
+# Normal pipeline: YOLO detect -> single best padded crop -> generic CLIP filter.
+# device: auto resolves to CUDA on the server (falls back to mps/cpu locally).
+detection:
+  enable: true
+  backend: yolo
+  device: auto
+  weights: models/fish-yolo.pt
+  confidence: 0.25
+  imgsz: 640
+  allow_multiple_fish: true
+  min_fish_area_ratio: 0.02
+  crop_padding: 0.15
+
+clip:
+  enable: true
