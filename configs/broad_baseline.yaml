@@ -1,8 +1,10 @@
 paths:
-  species_file: plans/broad_global_v2/selected_download_species.txt
-  output_dir: broad_global_downloads
-  raw_dir: broad_global_downloads_raw
-  manifest_dir: manifests/broad_global_v2
+  # The default pass builds every training class to 100 independent observations.
+  # Use the generated target_200/target_300 lists for progressive top-up passes.
+  species_file: plans/broad_coral_global_v3/broad_train_species.txt
+  output_dir: broad_coral_global_downloads
+  raw_dir: broad_coral_global_downloads_raw
+  manifest_dir: manifests/broad_coral_global_v3
 
 inat:
   # Broad fish-domain pretraining starts globally. Indonesia is a later fine-tune.
@@ -18,8 +20,10 @@ inat:
   max_pages: 100
 
 download:
-  images_per_species: 500
-  max_candidates_per_species: 5000
+  # First pass. Abundant subsets can resume in the same manifest with CLI target
+  # overrides of 200 and 300; images_per_species is not part of the resume signature.
+  images_per_species: 100
+  max_candidates_per_species: 1500
   adaptive_batching: true
   min_candidate_batch_size: 32
   max_candidate_batch_size: 128

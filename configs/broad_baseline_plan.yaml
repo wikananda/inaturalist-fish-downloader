@@ -1,5 +1,5 @@
 planning:
-  name: broad_fish_global_pretraining_v2
+  name: broad_coral_fish_global_pretraining_v3
   # Global supply drives pretraining selection. Local relevance is handled during
   # the later Indonesia/SeaLens adaptation stage.
   region_name: Global pretraining (Indonesia counts disabled)
@@ -11,9 +11,18 @@ planning:
   exclude_captive: true
   photo_license_codes: [cc0, cc-by, cc-by-sa]
   min_regional_observations: 0
-  # The pilot accepted 34.6% of candidates. A 2,000-observation licensed pool
-  # gives reasonable headroom for a 500 accepted-image target after filtering.
-  min_global_observations: 2000
+  # A 250-observation floor plus the expanded marine family set plans roughly
+  # 150 train species. The pilot yield projects only ~87 accepted independent
+  # observations at this floor, so targets are progressive rather than pretending
+  # every class can reach 200-300 from iNaturalist alone.
+  min_global_observations: 250
+  expected_acceptance_rate: 0.346
+  min_broad_train_species: 150
+  accepted_target_tiers:
+    - {min_global_observations: 250, target_accepted_observations: 100}
+    - {min_global_observations: 600, target_accepted_observations: 200}
+    - {min_global_observations: 900, target_accepted_observations: 300}
+  novel_evaluation_accepted_target: 100
   max_species_per_scientist_family: 15
   max_species_per_genus: 4
   novel_evaluation_fraction: 0.15
@@ -23,20 +32,47 @@ planning:
   retries: 5
   sleep_seconds: 0.0
   target_species_file: species.txt
-  output_dir: plans/broad_global_v2
+  output_dir: plans/broad_coral_global_v3
 
 # `scientist_family` is the stable label shown to scientists. `inat_taxa`
 # contains the current iNaturalist taxa that must be queried to populate it.
 # Confirmed crosswalk:
 # - Scaridae/parrotfishes are included by the current Labridae taxon.
 # - Caesionidae/fusiliers are included by the current Lutjanidae taxon.
-# - Anthiadidae is distinct and is intentionally not folded into Serranidae.
+# - Anthiadidae is distinct and is included as its own family.
 # - Epinephelidae is included with Serranidae so the requested grouper species
 #   are not silently omitted by current iNaturalist taxonomy.
+# All configured iNaturalist names and IDs below were resolved as active family
+# taxa on 2026-08-12. This v3 scope is marine/coral-first; it adds no freshwater
+# families merely to inflate the class count.
 families:
   - scientist_family: Acanthuridae
     inat_taxa:
       - {name: Acanthuridae, taxon_id: 47619}
+  - scientist_family: Aetobatidae
+    inat_taxa:
+      - {name: Aetobatidae, taxon_id: 883878}
+  - scientist_family: Anthiadidae
+    inat_taxa:
+      - {name: Anthiadidae, taxon_id: 1359791}
+  - scientist_family: Apogonidae
+    inat_taxa:
+      - {name: Apogonidae, taxon_id: 85594}
+  - scientist_family: Ariidae
+    inat_taxa:
+      - {name: Ariidae, taxon_id: 69955}
+  - scientist_family: Aulostomidae
+    inat_taxa:
+      - {name: Aulostomidae, taxon_id: 47244}
+  - scientist_family: Balistidae
+    inat_taxa:
+      - {name: Balistidae, taxon_id: 49612}
+  - scientist_family: Belonidae
+    inat_taxa:
+      - {name: Belonidae, taxon_id: 52461}
+  - scientist_family: Blenniidae
+    inat_taxa:
+      - {name: Blenniidae, taxon_id: 49390}
   - scientist_family: Carangidae
     inat_taxa:
       - {name: Carangidae, taxon_id: 47232}
@@ -46,12 +82,42 @@ families:
   - scientist_family: Chaetodontidae
     inat_taxa:
       - {name: Chaetodontidae, taxon_id: 47318}
+  - scientist_family: Cirrhitidae
+    inat_taxa:
+      - {name: Cirrhitidae, taxon_id: 47580}
+  - scientist_family: Dasyatidae
+    inat_taxa:
+      - {name: Dasyatidae, taxon_id: 47271}
+  - scientist_family: Diodontidae
+    inat_taxa:
+      - {name: Diodontidae, taxon_id: 49270}
+  - scientist_family: Echeneidae
+    inat_taxa:
+      - {name: Echeneidae, taxon_id: 48842}
   - scientist_family: Ephippidae
     inat_taxa:
       - {name: Ephippidae, taxon_id: 49317}
+  - scientist_family: Fistulariidae
+    inat_taxa:
+      - {name: Fistulariidae, taxon_id: 47249}
+  - scientist_family: Gerreidae
+    inat_taxa:
+      - {name: Gerreidae, taxon_id: 49944}
+  - scientist_family: Ginglymostomatidae
+    inat_taxa:
+      - {name: Ginglymostomatidae, taxon_id: 49968}
+  - scientist_family: Gobiidae
+    inat_taxa:
+      - {name: Gobiidae, taxon_id: 47308}
   - scientist_family: Haemulidae
     inat_taxa:
       - {name: Haemulidae, taxon_id: 49263}
+  - scientist_family: Holocentridae
+    inat_taxa:
+      - {name: Holocentridae, taxon_id: 49628}
+  - scientist_family: Kyphosidae
+    inat_taxa:
+      - {name: Kyphosidae, taxon_id: 49688}
   - scientist_family: Labridae
     notes: Includes Scaridae/parrotfishes in current iNaturalist taxonomy.
     inat_taxa:
@@ -60,21 +126,51 @@ families:
     notes: Includes Caesionidae/fusiliers in current iNaturalist taxonomy.
     inat_taxa:
       - {name: Lutjanidae, taxon_id: 47295}
+  - scientist_family: Lethrinidae
+    inat_taxa:
+      - {name: Lethrinidae, taxon_id: 55207}
+  - scientist_family: Molidae
+    inat_taxa:
+      - {name: Molidae, taxon_id: 49607}
+  - scientist_family: Monacanthidae
+    inat_taxa:
+      - {name: Monacanthidae, taxon_id: 47176}
   - scientist_family: Mobulidae
     inat_taxa:
       - {name: Mobulidae, taxon_id: 715805}
+  - scientist_family: Mugilidae
+    inat_taxa:
+      - {name: Mugilidae, taxon_id: 54661}
   - scientist_family: Mullidae
     inat_taxa:
       - {name: Mullidae, taxon_id: 118620}
   - scientist_family: Muraenidae
     inat_taxa:
       - {name: Muraenidae, taxon_id: 47313}
+  - scientist_family: Myliobatidae
+    inat_taxa:
+      - {name: Myliobatidae, taxon_id: 49298}
+  - scientist_family: Nemipteridae
+    inat_taxa:
+      - {name: Nemipteridae, taxon_id: 51095}
+  - scientist_family: Ostraciidae
+    inat_taxa:
+      - {name: Ostraciidae, taxon_id: 47529}
+  - scientist_family: Plotosidae
+    inat_taxa:
+      - {name: Plotosidae, taxon_id: 49213}
   - scientist_family: Pomacanthidae
     inat_taxa:
       - {name: Pomacanthidae, taxon_id: 47237}
   - scientist_family: Pomacentridae
     inat_taxa:
       - {name: Pomacentridae, taxon_id: 48313}
+  - scientist_family: Sciaenidae
+    inat_taxa:
+      - {name: Sciaenidae, taxon_id: 49172}
+  - scientist_family: Scorpaenidae
+    inat_taxa:
+      - {name: Scorpaenidae, taxon_id: 47285}
   - scientist_family: Serranidae
     notes: Scientist-facing grouper family; Anthiadidae remains separate.
     inat_taxa:
@@ -83,6 +179,30 @@ families:
   - scientist_family: Siganidae
     inat_taxa:
       - {name: Siganidae, taxon_id: 84096}
+  - scientist_family: Scombridae
+    inat_taxa:
+      - {name: Scombridae, taxon_id: 47266}
+  - scientist_family: Sparidae
+    inat_taxa:
+      - {name: Sparidae, taxon_id: 49238}
+  - scientist_family: Sphyraenidae
+    inat_taxa:
+      - {name: Sphyraenidae, taxon_id: 47264}
+  - scientist_family: Syngnathidae
+    inat_taxa:
+      - {name: Syngnathidae, taxon_id: 49106}
+  - scientist_family: Synodontidae
+    inat_taxa:
+      - {name: Synodontidae, taxon_id: 49410}
+  - scientist_family: Terapontidae
+    inat_taxa:
+      - {name: Terapontidae, taxon_id: 86099}
   - scientist_family: Tetraodontidae
     inat_taxa:
       - {name: Tetraodontidae, taxon_id: 49266}
+  - scientist_family: Tripterygiidae
+    inat_taxa:
+      - {name: Tripterygiidae, taxon_id: 81862}
+  - scientist_family: Zanclidae
+    inat_taxa:
+      - {name: Zanclidae, taxon_id: 83291}

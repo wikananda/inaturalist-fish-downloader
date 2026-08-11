@@ -14,6 +14,7 @@ __pycache__/*
 *.log
 docs/*
 !docs/downloader_dataset_safety.md
+!docs/broad_coral_family_experiment.md
 models/*
 species_temp.txt
 .venv

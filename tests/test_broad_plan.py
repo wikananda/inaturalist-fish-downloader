@@ -136,8 +136,11 @@ class BroadPlanTests(unittest.TestCase):
             train_names = (Path(temp_dir) / "broad_train_species.txt").read_text()
 
         self.assertIn("Example fish", proposal)
+        self.assertNotIn("\r\n", proposal)
         self.assertEqual(train_names.strip(), "Example fish")
         self.assertEqual(summary["broad_train_species"], 1)
+        self.assertEqual(summary["eligible_species"], 1)
+        self.assertEqual(summary["max_global_observations"], 900)
 
     def test_global_plan_queries_licensed_counts_without_regional_gate(self):
         config = {
@@ -192,6 +195,81 @@ class BroadPlanTests(unittest.TestCase):
         self.assertTrue(calls[0]["exclude_captive"])
         self.assertEqual(rows[0]["regional_count"], 0)
         self.assertTrue(rows[0]["eligible"])
+
+    def test_progressive_accepted_targets_are_written(self):
+        planning = {
+            "name": "tier-test",
+            "region_name": "Global",
+            "region_place_id": 1,
+            "min_regional_observations": 0,
+            "min_global_observations": 250,
+            "max_species_per_scientist_family": 10,
+            "max_species_per_genus": 4,
+            "novel_evaluation_fraction": 0,
+            "random_seed": 42,
+            "require_regional_threshold": False,
+            "expected_acceptance_rate": 0.35,
+            "accepted_target_tiers": [
+                {
+                    "min_global_observations": 250,
+                    "target_accepted_observations": 100,
+                },
+                {
+                    "min_global_observations": 600,
+                    "target_accepted_observations": 200,
+                },
+            ],
+            "novel_evaluation_accepted_target": 100,
+        }
+        rows = [
+            {
+                "taxon_id": 1,
+                "species": "Abundantus fishus",
+                "genus": "Abundantus",
+                "scientist_family": "Exampleidae",
+                "inat_family": "Exampleidae",
+                "preferred_common_name": "",
+                "regional_count": 0,
+                "global_count": 700,
+            },
+            {
+                "taxon_id": 2,
+                "species": "Broadus fishus",
+                "genus": "Broadus",
+                "scientist_family": "Exampleidae",
+                "inat_family": "Exampleidae",
+                "preferred_common_name": "",
+                "regional_count": 0,
+                "global_count": 300,
+            },
+        ]
+
+        selected, _ = select_species(rows, planning, set())
+        by_species = {row["species"]: row for row in selected}
+        with tempfile.TemporaryDirectory() as temp_dir:
+            summary = write_species_proposal(
+                Path(temp_dir), selected, set(), planning
+            )
+            target_100 = (
+                Path(temp_dir) / "target_100_train_species.txt"
+            ).read_text()
+            target_200 = (
+                Path(temp_dir) / "target_200_train_species.txt"
+            ).read_text()
+
+        self.assertEqual(
+            by_species["Abundantus fishus"]["planned_accepted_target"], 200
+        )
+        self.assertEqual(
+            by_species["Abundantus fishus"]["estimated_accepted_observations"],
+            245,
+        )
+        self.assertEqual(by_species["Broadus fishus"]["planned_accepted_target"], 100)
+        self.assertIn("Abundantus fishus", target_100)
+        self.assertIn("Broadus fishus", target_100)
+        self.assertEqual(target_200.strip(), "Abundantus fishus")
+        self.assertEqual(summary["planned_train_by_accepted_target"], {"100": 1, "200": 1})
+        self.assertEqual(summary["planned_train_accepted_observations"], 300)
 
 
 if __name__ == "__main__":

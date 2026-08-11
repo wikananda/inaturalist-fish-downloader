@@ -77,20 +77,24 @@ the protections implemented before starting the global pretraining download.
 
 ## Global broad-pretraining policy
 
-`configs/broad_baseline_plan.yaml` now selects globally abundant species using
+`configs/broad_baseline_plan.yaml` selects globally abundant species using
 research-grade, non-captive photo observations whose photo licences are one of
 `cc0`, `cc-by`, or `cc-by-sa`. Regional abundance is not an eligibility condition.
-The minimum global licensed supply is 2,000 observations per species. At the
-pilot's 34.6% pass rate this is about 692 potential accepted images before the
-remaining diversity and deduplication losses, providing headroom for a target of
-500.
+The v3 coral/marine family experiment uses a 250-observation licensed floor and
+progressive accepted targets. Its live proposal contains 150 training species:
+118 target 100 accepted observations, 25 target 200, and 7 target 300. The nested
+top-up lists contain 150, 32, and 7 species respectively. This is the strongest
+honest iNaturalist-only plan found under the current filters; see
+`docs/broad_coral_family_experiment.md` for the hard global supply ceiling and
+family rationale.
 
-`configs/broad_baseline.yaml` now writes to new paths so the pilot remains intact:
+`configs/broad_baseline.yaml` writes to new v3 paths so the pilot and v2 plan
+remain intact:
 
-- `broad_global_downloads/`
-- `broad_global_downloads_raw/`
-- `manifests/broad_global_v2/`
-- `plans/broad_global_v2/`
+- `broad_coral_global_downloads/`
+- `broad_coral_global_downloads_raw/`
+- `manifests/broad_coral_global_v3/`
+- `plans/broad_coral_global_v3/`
 
 Generate the new plan, inspect its summary, and start the resumable download:
 
@@ -98,7 +102,7 @@ Generate the new plan, inspect its summary, and start the resumable download:
 inat-plan-broad-species --config configs/broad_baseline_plan.yaml
 inat-download --config broad_baseline --print-config
 inat-download --config broad_baseline
-inat-quality-report --manifest-dir manifests/broad_global_v2
+inat-quality-report --manifest-dir manifests/broad_coral_global_v3
 ```
 
 ## What automation still cannot prove

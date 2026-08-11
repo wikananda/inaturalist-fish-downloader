@@ -29,10 +29,40 @@ PROPOSAL_FIELDS = [
     "selected",
     "dataset_role",
     "selection_reason",
+    "estimated_accepted_observations",
+    "planned_accepted_target",
 ]
 
 TRAIN_ROLES = {"common_target_pretraining", "broad_pretraining"}
 DOWNLOAD_ROLES = TRAIN_ROLES | {"novel_evaluation"}
+
+
+def _assign_planned_targets(
+    rows: list[dict[str, Any]], planning: dict[str, Any]
+) -> None:
+    """Attach pilot-calibrated yield estimates and progressive target tiers."""
+    acceptance_rate = float(planning.get("expected_acceptance_rate") or 0.0)
+    tiers = sorted(
+        list(planning.get("accepted_target_tiers") or []),
+        key=lambda tier: int(tier["min_global_observations"]),
+    )
+    novel_target = int(planning.get("novel_evaluation_accepted_target") or 0)
+
+    for row in rows:
+        global_count = int(row.get("global_count") or 0)
+        row["estimated_accepted_observations"] = (
+            round(global_count * acceptance_rate) if acceptance_rate > 0 else ""
+        )
+        row["planned_accepted_target"] = 0
+
+        if row["dataset_role"] in TRAIN_ROLES:
+            for tier in tiers:
+                if global_count >= int(tier["min_global_observations"]):
+                    row["planned_accepted_target"] = int(
+                        tier["target_accepted_observations"]
+                    )
+        elif row["dataset_role"] == "novel_evaluation":
+            row["planned_accepted_target"] = novel_target
 
 
 def load_plan_config(path: Path) -> dict[str, Any]:
@@ -296,6 +326,8 @@ def select_species(
                 row["dataset_role"] = "novel_evaluation"
                 row["selection_reason"] = "held_out_for_unseen_species_evaluation"
 
+    _assign_planned_targets(rows, planning)
+
     role_order = {
         "common_target_pretraining": 0,
         "broad_pretraining": 1,
@@ -342,7 +374,12 @@ def write_species_proposal(
 
     proposal_path = output / "broad_species_proposal.tsv"
     with proposal_path.open("w", encoding="utf-8", newline="") as handle:
-        writer = csv.DictWriter(handle, fieldnames=PROPOSAL_FIELDS, delimiter="\t")
+        writer = csv.DictWriter(
+            handle,
+            fieldnames=PROPOSAL_FIELDS,
+            delimiter="\t",
+            lineterminator="\n",
+        )
         writer.writeheader()
         for row in rows:
             writer.writerow({field: row.get(field, "") for field in PROPOSAL_FIELDS})
@@ -355,6 +392,19 @@ def write_species_proposal(
     _write_name_list(output / "novel_evaluation_species.txt", novel_rows)
     _write_name_list(output / "rare_target_species.txt", rare_rows)
     _write_name_list(output / "selected_download_species.txt", download_rows)
+    target_tiers = sorted(
+        {
+            int(tier["target_accepted_observations"])
+            for tier in planning.get("accepted_target_tiers") or []
+        }
+    )
+    for target in target_tiers:
+        tier_rows = [
+            row
+            for row in train_rows
+            if int(row.get("planned_accepted_target") or 0) >= target
+        ]
+        _write_name_list(output / f"target_{target}_train_species.txt", tier_rows)
     (output / "unmatched_target_species.txt").write_text(
         "\n".join(sorted(unmatched_targets)) + ("\n" if unmatched_targets else ""),
         encoding="utf-8",
@@ -363,6 +413,25 @@ def write_species_proposal(
     role_counts = Counter(row["dataset_role"] for row in rows)
     family_counts = Counter(
         row["scientist_family"] for row in rows if row["dataset_role"] in DOWNLOAD_ROLES
+    )
+    eligible_count = sum(bool(row.get("eligible")) for row in rows)
+    max_global_count = max(
+        (int(row.get("global_count") or 0) for row in rows),
+        default=0,
+    )
+    target_counts = Counter(
+        int(row.get("planned_accepted_target") or 0) for row in train_rows
+    )
+    target_counts.pop(0, None)
+    planned_total = sum(
+        int(row.get("planned_accepted_target") or 0) for row in train_rows
+    )
+    projected_retrievable = sum(
+        min(
+            int(row.get("planned_accepted_target") or 0),
+            int(row.get("estimated_accepted_observations") or 0),
+        )
+        for row in train_rows
     )
     summary = {
         "plan_name": planning["name"],
@@ -375,6 +444,9 @@ def write_species_proposal(
         ),
         "photo_license_codes": list(planning.get("photo_license_codes") or []),
         "candidate_species": len(rows),
+        "eligible_species": eligible_count,
+        "max_global_observations": max_global_count,
+        "expected_acceptance_rate": planning.get("expected_acceptance_rate"),
         "selected_download_species": len(download_rows),
         "broad_train_species": len(train_rows),
         "novel_evaluation_species": len(novel_rows),
@@ -382,6 +454,11 @@ def write_species_proposal(
         "unmatched_target_species": len(unmatched_targets),
         "role_counts": dict(sorted(role_counts.items())),
         "selected_by_scientist_family": dict(sorted(family_counts.items())),
+        "planned_train_by_accepted_target": {
+            str(target): count for target, count in sorted(target_counts.items())
+        },
+        "planned_train_accepted_observations": planned_total,
+        "projected_retrievable_at_planned_targets": projected_retrievable,
         "count_note": (
             "Observation counts already apply the configured research-grade, photo, "
             "licence, and captive filters; accepted counts will still be lower after "

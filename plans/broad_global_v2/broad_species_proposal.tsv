@@ -1,15 +1,23 @@
 taxon_id	species	genus	scientist_family	inat_family	preferred_common_name	regional_count	global_count	eligible	target_species	selected	dataset_role	selection_reason
-135283	Acanthurus lineatus	Acanthurus	Acanthuridae	Acanthuridae	Striped Surgeonfish	0	450	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
+135283	Acanthurus lineatus	Acanthurus	Acanthuridae	Acanthuridae	Striped Surgeonfish	0	450	True	True	True	common_target_pretraining	requested_target_meets_licensed_abundance_threshold
+180389	Ctenochaetus striatus	Ctenochaetus	Acanthuridae	Acanthuridae	Lined Bristletooth	0	608	True	True	True	common_target_pretraining	requested_target_meets_licensed_abundance_threshold
+52451	Naso lituratus	Naso	Acanthuridae	Acanthuridae	Pacific Orange-spine Unicornfish	0	485	True	True	True	common_target_pretraining	requested_target_meets_licensed_abundance_threshold
+49641	Zebrasoma scopas	Zebrasoma	Acanthuridae	Acanthuridae	Brown Tang	0	359	True	True	True	common_target_pretraining	requested_target_meets_licensed_abundance_threshold
+424818	Zebrasoma velifer	Zebrasoma	Acanthuridae	Acanthuridae	Pacific Sailfin Tang	0	407	True	True	True	common_target_pretraining	requested_target_meets_licensed_abundance_threshold
+121196	Acanthurus coeruleus	Acanthurus	Acanthuridae	Acanthuridae	Atlantic Blue Tang	0	1231	True	False	True	broad_pretraining	global_licensed_abundance
+59931	Acanthurus triostegus	Acanthurus	Acanthuridae	Acanthuridae	Convict Surgeonfish	0	660	True	False	True	broad_pretraining	global_licensed_abundance
+121658	Naso unicornis	Naso	Acanthuridae	Acanthuridae	Bluespine Unicornfish	0	526	True	False	True	broad_pretraining	global_licensed_abundance
+56772	Prionurus laticlavius	Prionurus	Acanthuridae	Acanthuridae	Razor Surgeonfish	0	689	True	False	True	broad_pretraining	global_licensed_abundance
+871060	Acanthurus tractus	Acanthurus	Acanthuridae	Acanthuridae	Caribbean Ocean Surgeonfish	0	651	True	False	True	novel_evaluation	held_out_for_unseen_species_evaluation
 121193	Acanthurus nigricans	Acanthurus	Acanthuridae	Acanthuridae	Whitecheek Surgeonfish	0	247	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
 121194	Acanthurus nigricauda	Acanthurus	Acanthuridae	Acanthuridae	Eyeline Surgeonfish	0	174	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
 121704	Acanthurus olivaceus	Acanthurus	Acanthuridae	Acanthuridae	Orangeblotch Surgeonfish	0	265	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
 153279	Acanthurus pyroferus	Acanthurus	Acanthuridae	Acanthuridae	Mimic Surgeonfish	0	235	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
-180389	Ctenochaetus striatus	Ctenochaetus	Acanthuridae	Acanthuridae	Lined Bristletooth	0	608	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
 153281	Naso brachycentron	Naso	Acanthuridae	Acanthuridae	Humpback Unicornfish	0	73	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
-52451	Naso lituratus	Naso	Acanthuridae	Acanthuridae	Pacific Orange-spine Unicornfish	0	485	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
 106624	Naso vlamingii	Naso	Acanthuridae	Acanthuridae	Bignose Unicornfish	0	157	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
-49641	Zebrasoma scopas	Zebrasoma	Acanthuridae	Acanthuridae	Brown Tang	0	359	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
-424818	Zebrasoma velifer	Zebrasoma	Acanthuridae	Acanthuridae	Pacific Sailfin Tang	0	407	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
+132410	Acanthurus nigrofuscus	Acanthurus	Acanthuridae	Acanthuridae	Dusky Surgeonfish	0	486	True	False	False	eligible_not_selected	genus_quota_reached
+1315888	Acanthurus sandvicensis	Acanthurus	Acanthuridae	Acanthuridae	Hawaiian Convict Surgeonfish	0	466	True	False	False	eligible_not_selected	genus_quota_reached
+132366	Acanthurus xanthopterus	Acanthurus	Acanthuridae	Acanthuridae	Yellowfin Surgeonfish	0	382	True	False	False	eligible_not_selected	genus_quota_reached
 69760	Acanthurus achilles	Acanthurus	Acanthuridae	Acanthuridae	Achilles Tang	0	52	False	False	False	ineligible	below_required_observation_threshold
 186994	Acanthurus albipectoralis	Acanthurus	Acanthuridae	Acanthuridae	Whitefin Surgeonfish	0	3	False	False	False	ineligible	below_required_observation_threshold
 186995	Acanthurus auranticavus	Acanthurus	Acanthuridae	Acanthuridae	Orange-socket Surgeonfish	0	4	False	False	False	ineligible	below_required_observation_threshold
@@ -17,7 +25,6 @@ taxon_id	species	genus	scientist_family	inat_family	preferred_common_name	region
 186996	Acanthurus bariene	Acanthurus	Acanthuridae	Acanthuridae	Eyespot Surgeonfish	0	11	False	False	False	ineligible	below_required_observation_threshold
 132411	Acanthurus blochii	Acanthurus	Acanthuridae	Acanthuridae	Dark Surgeonfish	0	118	False	False	False	ineligible	below_required_observation_threshold
 121195	Acanthurus chirurgus	Acanthurus	Acanthuridae	Acanthuridae	Doctorfish	0	256	False	False	False	ineligible	below_required_observation_threshold
-121196	Acanthurus coeruleus	Acanthurus	Acanthuridae	Acanthuridae	Atlantic Blue Tang	0	1231	False	False	False	ineligible	below_required_observation_threshold
 121597	Acanthurus dussumieri	Acanthurus	Acanthuridae	Acanthuridae	Eyestripe Surgeonfish	0	163	False	False	False	ineligible	below_required_observation_threshold
 145524	Acanthurus fowleri	Acanthurus	Acanthuridae	Acanthuridae	Horseshoe Surgeonfish	0	8	False	False	False	ineligible	below_required_observation_threshold
 93074	Acanthurus gahhm	Acanthurus	Acanthuridae	Acanthuridae	Black Surgeonfish	0	39	False	False	False	ineligible	below_required_observation_threshold
@@ -30,19 +37,14 @@ taxon_id	species	genus	scientist_family	inat_family	preferred_common_name	region
 187000	Acanthurus maculiceps	Acanthurus	Acanthuridae	Acanthuridae	Spotted-face Surgeonfish	0	3	False	False	False	ineligible	below_required_observation_threshold
 132409	Acanthurus mata	Acanthurus	Acanthuridae	Acanthuridae	Yellowmask Surgeonfish	0	83	False	False	False	ineligible	below_required_observation_threshold
 187001	Acanthurus monroviae	Acanthurus	Acanthuridae	Acanthuridae	Monrovia Doctorfish	0	25	False	False	False	ineligible	below_required_observation_threshold
-132410	Acanthurus nigrofuscus	Acanthurus	Acanthuridae	Acanthuridae	Dusky Surgeonfish	0	486	False	False	False	ineligible	below_required_observation_threshold
 187002	Acanthurus nigroris	Acanthurus	Acanthuridae	Acanthuridae	Blueline Surgeonfish	0	12	False	False	False	ineligible	below_required_observation_threshold
 1315890	Acanthurus nigros	Acanthurus	Acanthuridae	Acanthuridae	Greyhead Surgeonfish	0	3	False	False	False	ineligible	below_required_observation_threshold
 187004	Acanthurus polyzona	Acanthurus	Acanthuridae	Acanthuridae	Black-barred Surgeonfish	0	12	False	False	False	ineligible	below_required_observation_threshold
 187005	Acanthurus reversus	Acanthurus	Acanthuridae	Acanthuridae	Marquesan Surgeonfish	0	3	False	False	False	ineligible	below_required_observation_threshold
-1315888	Acanthurus sandvicensis	Acanthurus	Acanthuridae	Acanthuridae	Hawaiian Convict Surgeonfish	0	466	False	False	False	ineligible	below_required_observation_threshold
 187006	Acanthurus sohal	Acanthurus	Acanthuridae	Acanthuridae	Sohal Surgeonfish	0	220	False	False	False	ineligible	below_required_observation_threshold
 121705	Acanthurus tennentii	Acanthurus	Acanthuridae	Acanthuridae	Lieutenant Surgeonfish	0	38	False	False	False	ineligible	below_required_observation_threshold
 122689	Acanthurus thompsoni	Acanthurus	Acanthuridae	Acanthuridae	Whitetail Surgeonfish	0	60	False	False	False	ineligible	below_required_observation_threshold
-871060	Acanthurus tractus	Acanthurus	Acanthuridae	Acanthuridae	Caribbean Ocean Surgeonfish	0	651	False	False	False	ineligible	below_required_observation_threshold
-59931	Acanthurus triostegus	Acanthurus	Acanthuridae	Acanthuridae	Convict Surgeonfish	0	660	False	False	False	ineligible	below_required_observation_threshold
 187007	Acanthurus tristis	Acanthurus	Acanthuridae	Acanthuridae	Mimic Surgeonfish	0	15	False	False	False	ineligible	below_required_observation_threshold
-132366	Acanthurus xanthopterus	Acanthurus	Acanthuridae	Acanthuridae	Yellowfin Surgeonfish	0	382	False	False	False	ineligible	below_required_observation_threshold
 187279	Ctenochaetus binotatus	Ctenochaetus	Acanthuridae	Acanthuridae	Twospot Bristletooth	0	137	False	False	False	ineligible	below_required_observation_threshold
 187280	Ctenochaetus cyanocheilus	Ctenochaetus	Acanthuridae	Acanthuridae	Bluelip Bristletooth	0	63	False	False	False	ineligible	below_required_observation_threshold
 187281	Ctenochaetus flavicauda	Ctenochaetus	Acanthuridae	Acanthuridae	Whitetail Bristletooth	0	13	False	False	False	ineligible	below_required_observation_threshold
@@ -63,10 +65,8 @@ taxon_id	species	genus	scientist_family	inat_family	preferred_common_name	region
 187733	Naso minor	Naso	Acanthuridae	Acanthuridae	Blackspine Unicornfish	0	14	False	False	False	ineligible	below_required_observation_threshold
 187735	Naso thynnoides	Naso	Acanthuridae	Acanthuridae	Onespine Unicornfish	0	5	False	False	False	ineligible	below_required_observation_threshold
 187736	Naso tonganus	Naso	Acanthuridae	Acanthuridae	Humpnose Unicornfish	0	13	False	False	False	ineligible	below_required_observation_threshold
-121658	Naso unicornis	Naso	Acanthuridae	Acanthuridae	Bluespine Unicornfish	0	526	False	False	False	ineligible	below_required_observation_threshold
 130879	Paracanthurus hepatus	Paracanthurus	Acanthuridae	Acanthuridae	Palette Tang	0	49	False	False	False	ineligible	below_required_observation_threshold
 188104	Prionurus biafraensis	Prionurus	Acanthuridae	Acanthuridae	Biafra Doctorfish	0	4	False	False	False	ineligible	below_required_observation_threshold
-56772	Prionurus laticlavius	Prionurus	Acanthuridae	Acanthuridae	Razor Surgeonfish	0	689	False	False	False	ineligible	below_required_observation_threshold
 188106	Prionurus maculatus	Prionurus	Acanthuridae	Acanthuridae	Spotted Sawtail	0	38	False	False	False	ineligible	below_required_observation_threshold
 188107	Prionurus microlepidotus	Prionurus	Acanthuridae	Acanthuridae	Australian Sawtail	0	17	False	False	False	ineligible	below_required_observation_threshold
 188108	Prionurus scalprum	Prionurus	Acanthuridae	Acanthuridae	Scalpel Sawtail	0	20	False	False	False	ineligible	below_required_observation_threshold
@@ -75,8 +75,9 @@ taxon_id	species	genus	scientist_family	inat_family	preferred_common_name	region
 188622	Zebrasoma gemmatum	Zebrasoma	Acanthuridae	Acanthuridae	Gem Tang	0	4	False	False	False	ineligible	below_required_observation_threshold
 188623	Zebrasoma rostratum	Zebrasoma	Acanthuridae	Acanthuridae	Black Tang	0	1	False	False	False	ineligible	below_required_observation_threshold
 52458	Zebrasoma xanthurum	Zebrasoma	Acanthuridae	Acanthuridae	Purple Tang	0	127	False	False	False	ineligible	below_required_observation_threshold
+123690	Caranx melampygus	Caranx	Carangidae	Carangidae	Bluefin Trevally	0	564	True	True	True	common_target_pretraining	requested_target_meets_licensed_abundance_threshold
+82330	Caranx ruber	Caranx	Carangidae	Carangidae	Bar Jack	0	476	True	False	True	broad_pretraining	global_licensed_abundance
 153280	Caranx ignobilis	Caranx	Carangidae	Carangidae	Giant Trevally	0	135	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
-123690	Caranx melampygus	Caranx	Carangidae	Carangidae	Bluefin Trevally	0	564	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
 93641	Alectis ciliaris	Alectis	Carangidae	Carangidae	African Pompano	0	25	False	False	False	ineligible	below_required_observation_threshold
 368836	Alepes apercna	Alepes	Carangidae	Carangidae	Smallmouth Scad	0	1	False	False	False	ineligible	below_required_observation_threshold
 84529	Alepes djedaba	Alepes	Carangidae	Carangidae	Shrimp scad	0	1	False	False	False	ineligible	below_required_observation_threshold
@@ -102,7 +103,6 @@ taxon_id	species	genus	scientist_family	inat_family	preferred_common_name	region
 69775	Caranx lugubris	Caranx	Carangidae	Carangidae	Black Trevally	0	33	False	False	False	ineligible	below_required_observation_threshold
 338255	Caranx papuensis	Caranx	Carangidae	Carangidae	Brassy Trevally	0	34	False	False	False	ineligible	below_required_observation_threshold
 120693	Caranx rhonchus	Caranx	Carangidae	Carangidae	Spotfin Scad	0	4	False	False	False	ineligible	below_required_observation_threshold
-82330	Caranx ruber	Caranx	Carangidae	Carangidae	Bar Jack	0	476	False	False	False	ineligible	below_required_observation_threshold
 609910	Caranx senegallus	Caranx	Carangidae	Carangidae	Senegal Jack	0	1	False	False	False	ineligible	below_required_observation_threshold
 47228	Caranx sexfasciatus	Caranx	Carangidae	Carangidae	Bigeye Trevally	0	300	False	False	False	ineligible	below_required_observation_threshold
 96741	Caranx vinctus	Caranx	Carangidae	Carangidae	Barred Jack	0	5	False	False	False	ineligible	below_required_observation_threshold
@@ -164,8 +164,8 @@ taxon_id	species	genus	scientist_family	inat_family	preferred_common_name	region
 1360115	Turrum fulvoguttatum	Turrum	Carangidae	Carangidae	Yellow Spotted Trevally	0	38	False	False	False	ineligible	below_required_observation_threshold
 1360114	Turrum gymnostethus	Turrum	Carangidae	Carangidae	bludger	0	2	False	False	False	ineligible	below_required_observation_threshold
 53479	Uraspis helvola	Uraspis	Carangidae	Carangidae	Whitetongue Jack	0	3	False	False	False	ineligible	below_required_observation_threshold
-67964	Carcharhinus melanopterus	Carcharhinus	Carcharhinidae	Carcharhinidae	Blacktip Reef Shark	0	380	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
-52314	Triaenodon obesus	Triaenodon	Carcharhinidae	Carcharhinidae	Whitetip Reef Shark	0	746	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
+67964	Carcharhinus melanopterus	Carcharhinus	Carcharhinidae	Carcharhinidae	Blacktip Reef Shark	0	380	True	True	True	common_target_pretraining	requested_target_meets_licensed_abundance_threshold
+52314	Triaenodon obesus	Triaenodon	Carcharhinidae	Carcharhinidae	Whitetip Reef Shark	0	746	True	True	True	common_target_pretraining	requested_target_meets_licensed_abundance_threshold
 96745	Carcharhinus acronotus	Carcharhinus	Carcharhinidae	Carcharhinidae	Blacknose Shark	0	10	False	False	False	ineligible	below_required_observation_threshold
 52315	Carcharhinus albimarginatus	Carcharhinus	Carcharhinidae	Carcharhinidae	Silvertip Shark	0	29	False	False	False	ineligible	below_required_observation_threshold
 96747	Carcharhinus amblyrhynchoides	Carcharhinus	Carcharhinidae	Carcharhinidae	Graceful Shark	0	1	False	False	False	ineligible	below_required_observation_threshold
@@ -202,23 +202,31 @@ taxon_id	species	genus	scientist_family	inat_family	preferred_common_name	region
 111752	Rhizoprionodon terraenovae	Rhizoprionodon	Carcharhinidae	Carcharhinidae	Atlantic Sharpnose Shark	0	54	False	False	False	ineligible	below_required_observation_threshold
 112329	Scoliodon laticaudus	Scoliodon	Carcharhinidae	Carcharhinidae	Spadenose Shark	0	12	False	False	False	ineligible	below_required_observation_threshold
 607432	Scoliodon macrorhynchos	Scoliodon	Carcharhinidae	Carcharhinidae	Pacific Spadenose Shark	0	2	False	False	False	ineligible	below_required_observation_threshold
+97167	Chaetodon kleinii	Chaetodon	Chaetodontidae	Chaetodontidae	Blacklip Butterflyfish	0	407	True	True	True	common_target_pretraining	requested_target_meets_licensed_abundance_threshold
+52457	Chaetodon auriga	Chaetodon	Chaetodontidae	Chaetodontidae	Threadfin Butterflyfish	0	897	True	False	True	broad_pretraining	global_licensed_abundance
+52956	Chaetodon capistratus	Chaetodon	Chaetodontidae	Chaetodontidae	Four-eyed Butterflyfish	0	593	True	False	True	broad_pretraining	global_licensed_abundance
+48743	Chaetodon lunulatus	Chaetodon	Chaetodontidae	Chaetodontidae	Redfin Butterflyfish	0	578	True	False	True	broad_pretraining	global_licensed_abundance
+85124	Johnrandallia nigrirostris	Johnrandallia	Chaetodontidae	Chaetodontidae	Black-nosed Butterflyfish	0	380	True	False	True	novel_evaluation	held_out_for_unseen_species_evaluation
 97139	Chaetodon adiergastos	Chaetodon	Chaetodontidae	Chaetodontidae	Panda Butterflyfish	0	74	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
 97146	Chaetodon baronessa	Chaetodon	Chaetodontidae	Chaetodontidae	Eastern Triangle Butterflyfish	0	282	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
-97167	Chaetodon kleinii	Chaetodon	Chaetodontidae	Chaetodontidae	Blacklip Butterflyfish	0	407	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
 97193	Chaetodon rafflesii	Chaetodon	Chaetodontidae	Chaetodontidae	Lattice Butterflyfish	0	226	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
 102631	Heniochus acuminatus	Heniochus	Chaetodontidae	Chaetodontidae	Longfin Bannerfish	0	195	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
 102638	Heniochus varius	Heniochus	Chaetodontidae	Chaetodontidae	Humphead Bannerfish	0	223	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
+55534	Chaetodon humeralis	Chaetodon	Chaetodontidae	Chaetodontidae	Three-banded Butterflyfish	0	361	True	False	False	eligible_not_selected	genus_quota_reached
+47316	Chaetodon lunula	Chaetodon	Chaetodontidae	Chaetodontidae	Raccoon Butterflyfish	0	564	True	False	False	eligible_not_selected	genus_quota_reached
+52454	Chaetodon ornatissimus	Chaetodon	Chaetodontidae	Chaetodontidae	Ornate Butterflyfish	0	352	True	False	False	eligible_not_selected	genus_quota_reached
+97202	Chaetodon striatus	Chaetodon	Chaetodontidae	Chaetodontidae	Banded Butterflyfish	0	376	True	False	False	eligible_not_selected	genus_quota_reached
+97207	Chaetodon trifascialis	Chaetodon	Chaetodontidae	Chaetodontidae	Chevron Butterflyfish	0	410	True	False	False	eligible_not_selected	genus_quota_reached
+48747	Chaetodon vagabundus	Chaetodon	Chaetodontidae	Chaetodontidae	Vagabond Butterflyfish	0	528	True	False	False	eligible_not_selected	genus_quota_reached
 93901	Amphichaetodon howensis	Amphichaetodon	Chaetodontidae	Chaetodontidae	Lord Howe butterflyfish	0	6	False	False	False	ineligible	below_required_observation_threshold
 97140	Chaetodon andamanensis	Chaetodon	Chaetodontidae	Chaetodontidae	Andaman Butterflyfish	0	28	False	False	False	ineligible	below_required_observation_threshold
 97141	Chaetodon argentatus	Chaetodon	Chaetodontidae	Chaetodontidae	Asian Butterflyfish	0	5	False	False	False	ineligible	below_required_observation_threshold
 97142	Chaetodon assarius	Chaetodon	Chaetodontidae	Chaetodontidae	Western Butterflyfish	0	3	False	False	False	ineligible	below_required_observation_threshold
 97143	Chaetodon aureofasciatus	Chaetodon	Chaetodontidae	Chaetodontidae	Goldstripe Butterflyfish	0	80	False	False	False	ineligible	below_required_observation_threshold
-52457	Chaetodon auriga	Chaetodon	Chaetodontidae	Chaetodontidae	Threadfin Butterflyfish	0	897	False	False	False	ineligible	below_required_observation_threshold
 97144	Chaetodon auripes	Chaetodon	Chaetodontidae	Chaetodontidae	Oriental Butterflyfish	0	19	False	False	False	ineligible	below_required_observation_threshold
 97145	Chaetodon austriacus	Chaetodon	Chaetodontidae	Chaetodontidae	Exquisite Butterflyfish	0	141	False	False	False	ineligible	below_required_observation_threshold
 97147	Chaetodon bennetti	Chaetodon	Chaetodontidae	Chaetodontidae	Eclipse Butterflyfish	0	146	False	False	False	ineligible	below_required_observation_threshold
 97148	Chaetodon blackburnii	Chaetodon	Chaetodontidae	Chaetodontidae	Chocolate Butterflyfish	0	26	False	False	False	ineligible	below_required_observation_threshold
-52956	Chaetodon capistratus	Chaetodon	Chaetodontidae	Chaetodontidae	Four-eyed Butterflyfish	0	593	False	False	False	ineligible	below_required_observation_threshold
 97150	Chaetodon citrinellus	Chaetodon	Chaetodontidae	Chaetodontidae	Speckled Butterflyfish	0	302	False	False	False	ineligible	below_required_observation_threshold
 97151	Chaetodon collare	Chaetodon	Chaetodontidae	Chaetodontidae	Red-tailed Butterflyfish	0	79	False	False	False	ineligible	below_required_observation_threshold
 97154	Chaetodon decussatus	Chaetodon	Chaetodontidae	Chaetodontidae	Indian Vagabond Butterflyfish	0	70	False	False	False	ineligible	below_required_observation_threshold
@@ -232,14 +240,11 @@ taxon_id	species	genus	scientist_family	inat_family	preferred_common_name	region
 97164	Chaetodon guentheri	Chaetodon	Chaetodontidae	Chaetodontidae	Gunther's Butterflyfish	0	9	False	False	False	ineligible	below_required_observation_threshold
 97165	Chaetodon guttatissimus	Chaetodon	Chaetodontidae	Chaetodontidae	Spotted Butterflyfish	0	70	False	False	False	ineligible	below_required_observation_threshold
 59691	Chaetodon hoefleri	Chaetodon	Chaetodontidae	Chaetodontidae	Four-banded butterflyfish	0	1	False	False	False	ineligible	below_required_observation_threshold
-55534	Chaetodon humeralis	Chaetodon	Chaetodontidae	Chaetodontidae	Three-banded Butterflyfish	0	361	False	False	False	ineligible	below_required_observation_threshold
 97166	Chaetodon interruptus	Chaetodon	Chaetodontidae	Chaetodontidae	Indian Teardrop Butterflyfish	0	46	False	False	False	ineligible	below_required_observation_threshold
 97168	Chaetodon larvatus	Chaetodon	Chaetodontidae	Chaetodontidae	Orangeface Butterflyfish	0	19	False	False	False	ineligible	below_required_observation_threshold
 97169	Chaetodon leucopleura	Chaetodon	Chaetodontidae	Chaetodontidae	Somali Butterflyfish	0	7	False	False	False	ineligible	below_required_observation_threshold
 97170	Chaetodon lineolatus	Chaetodon	Chaetodontidae	Chaetodontidae	Lined Butterflyfish	0	181	False	False	False	ineligible	below_required_observation_threshold
 97171	Chaetodon litus	Chaetodon	Chaetodontidae	Chaetodontidae	Easter Island Butterflyfish	0	6	False	False	False	ineligible	below_required_observation_threshold
-47316	Chaetodon lunula	Chaetodon	Chaetodontidae	Chaetodontidae	Raccoon Butterflyfish	0	564	False	False	False	ineligible	below_required_observation_threshold
-48743	Chaetodon lunulatus	Chaetodon	Chaetodontidae	Chaetodontidae	Redfin Butterflyfish	0	578	False	False	False	ineligible	below_required_observation_threshold
 97172	Chaetodon madagaskariensis	Chaetodon	Chaetodontidae	Chaetodontidae	Seychelles Butterflyfish	0	35	False	False	False	ineligible	below_required_observation_threshold
 97173	Chaetodon marleyi	Chaetodon	Chaetodontidae	Chaetodontidae	Marley's Butterflyfish	0	49	False	False	False	ineligible	below_required_observation_threshold
 97174	Chaetodon melannotus	Chaetodon	Chaetodontidae	Chaetodontidae	Blackback Butterflyfish	0	306	False	False	False	ineligible	below_required_observation_threshold
@@ -255,7 +260,6 @@ taxon_id	species	genus	scientist_family	inat_family	preferred_common_name	region
 49273	Chaetodon ocellatus	Chaetodon	Chaetodontidae	Chaetodontidae	Spotfin Butterflyfish	0	263	False	False	False	ineligible	below_required_observation_threshold
 97184	Chaetodon ocellicaudus	Chaetodon	Chaetodontidae	Chaetodontidae	Spot-tail Butterflyfish	0	48	False	False	False	ineligible	below_required_observation_threshold
 97185	Chaetodon octofasciatus	Chaetodon	Chaetodontidae	Chaetodontidae	Eightband Butterflyfish	0	178	False	False	False	ineligible	below_required_observation_threshold
-52454	Chaetodon ornatissimus	Chaetodon	Chaetodontidae	Chaetodontidae	Ornate Butterflyfish	0	352	False	False	False	ineligible	below_required_observation_threshold
 97186	Chaetodon oxycephalus	Chaetodon	Chaetodontidae	Chaetodontidae	Spotnape Butterflyfish	0	31	False	False	False	ineligible	below_required_observation_threshold
 97187	Chaetodon paucifasciatus	Chaetodon	Chaetodontidae	Chaetodontidae	Crown Butterflyfish	0	96	False	False	False	ineligible	below_required_observation_threshold
 97188	Chaetodon pelewensis	Chaetodon	Chaetodontidae	Chaetodontidae	Dot-and-dash Butterflyfish	0	98	False	False	False	ineligible	below_required_observation_threshold
@@ -271,16 +275,13 @@ taxon_id	species	genus	scientist_family	inat_family	preferred_common_name	region
 97198	Chaetodon semeion	Chaetodon	Chaetodontidae	Chaetodontidae	Dotted Butterflyfish	0	45	False	False	False	ineligible	below_required_observation_threshold
 97199	Chaetodon semilarvatus	Chaetodon	Chaetodontidae	Chaetodontidae	Masked Butterflyfish	0	105	False	False	False	ineligible	below_required_observation_threshold
 97201	Chaetodon speculum	Chaetodon	Chaetodontidae	Chaetodontidae	Mirror Butterflyfish	0	138	False	False	False	ineligible	below_required_observation_threshold
-97202	Chaetodon striatus	Chaetodon	Chaetodontidae	Chaetodontidae	Banded Butterflyfish	0	376	False	False	False	ineligible	below_required_observation_threshold
 97203	Chaetodon tinkeri	Chaetodon	Chaetodontidae	Chaetodontidae	Tinker's Butterflyfish	0	6	False	False	False	ineligible	below_required_observation_threshold
 97204	Chaetodon triangulum	Chaetodon	Chaetodontidae	Chaetodontidae	Triangular Butterflyfish	0	45	False	False	False	ineligible	below_required_observation_threshold
 97205	Chaetodon trichrous	Chaetodon	Chaetodontidae	Chaetodontidae	Tahitian butterflyfish	0	2	False	False	False	ineligible	below_required_observation_threshold
 97206	Chaetodon tricinctus	Chaetodon	Chaetodontidae	Chaetodontidae	Threeband Butterflyfish	0	65	False	False	False	ineligible	below_required_observation_threshold
-97207	Chaetodon trifascialis	Chaetodon	Chaetodontidae	Chaetodontidae	Chevron Butterflyfish	0	410	False	False	False	ineligible	below_required_observation_threshold
 48744	Chaetodon trifasciatus	Chaetodon	Chaetodontidae	Chaetodontidae	Indian Redfin Butterflyfish	0	171	False	False	False	ineligible	below_required_observation_threshold
 97208	Chaetodon ulietensis	Chaetodon	Chaetodontidae	Chaetodontidae	Pacific Double-saddle Butterflyfish	0	270	False	False	False	ineligible	below_required_observation_threshold
 97209	Chaetodon unimaculatus	Chaetodon	Chaetodontidae	Chaetodontidae	Teardrop Butterflyfish	0	188	False	False	False	ineligible	below_required_observation_threshold
-48747	Chaetodon vagabundus	Chaetodon	Chaetodontidae	Chaetodontidae	Vagabond Butterflyfish	0	528	False	False	False	ineligible	below_required_observation_threshold
 97210	Chaetodon wiebeli	Chaetodon	Chaetodontidae	Chaetodontidae	Hong Kong Butterflyfish	0	63	False	False	False	ineligible	below_required_observation_threshold
 97211	Chaetodon xanthocephalus	Chaetodon	Chaetodontidae	Chaetodontidae	Yellowhead Butterflyfish	0	60	False	False	False	ineligible	below_required_observation_threshold
 97212	Chaetodon xanthurus	Chaetodon	Chaetodontidae	Chaetodontidae	Crosshatch Butterflyfish	0	18	False	False	False	ineligible	below_required_observation_threshold
@@ -304,7 +305,6 @@ taxon_id	species	genus	scientist_family	inat_family	preferred_common_name	region
 102635	Heniochus monoceros	Heniochus	Chaetodontidae	Chaetodontidae	Masked Bannerfish	0	172	False	False	False	ineligible	below_required_observation_threshold
 102636	Heniochus pleurotaenia	Heniochus	Chaetodontidae	Chaetodontidae	Phantom Bannerfish	0	42	False	False	False	ineligible	below_required_observation_threshold
 102637	Heniochus singularius	Heniochus	Chaetodontidae	Chaetodontidae	Singular Bannerfish	0	109	False	False	False	ineligible	below_required_observation_threshold
-85124	Johnrandallia nigrirostris	Johnrandallia	Chaetodontidae	Chaetodontidae	Black-nosed Butterflyfish	0	380	False	False	False	ineligible	below_required_observation_threshold
 108423	Parachaetodon ocellatus	Parachaetodon	Chaetodontidae	Chaetodontidae	Ocellate Butterflyfish	0	23	False	False	False	ineligible	below_required_observation_threshold
 110594	Prognathodes aculeatus	Prognathodes	Chaetodontidae	Chaetodontidae	Longsnout Butterflyfish	0	26	False	False	False	ineligible	below_required_observation_threshold
 110595	Prognathodes aya	Prognathodes	Chaetodontidae	Chaetodontidae	Bank Butterflyfish	0	1	False	False	False	ineligible	below_required_observation_threshold
@@ -322,6 +322,8 @@ taxon_id	species	genus	scientist_family	inat_family	preferred_common_name	region
 132398	Platax batavianus	Platax	Ephippidae	Ephippidae	Humphead Batfish	0	16	False	False	False	ineligible	below_required_observation_threshold
 614076	Proteracanthus sarissophorus	Proteracanthus	Ephippidae	Ephippidae	Spinyfin spadefish	0	1	False	False	False	ineligible	below_required_observation_threshold
 366591	Tripterodon orbis	Tripterodon	Ephippidae	Ephippidae	African Spadefish	0	7	False	False	False	ineligible	below_required_observation_threshold
+62600	Haemulon flavolineatum	Haemulon	Haemulidae	Haemulidae	French Grunt	0	829	True	False	True	broad_pretraining	global_licensed_abundance
+49262	Haemulon sciurus	Haemulon	Haemulidae	Haemulidae	Bluestriped Grunt	0	572	True	False	True	broad_pretraining	global_licensed_abundance
 122002	Plectorhinchus chaetodonoides	Plectorhinchus	Haemulidae	Haemulidae	Harlequin Sweetlips	0	250	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
 135279	Plectorhinchus polytaenia	Plectorhinchus	Haemulidae	Haemulidae	Ribbon Sweetlips	0	39	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
 120999	Plectorhinchus vittatus	Plectorhinchus	Haemulidae	Haemulidae	Oriental Sweetlips	0	167	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
@@ -351,13 +353,11 @@ taxon_id	species	genus	scientist_family	inat_family	preferred_common_name	region
 317130	Haemulon bonariense	Haemulon	Haemulidae	Haemulidae	Black Grunt	0	2	False	False	False	ineligible	below_required_observation_threshold
 130054	Haemulon carbonarium	Haemulon	Haemulidae	Haemulidae	Caesar Grunt	0	149	False	False	False	ineligible	below_required_observation_threshold
 101998	Haemulon flaviguttatum	Haemulon	Haemulidae	Haemulidae	Cortez Grunt	0	15	False	False	False	ineligible	below_required_observation_threshold
-62600	Haemulon flavolineatum	Haemulon	Haemulidae	Haemulidae	French Grunt	0	829	False	False	False	ineligible	below_required_observation_threshold
 52295	Haemulon macrostoma	Haemulon	Haemulidae	Haemulidae	Spanish Grunt	0	31	False	False	False	ineligible	below_required_observation_threshold
 101999	Haemulon maculicauda	Haemulon	Haemulidae	Haemulidae	Spottail Grunt	0	197	False	False	False	ineligible	below_required_observation_threshold
 131388	Haemulon melanurum	Haemulon	Haemulidae	Haemulidae	Cottonwick	0	31	False	False	False	ineligible	below_required_observation_threshold
 317131	Haemulon parra	Haemulon	Haemulidae	Haemulidae	Sailor's Choice	0	167	False	False	False	ineligible	below_required_observation_threshold
 49951	Haemulon plumierii	Haemulon	Haemulidae	Haemulidae	White Grunt	0	265	False	False	False	ineligible	below_required_observation_threshold
-49262	Haemulon sciurus	Haemulon	Haemulidae	Haemulidae	Bluestriped Grunt	0	572	False	False	False	ineligible	below_required_observation_threshold
 102000	Haemulon scudderii	Haemulon	Haemulidae	Haemulidae	Grey Grunt	0	64	False	False	False	ineligible	below_required_observation_threshold
 102001	Haemulon sexfasciatum	Haemulon	Haemulidae	Haemulidae	Graybar Grunt	0	172	False	False	False	ineligible	below_required_observation_threshold
 102002	Haemulon steindachneri	Haemulon	Haemulidae	Haemulidae	Pacific Latin Grunt	0	10	False	False	False	ineligible	below_required_observation_threshold
@@ -416,27 +416,44 @@ taxon_id	species	genus	scientist_family	inat_family	preferred_common_name	region
 1316783	Rhencus macracanthus	Rhencus	Haemulidae	Haemulidae	Longspine Grunt	0	2	False	False	False	ineligible	below_required_observation_threshold
 115041	Xenichthys agassizii	Xenichthys	Haemulidae	Haemulidae	White Salema	0	7	False	False	False	ineligible	below_required_observation_threshold
 115043	Xenichthys xanti	Xenichthys	Haemulidae	Haemulidae	Longfin Salema	0	35	False	False	False	ineligible	below_required_observation_threshold
+187233	Chlorurus spilurus	Chlorurus	Labridae	Labridae	Pacific Bullethead Parrotfish	0	456	True	True	True	common_target_pretraining	requested_target_meets_licensed_abundance_threshold
+102045	Halichoeres hortulanus	Halichoeres	Labridae	Labridae	Checkerboard Wrasse	0	585	True	True	True	common_target_pretraining	requested_target_meets_licensed_abundance_threshold
+102580	Hemigymnus melapterus	Hemigymnus	Labridae	Labridae	Blackeye Thicklip	0	541	True	True	True	common_target_pretraining	requested_target_meets_licensed_abundance_threshold
+103901	Labroides dimidiatus	Labroides	Labridae	Labridae	Bluestreak Cleaner Wrasse	0	696	True	True	True	common_target_pretraining	requested_target_meets_licensed_abundance_threshold
+84175	Scarus ghobban	Scarus	Labridae	Labridae	Blue-barred Parrotfish	0	664	True	True	True	common_target_pretraining	requested_target_meets_licensed_abundance_threshold
+68025	Scarus niger	Scarus	Labridae	Labridae	Swarthy Parrotfish	0	375	True	True	True	common_target_pretraining	requested_target_meets_licensed_abundance_threshold
+83297	Scarus rubroviolaceus	Scarus	Labridae	Labridae	Redlip Parrotfish	0	513	True	True	True	common_target_pretraining	requested_target_meets_licensed_abundance_threshold
+67963	Thalassoma hardwicke	Thalassoma	Labridae	Labridae	Sixbar Wrasse	0	644	True	True	True	common_target_pretraining	requested_target_meets_licensed_abundance_threshold
+113980	Thalassoma lunare	Thalassoma	Labridae	Labridae	Moon Wrasse	0	773	True	True	True	common_target_pretraining	requested_target_meets_licensed_abundance_threshold
+50968	Coris julis	Coris	Labridae	Labridae	Mediterranean Rainbow Wrasse	0	688	True	False	True	broad_pretraining	global_licensed_abundance
+49272	Halichoeres bivittatus	Halichoeres	Labridae	Labridae	Slippery Dick	0	687	True	False	True	broad_pretraining	global_licensed_abundance
+112867	Sparisoma viride	Sparisoma	Labridae	Labridae	Stoplight Parrotfish	0	1057	True	False	True	broad_pretraining	global_licensed_abundance
+49491	Thalassoma bifasciatum	Thalassoma	Labridae	Labridae	Caribbean Bluehead Wrasse	0	1191	True	False	True	broad_pretraining	global_licensed_abundance
+50972	Thalassoma pavo	Thalassoma	Labridae	Labridae	Ornate Wrasse	0	1033	True	False	True	broad_pretraining	global_licensed_abundance
+112860	Sparisoma cretense	Sparisoma	Labridae	Labridae	European Parrotfish	0	823	True	False	True	novel_evaluation	held_out_for_unseen_species_evaluation
 95820	Bodianus dictynna	Bodianus	Labridae	Labridae	Redfin Hogfish	0	94	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
 95867	Bolbometopon muricatum	Bolbometopon	Labridae	Labridae	Bumphead Parrotfish	0	74	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
 82355	Cheilinus undulatus	Cheilinus	Labridae	Labridae	Napoleon Wrasse	0	250	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
 97637	Chlorurus bleekeri	Chlorurus	Labridae	Labridae	Bleeker's Parrotfish	0	225	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
-187233	Chlorurus spilurus	Chlorurus	Labridae	Labridae	Pacific Bullethead Parrotfish	0	456	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
 52323	Coris gaimard	Coris	Labridae	Labridae	Yellowtail Coris	0	268	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
 102038	Halichoeres chrysus	Halichoeres	Labridae	Labridae	Canary Wrasse	0	76	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
 102044	Halichoeres hartzfeldii	Halichoeres	Labridae	Labridae	Orangeline Wrasse	0	23	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
-102045	Halichoeres hortulanus	Halichoeres	Labridae	Labridae	Checkerboard Wrasse	0	585	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
-102580	Hemigymnus melapterus	Hemigymnus	Labridae	Labridae	Blackeye Thicklip	0	541	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
-103901	Labroides dimidiatus	Labroides	Labridae	Labridae	Bluestreak Cleaner Wrasse	0	696	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
 108074	Oxycheilinus bimaculatus	Oxycheilinus	Labridae	Labridae	Twospot Wrasse	0	102	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
 112138	Scarus dimidiatus	Scarus	Labridae	Labridae	Yellow-barred Parrotfish	0	136	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
-84175	Scarus ghobban	Scarus	Labridae	Labridae	Blue-barred Parrotfish	0	664	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
-68025	Scarus niger	Scarus	Labridae	Labridae	Swarthy Parrotfish	0	375	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
 52498	Scarus psittacus	Scarus	Labridae	Labridae	Palenose Parrotfish	0	340	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
-83297	Scarus rubroviolaceus	Scarus	Labridae	Labridae	Redlip Parrotfish	0	513	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
 112165	Scarus spinus	Scarus	Labridae	Labridae	Greensnout Parrotfish	0	67	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
 112167	Scarus tricolor	Scarus	Labridae	Labridae	Tricolour Parrotfish	0	63	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
-67963	Thalassoma hardwicke	Thalassoma	Labridae	Labridae	Sixbar Wrasse	0	644	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
-113980	Thalassoma lunare	Thalassoma	Labridae	Labridae	Moon Wrasse	0	773	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
+57333	Bodianus diplotaenia	Bodianus	Labridae	Labridae	Mexican Hogfish	0	556	True	False	False	eligible_not_selected	scientist_family_quota_reached
+68028	Chlorurus sordidus	Chlorurus	Labridae	Labridae	Indian Bullethead Parrotfish	0	369	True	False	False	eligible_not_selected	scientist_family_quota_reached
+100036	Epibulus insidiator	Epibulus	Labridae	Labridae	Slingjaw Wrasse	0	406	True	False	False	eligible_not_selected	scientist_family_quota_reached
+52508	Gomphosus varius	Gomphosus	Labridae	Labridae	Bird Wrasse	0	492	True	False	False	eligible_not_selected	scientist_family_quota_reached
+49946	Halichoeres garnoti	Halichoeres	Labridae	Labridae	Yellowhead Wrasse	0	431	True	False	False	eligible_not_selected	scientist_family_quota_reached
+49690	Scarus iseri	Scarus	Labridae	Labridae	Striped Parrotfish	0	536	True	False	False	eligible_not_selected	scientist_family_quota_reached
+112169	Scarus vetula	Scarus	Labridae	Labridae	Queen Parrotfish	0	383	True	False	False	eligible_not_selected	scientist_family_quota_reached
+112858	Sparisoma aurofrenatum	Sparisoma	Labridae	Labridae	Redband Parrotfish	0	502	True	False	False	eligible_not_selected	scientist_family_quota_reached
+52554	Symphodus tinca	Symphodus	Labridae	Labridae	East Atlantic Peacock Wrasse	0	463	True	False	False	eligible_not_selected	scientist_family_quota_reached
+49493	Thalassoma lucasanum	Thalassoma	Labridae	Labridae	Cortez Rainbow Wrasse	0	804	True	False	False	eligible_not_selected	genus_quota_reached
+113981	Thalassoma lutescens	Thalassoma	Labridae	Labridae	Sunset Wrasse	0	392	True	False	False	eligible_not_selected	scientist_family_quota_reached
 93136	Achoerodus gouldii	Achoerodus	Labridae	Labridae	Western Blue Groper	0	13	False	False	False	ineligible	below_required_observation_threshold
 93137	Achoerodus viridis	Achoerodus	Labridae	Labridae	Eastern Blue Groper	0	181	False	False	False	ineligible	below_required_observation_threshold
 94016	Anampses caeruleopunctatus	Anampses	Labridae	Labridae	Bluespotted Wrasse	0	57	False	False	False	ineligible	below_required_observation_threshold
@@ -461,7 +478,6 @@ taxon_id	species	genus	scientist_family	inat_family	preferred_common_name	region
 1439752	Bodianus brasiliensis	Bodianus	Labridae	Labridae	Brazilian Creole Wrasse	0	2	False	False	False	ineligible	below_required_observation_threshold
 1439814	Bodianus darwini	Bodianus	Labridae	Labridae	Goldspot Sheephead	0	3	False	False	False	ineligible	below_required_observation_threshold
 95819	Bodianus diana	Bodianus	Labridae	Labridae	Diana's Hogfish	0	52	False	False	False	ineligible	below_required_observation_threshold
-57333	Bodianus diplotaenia	Bodianus	Labridae	Labridae	Mexican Hogfish	0	556	False	False	False	ineligible	below_required_observation_threshold
 95821	Bodianus eclancheri	Bodianus	Labridae	Labridae	Harlequin Wrasse	0	16	False	False	False	ineligible	below_required_observation_threshold
 95822	Bodianus flavifrons	Bodianus	Labridae	Labridae	Masked Pigfish	0	1	False	False	False	ineligible	below_required_observation_threshold
 95824	Bodianus frenchii	Bodianus	Labridae	Labridae	Foxfish	0	4	False	False	False	ineligible	below_required_observation_threshold
@@ -505,7 +521,6 @@ taxon_id	species	genus	scientist_family	inat_family	preferred_common_name	region
 68026	Chlorurus microrhinos	Chlorurus	Labridae	Labridae	Steephead Parrotfish	0	200	False	False	False	ineligible	below_required_observation_threshold
 97645	Chlorurus perspicillatus	Chlorurus	Labridae	Labridae	Spectacled Parrotfish	0	14	False	False	False	ineligible	below_required_observation_threshold
 97646	Chlorurus rhakoura	Chlorurus	Labridae	Labridae	Raggedfin Parrotfish	0	4	False	False	False	ineligible	below_required_observation_threshold
-68028	Chlorurus sordidus	Chlorurus	Labridae	Labridae	Indian Bullethead Parrotfish	0	369	False	False	False	ineligible	below_required_observation_threshold
 97647	Chlorurus strongylocephalus	Chlorurus	Labridae	Labridae	Roundhead Parrotfish	0	61	False	False	False	ineligible	below_required_observation_threshold
 97648	Chlorurus troschelii	Chlorurus	Labridae	Labridae	Greenhead Parrotfish	0	13	False	False	False	ineligible	below_required_observation_threshold
 97649	Choerodon anchorago	Choerodon	Labridae	Labridae	Anchor Tuskfish	0	133	False	False	False	ineligible	below_required_observation_threshold
@@ -557,7 +572,6 @@ taxon_id	species	genus	scientist_family	inat_family	preferred_common_name	region
 98509	Coris dorsomacula	Coris	Labridae	Labridae	Pale-barred Coris	0	16	False	False	False	ineligible	below_required_observation_threshold
 98510	Coris flavovittata	Coris	Labridae	Labridae	Blackstripe Coris	0	6	False	False	False	ineligible	below_required_observation_threshold
 98511	Coris formosa	Coris	Labridae	Labridae	Queen Coris	0	48	False	False	False	ineligible	below_required_observation_threshold
-50968	Coris julis	Coris	Labridae	Labridae	Mediterranean Rainbow Wrasse	0	688	False	False	False	ineligible	below_required_observation_threshold
 1360107	Coris melanura	Coris	Labridae	Labridae	Atlantic rainbow wrasse	0	53	False	False	False	ineligible	below_required_observation_threshold
 98515	Coris picta	Coris	Labridae	Labridae	Comb Wrasse	0	13	False	False	False	ineligible	below_required_observation_threshold
 98516	Coris pictoides	Coris	Labridae	Labridae	Pixy Wrasse	0	4	False	False	False	ineligible	below_required_observation_threshold
@@ -576,11 +590,9 @@ taxon_id	species	genus	scientist_family	inat_family	preferred_common_name	region
 99548	Dotalabrus alleni	Dotalabrus	Labridae	Labridae	Little Rainbow Wrasse	0	5	False	False	False	ineligible	below_required_observation_threshold
 99549	Dotalabrus aurantiacus	Dotalabrus	Labridae	Labridae	Castelnau's Wrasse	0	7	False	False	False	ineligible	below_required_observation_threshold
 100035	Epibulus brevis	Epibulus	Labridae	Labridae	Latent Slingjaw Wrasse	0	27	False	False	False	ineligible	below_required_observation_threshold
-100036	Epibulus insidiator	Epibulus	Labridae	Labridae	Slingjaw Wrasse	0	406	False	False	False	ineligible	below_required_observation_threshold
 100727	Eupetrichthys angustipes	Eupetrichthys	Labridae	Labridae	Snakeskin Wrasse	0	38	False	False	False	ineligible	below_required_observation_threshold
 52509	Gomphosus caeruleus	Gomphosus	Labridae	Labridae	Green Bird Wrasse	0	88	False	False	False	ineligible	below_required_observation_threshold
 1316481	Gomphosus klunzingeri	Gomphosus	Labridae	Labridae	Red Sea Bird Wrasse	0	172	False	False	False	ineligible	below_required_observation_threshold
-52508	Gomphosus varius	Gomphosus	Labridae	Labridae	Bird Wrasse	0	492	False	False	False	ineligible	below_required_observation_threshold
 68640	Haletta semifasciata	Haletta	Labridae	Labridae	Blue Weed-whiting	0	28	False	False	False	ineligible	below_required_observation_threshold
 102023	Halichoeres adustus	Halichoeres	Labridae	Labridae	Black Wrasse	0	2	False	False	False	ineligible	below_required_observation_threshold
 102024	Halichoeres aestuaricola	Halichoeres	Labridae	Labridae	Mangrove Wrasse	0	1	False	False	False	ineligible	below_required_observation_threshold
@@ -589,7 +601,6 @@ taxon_id	species	genus	scientist_family	inat_family	preferred_common_name	region
 102027	Halichoeres bicolor	Halichoeres	Labridae	Labridae	Brown-stripe Wrasse	0	3	False	False	False	ineligible	below_required_observation_threshold
 102028	Halichoeres binotopsis	Halichoeres	Labridae	Labridae	Banded Rainbowfish	0	1	False	False	False	ineligible	below_required_observation_threshold
 102029	Halichoeres biocellatus	Halichoeres	Labridae	Labridae	Twospot Wrasse	0	61	False	False	False	ineligible	below_required_observation_threshold
-49272	Halichoeres bivittatus	Halichoeres	Labridae	Labridae	Slippery Dick	0	687	False	False	False	ineligible	below_required_observation_threshold
 102030	Halichoeres bleekeri	Halichoeres	Labridae	Labridae	Bleeker's Wrasse	0	4	False	False	False	ineligible	below_required_observation_threshold
 102031	Halichoeres brasiliensis	Halichoeres	Labridae	Labridae	Brazilian Wrasse	0	4	False	False	False	ineligible	below_required_observation_threshold
 102032	Halichoeres brownfieldi	Halichoeres	Labridae	Labridae	Brownfield's Wrasse	0	22	False	False	False	ineligible	below_required_observation_threshold
@@ -604,7 +615,6 @@ taxon_id	species	genus	scientist_family	inat_family	preferred_common_name	region
 52555	Halichoeres dispilus	Halichoeres	Labridae	Labridae	Chameleon Wrasse	0	182	False	False	False	ineligible	below_required_observation_threshold
 1651821	Halichoeres dussumieri	Halichoeres	Labridae	Labridae		0	3	False	False	False	ineligible	below_required_observation_threshold
 615607	Halichoeres erdmanni	Halichoeres	Labridae	Labridae	Erdmann's Wrasse	0	1	False	False	False	ineligible	below_required_observation_threshold
-49946	Halichoeres garnoti	Halichoeres	Labridae	Labridae	Yellowhead Wrasse	0	431	False	False	False	ineligible	below_required_observation_threshold
 615608	Halichoeres hilomeni	Halichoeres	Labridae	Labridae	Hilomen's Wrasse	0	2	False	False	False	ineligible	below_required_observation_threshold
 102046	Halichoeres insularis	Halichoeres	Labridae	Labridae	Socorro Wrasse	0	7	False	False	False	ineligible	below_required_observation_threshold
 102047	Halichoeres iridis	Halichoeres	Labridae	Labridae	Rainbow Wrasse	0	13	False	False	False	ineligible	below_required_observation_threshold
@@ -772,7 +782,6 @@ taxon_id	species	genus	scientist_family	inat_family	preferred_common_name	region
 112148	Scarus guacamaia	Scarus	Labridae	Labridae	Rainbow Parrotfish	0	186	False	False	False	ineligible	below_required_observation_threshold
 112149	Scarus hoefleri	Scarus	Labridae	Labridae	Guinean Parrotfish	0	19	False	False	False	ineligible	below_required_observation_threshold
 112150	Scarus hypselopterus	Scarus	Labridae	Labridae	East-Indies Parrotfish	0	47	False	False	False	ineligible	below_required_observation_threshold
-49690	Scarus iseri	Scarus	Labridae	Labridae	Striped Parrotfish	0	536	False	False	False	ineligible	below_required_observation_threshold
 112152	Scarus longipinnis	Scarus	Labridae	Labridae	Highfin Parrotfish	0	5	False	False	False	ineligible	below_required_observation_threshold
 112155	Scarus oviceps	Scarus	Labridae	Labridae	Darkcap Parrotfish	0	124	False	False	False	ineligible	below_required_observation_threshold
 112156	Scarus ovifrons	Scarus	Labridae	Labridae	Knobsnout Parrotfish	0	1	False	False	False	ineligible	below_required_observation_threshold
@@ -786,7 +795,6 @@ taxon_id	species	genus	scientist_family	inat_family	preferred_common_name	region
 112164	Scarus schlegeli	Scarus	Labridae	Labridae	Yellowbar Parrotfish	0	185	False	False	False	ineligible	below_required_observation_threshold
 112166	Scarus taeniopterus	Scarus	Labridae	Labridae	Princess Parrotfish	0	332	False	False	False	ineligible	below_required_observation_threshold
 112168	Scarus trispinosus	Scarus	Labridae	Labridae	Greenback Parrotfish	0	2	False	False	False	ineligible	below_required_observation_threshold
-112169	Scarus vetula	Scarus	Labridae	Labridae	Queen Parrotfish	0	383	False	False	False	ineligible	below_required_observation_threshold
 112170	Scarus viridifucatus	Scarus	Labridae	Labridae	Green-snout Parrotfish	0	2	False	False	False	ineligible	below_required_observation_threshold
 112171	Scarus xanthopleura	Scarus	Labridae	Labridae	Red Parrotfish	0	2	False	False	False	ineligible	below_required_observation_threshold
 49691	Scarus zelindae	Scarus	Labridae	Labridae	Brazilian Striped Parrotfish	0	2	False	False	False	ineligible	below_required_observation_threshold
@@ -796,16 +804,13 @@ taxon_id	species	genus	scientist_family	inat_family	preferred_common_name	region
 112707	Siphonognathus radiatus	Siphonognathus	Labridae	Labridae	Longray Weed Whiting	0	4	False	False	False	ineligible	below_required_observation_threshold
 112856	Sparisoma amplum	Sparisoma	Labridae	Labridae	Reef Parrotfish	0	9	False	False	False	ineligible	below_required_observation_threshold
 112857	Sparisoma atomarium	Sparisoma	Labridae	Labridae	Greenblotch Parrotfish	0	4	False	False	False	ineligible	below_required_observation_threshold
-112858	Sparisoma aurofrenatum	Sparisoma	Labridae	Labridae	Redband Parrotfish	0	502	False	False	False	ineligible	below_required_observation_threshold
 112859	Sparisoma axillare	Sparisoma	Labridae	Labridae	Redeye Parrotfish	0	11	False	False	False	ineligible	below_required_observation_threshold
 564561	Sparisoma choati	Sparisoma	Labridae	Labridae	West-African Parrotfish	0	2	False	False	False	ineligible	below_required_observation_threshold
 49929	Sparisoma chrysopterum	Sparisoma	Labridae	Labridae	Redtail Parrotfish	0	133	False	False	False	ineligible	below_required_observation_threshold
-112860	Sparisoma cretense	Sparisoma	Labridae	Labridae	European Parrotfish	0	823	False	False	False	ineligible	below_required_observation_threshold
 112861	Sparisoma frondosum	Sparisoma	Labridae	Labridae	Agassiz's Parrotfish	0	26	False	False	False	ineligible	below_required_observation_threshold
 112863	Sparisoma radians	Sparisoma	Labridae	Labridae	Bucktooth Parrotfish	0	17	False	False	False	ineligible	below_required_observation_threshold
 112864	Sparisoma rubripinne	Sparisoma	Labridae	Labridae	Yellowtail Parrotfish	0	300	False	False	False	ineligible	below_required_observation_threshold
 112866	Sparisoma tuiupiranga	Sparisoma	Labridae	Labridae	Tuiupiranga Parrotfish	0	5	False	False	False	ineligible	below_required_observation_threshold
-112867	Sparisoma viride	Sparisoma	Labridae	Labridae	Stoplight Parrotfish	0	1057	False	False	False	ineligible	below_required_observation_threshold
 113200	Stethojulis albovittata	Stethojulis	Labridae	Labridae	Whiteline Wrasse	0	77	False	False	False	ineligible	below_required_observation_threshold
 113201	Stethojulis balteata	Stethojulis	Labridae	Labridae	Belted Wrasse	0	59	False	False	False	ineligible	below_required_observation_threshold
 113202	Stethojulis bandanensis	Stethojulis	Labridae	Labridae	Redshoulder Wrasse	0	226	False	False	False	ineligible	below_required_observation_threshold
@@ -828,13 +833,11 @@ taxon_id	species	genus	scientist_family	inat_family	preferred_common_name	region
 113534	Symphodus ocellatus	Symphodus	Labridae	Labridae	Ocellated Wrasse	0	73	False	False	False	ineligible	below_required_observation_threshold
 113535	Symphodus roissali	Symphodus	Labridae	Labridae	Five-spotted Wrasse	0	219	False	False	False	ineligible	below_required_observation_threshold
 113536	Symphodus rostratus	Symphodus	Labridae	Labridae	Pointed-snout Wrasse	0	60	False	False	False	ineligible	below_required_observation_threshold
-52554	Symphodus tinca	Symphodus	Labridae	Labridae	East Atlantic Peacock Wrasse	0	463	False	False	False	ineligible	below_required_observation_threshold
 359902	Symphodus trutta	Symphodus	Labridae	Labridae	Emerald Wrasse	0	25	False	False	False	ineligible	below_required_observation_threshold
 52547	Tautoga onitis	Tautoga	Labridae	Labridae	Tautog	0	95	False	False	False	ineligible	below_required_observation_threshold
 51390	Tautogolabrus adspersus	Tautogolabrus	Labridae	Labridae	Cunner	0	142	False	False	False	ineligible	below_required_observation_threshold
 1561489	Thalassoma amblycephalum	Thalassoma	Labridae	Labridae	Blue-headed Wrasse	0	331	False	False	False	ineligible	below_required_observation_threshold
 113971	Thalassoma ballieui	Thalassoma	Labridae	Labridae	Blacktail Wrasse	0	2	False	False	False	ineligible	below_required_observation_threshold
-49491	Thalassoma bifasciatum	Thalassoma	Labridae	Labridae	Caribbean Bluehead Wrasse	0	1191	False	False	False	ineligible	below_required_observation_threshold
 113972	Thalassoma cupido	Thalassoma	Labridae	Labridae	Cupid Wrasse	0	15	False	False	False	ineligible	below_required_observation_threshold
 113973	Thalassoma duperrey	Thalassoma	Labridae	Labridae	Saddle Wrasse	0	290	False	False	False	ineligible	below_required_observation_threshold
 113974	Thalassoma genivittatum	Thalassoma	Labridae	Labridae	Red-cheek Wrasse	0	28	False	False	False	ineligible	below_required_observation_threshold
@@ -842,12 +845,9 @@ taxon_id	species	genus	scientist_family	inat_family	preferred_common_name	region
 113976	Thalassoma hebraicum	Thalassoma	Labridae	Labridae	Goldbar Wrasse	0	56	False	False	False	ineligible	below_required_observation_threshold
 113978	Thalassoma jansenii	Thalassoma	Labridae	Labridae	Jansen's Wrasse	0	65	False	False	False	ineligible	below_required_observation_threshold
 113979	Thalassoma loxum	Thalassoma	Labridae	Labridae	Slantband Wrasse	0	1	False	False	False	ineligible	below_required_observation_threshold
-49493	Thalassoma lucasanum	Thalassoma	Labridae	Labridae	Cortez Rainbow Wrasse	0	804	False	False	False	ineligible	below_required_observation_threshold
-113981	Thalassoma lutescens	Thalassoma	Labridae	Labridae	Sunset Wrasse	0	392	False	False	False	ineligible	below_required_observation_threshold
 113982	Thalassoma newtoni	Thalassoma	Labridae	Labridae	Newton's Wrasse	0	5	False	False	False	ineligible	below_required_observation_threshold
 113983	Thalassoma nigrofasciatum	Thalassoma	Labridae	Labridae	Blackbarred Wrasse	0	118	False	False	False	ineligible	below_required_observation_threshold
 113984	Thalassoma noronhanum	Thalassoma	Labridae	Labridae	Noronha Wrasse	0	36	False	False	False	ineligible	below_required_observation_threshold
-50972	Thalassoma pavo	Thalassoma	Labridae	Labridae	Ornate Wrasse	0	1033	False	False	False	ineligible	below_required_observation_threshold
 113985	Thalassoma purpureum	Thalassoma	Labridae	Labridae	Surge Wrasse	0	262	False	False	False	ineligible	below_required_observation_threshold
 58467	Thalassoma quinquevittatum	Thalassoma	Labridae	Labridae	Fivestripe Wrasse	0	96	False	False	False	ineligible	below_required_observation_threshold
 113987	Thalassoma rueppellii	Thalassoma	Labridae	Labridae	Klunzinger's Wrasse	0	273	False	False	False	ineligible	below_required_observation_threshold
@@ -861,6 +861,9 @@ taxon_id	species	genus	scientist_family	inat_family	preferred_common_name	region
 115188	Xyrichtys novacula	Xyrichtys	Labridae	Labridae	Pearly Razorfish	0	136	False	False	False	ineligible	below_required_observation_threshold
 115194	Xyrichtys splendens	Xyrichtys	Labridae	Labridae	Green Razorfish	0	64	False	False	False	ineligible	below_required_observation_threshold
 115196	Xyrichtys victori	Xyrichtys	Labridae	Labridae	Galápagos Razorfish	0	1	False	False	False	ineligible	below_required_observation_threshold
+81989	Lutjanus apodus	Lutjanus	Lutjanidae	Lutjanidae	Schoolmaster Snapper	0	803	True	False	True	broad_pretraining	global_licensed_abundance
+49509	Lutjanus griseus	Lutjanus	Lutjanidae	Lutjanidae	Gray Snapper	0	586	True	False	True	broad_pretraining	global_licensed_abundance
+47292	Ocyurus chrysurus	Ocyurus	Lutjanidae	Lutjanidae	Yellowtail Snapper	0	406	True	False	True	broad_pretraining	global_licensed_abundance
 96400	Caesio caerulaurea	Caesio	Lutjanidae	Lutjanidae	Scissor-tailed Fusilier	0	178	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
 447971	Lutjanus bengalensis	Lutjanus	Lutjanidae	Lutjanidae	Bengal Snapper	0	16	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
 68030	Lutjanus bohar	Lutjanus	Lutjanidae	Lutjanidae	Two-spot Red Snapper	0	290	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
@@ -886,7 +889,6 @@ taxon_id	species	genus	scientist_family	inat_family	preferred_common_name	region
 102938	Hoplopagrus guentherii	Hoplopagrus	Lutjanidae	Lutjanidae	Barred Pargo	0	58	False	False	False	ineligible	below_required_observation_threshold
 560557	Lutjanus alexandrei	Lutjanus	Lutjanidae	Lutjanidae	Brazilian Snapper	0	6	False	False	False	ineligible	below_required_observation_threshold
 104853	Lutjanus analis	Lutjanus	Lutjanidae	Lutjanidae	Mutton Snapper	0	151	False	False	False	ineligible	below_required_observation_threshold
-81989	Lutjanus apodus	Lutjanus	Lutjanidae	Lutjanidae	Schoolmaster Snapper	0	803	False	False	False	ineligible	below_required_observation_threshold
 104854	Lutjanus aratus	Lutjanus	Lutjanidae	Lutjanidae	Mullet Snapper	0	7	False	False	False	ineligible	below_required_observation_threshold
 125802	Lutjanus argentimaculatus	Lutjanus	Lutjanidae	Lutjanidae	Mangrove Red Snapper	0	106	False	False	False	ineligible	below_required_observation_threshold
 47293	Lutjanus argentiventris	Lutjanus	Lutjanidae	Lutjanidae	Yellow Snapper	0	244	False	False	False	ineligible	below_required_observation_threshold
@@ -902,7 +904,6 @@ taxon_id	species	genus	scientist_family	inat_family	preferred_common_name	region
 204571	Lutjanus fulviflamma	Lutjanus	Lutjanidae	Lutjanidae	Blackspot Snapper	0	135	False	False	False	ineligible	below_required_observation_threshold
 121459	Lutjanus fulvus	Lutjanus	Lutjanidae	Lutjanidae	Blacktail Snapper	0	230	False	False	False	ineligible	below_required_observation_threshold
 337743	Lutjanus goreensis	Lutjanus	Lutjanidae	Lutjanidae	Gorean Snapper	0	2	False	False	False	ineligible	below_required_observation_threshold
-49509	Lutjanus griseus	Lutjanus	Lutjanidae	Lutjanidae	Gray Snapper	0	586	False	False	False	ineligible	below_required_observation_threshold
 104857	Lutjanus guttatus	Lutjanus	Lutjanidae	Lutjanidae	Spotted Rose Snapper	0	64	False	False	False	ineligible	below_required_observation_threshold
 494741	Lutjanus indicus	Lutjanus	Lutjanidae	Lutjanidae	Indian Snapper	0	2	False	False	False	ineligible	below_required_observation_threshold
 104858	Lutjanus inermis	Lutjanus	Lutjanidae	Lutjanidae	Golden Snapper	0	34	False	False	False	ineligible	below_required_observation_threshold
@@ -933,7 +934,6 @@ taxon_id	species	genus	scientist_family	inat_family	preferred_common_name	region
 132381	Lutjanus vitta	Lutjanus	Lutjanidae	Lutjanidae	Brownstripe Snapper	0	32	False	False	False	ineligible	below_required_observation_threshold
 131528	Lutjanus vivanus	Lutjanus	Lutjanidae	Lutjanidae	Silk Snapper	0	2	False	False	False	ineligible	below_required_observation_threshold
 135280	Macolor niger	Macolor	Lutjanidae	Lutjanidae	Black-and-white Snapper	0	131	False	False	False	ineligible	below_required_observation_threshold
-47292	Ocyurus chrysurus	Ocyurus	Lutjanidae	Lutjanidae	Yellowtail Snapper	0	406	False	False	False	ineligible	below_required_observation_threshold
 448025	Paracaesio sordida	Paracaesio	Lutjanidae	Lutjanidae	Fusilier Snapper	0	3	False	False	False	ineligible	below_required_observation_threshold
 208070	Paracaesio xanthurus	Paracaesio	Lutjanidae	Lutjanidae	Yellowtail False Fusilier	0	5	False	False	False	ineligible	below_required_observation_threshold
 199309	Pinjalo lewisi	Pinjalo	Lutjanidae	Lutjanidae	Red Pinjalo	0	1	False	False	False	ineligible	below_required_observation_threshold
@@ -960,21 +960,21 @@ taxon_id	species	genus	scientist_family	inat_family	preferred_common_name	region
 105926	Mobula tarapacana	Mobula	Mobulidae	Mobulidae	Sicklefin Devil Ray	0	24	False	False	False	ineligible	below_required_observation_threshold
 105927	Mobula thurstoni	Mobula	Mobulidae	Mobulidae	Bentfin Devil Ray	0	11	False	False	False	ineligible	below_required_observation_threshold
 1635826	Mobula yarae	Mobula	Mobulidae	Mobulidae	Atlantic manta ray	0	16	False	False	False	ineligible	below_required_observation_threshold
-123346	Mulloidichthys flavolineatus	Mulloidichthys	Mullidae	Mullidae	Yellowstripe Goatfish	0	553	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
+123346	Mulloidichthys flavolineatus	Mulloidichthys	Mullidae	Mullidae	Yellowstripe Goatfish	0	553	True	True	True	common_target_pretraining	requested_target_meets_licensed_abundance_threshold
+131234	Parupeneus multifasciatus	Parupeneus	Mullidae	Mullidae	Manybar Goatfish	0	420	True	True	True	common_target_pretraining	requested_target_meets_licensed_abundance_threshold
+128172	Mulloidichthys martinicus	Mulloidichthys	Mullidae	Mullidae	Yellow Goatfish	0	425	True	False	True	broad_pretraining	global_licensed_abundance
+118619	Mullus surmuletus	Mullus	Mullidae	Mullidae	Striped Red Mullet	0	414	True	False	True	broad_pretraining	global_licensed_abundance
 122682	Mulloidichthys vanicolensis	Mulloidichthys	Mullidae	Mullidae	Yellowfin Goatfish	0	251	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
 196838	Parupeneus barberinus	Parupeneus	Mullidae	Mullidae	Dot-and-dash Goatfish	0	262	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
 272556	Parupeneus heptacantha	Parupeneus	Mullidae	Mullidae	Cinnabar Goatfish	0	18	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
 196837	Parupeneus macronemus	Parupeneus	Mullidae	Mullidae	Longbarbel Goatfish	0	121	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
-131234	Parupeneus multifasciatus	Parupeneus	Mullidae	Mullidae	Manybar Goatfish	0	420	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
 119432	Upeneus tragula	Upeneus	Mullidae	Mullidae	Freckled Goatfish	0	95	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
 617592	Mulloidichthys ayliffe	Mulloidichthys	Mullidae	Mullidae	Bluestriped Goatfish	0	5	False	False	False	ineligible	below_required_observation_threshold
 187709	Mulloidichthys dentatus	Mulloidichthys	Mullidae	Mullidae	Mexican Goatfish	0	254	False	False	False	ineligible	below_required_observation_threshold
 1314603	Mulloidichthys flavicaudus	Mulloidichthys	Mullidae	Mullidae		0	1	False	False	False	ineligible	below_required_observation_threshold
-128172	Mulloidichthys martinicus	Mulloidichthys	Mullidae	Mullidae	Yellow Goatfish	0	425	False	False	False	ineligible	below_required_observation_threshold
 119421	Mulloidichthys mimicus	Mulloidichthys	Mullidae	Mullidae	Mimic Goatfish	0	1	False	False	False	ineligible	below_required_observation_threshold
 317228	Mullus auratus	Mullus	Mullidae	Mullidae	Red Goatfish	0	5	False	False	False	ineligible	below_required_observation_threshold
 118618	Mullus barbatus	Mullus	Mullidae	Mullidae	Red Mullet	0	96	False	False	False	ineligible	below_required_observation_threshold
-118619	Mullus surmuletus	Mullus	Mullidae	Mullidae	Striped Red Mullet	0	414	False	False	False	ineligible	below_required_observation_threshold
 132375	Parupeneus barberinoides	Parupeneus	Mullidae	Mullidae	Bicolour Goatfish	0	58	False	False	False	ineligible	below_required_observation_threshold
 547438	Parupeneus biaculeatus	Parupeneus	Mullidae	Mullidae	Pointed Goatfish	0	3	False	False	False	ineligible	below_required_observation_threshold
 519572	Parupeneus chrysopleuron	Parupeneus	Mullidae	Mullidae	Rosy Goatfish	0	2	False	False	False	ineligible	below_required_observation_threshold
@@ -1008,10 +1008,10 @@ taxon_id	species	genus	scientist_family	inat_family	preferred_common_name	region
 347936	Upeneus sulphureus	Upeneus	Mullidae	Mullidae	Sunrise Goatfish	0	1	False	False	False	ineligible	below_required_observation_threshold
 617628	Upeneus supravittatus	Upeneus	Mullidae	Mullidae	Long-fin Goatfish	0	1	False	False	False	ineligible	below_required_observation_threshold
 123121	Upeneus taeniopterus	Upeneus	Mullidae	Mullidae	Finstripe Goatfish	0	8	False	False	False	ineligible	below_required_observation_threshold
-121000	Gymnothorax javanicus	Gymnothorax	Muraenidae	Muraenidae	Giant Moray	0	443	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
+121000	Gymnothorax javanicus	Gymnothorax	Muraenidae	Muraenidae	Giant Moray	0	443	True	True	True	common_target_pretraining	requested_target_meets_licensed_abundance_threshold
+54441	Echidna nebulosa	Echidna	Muraenidae	Muraenidae	Snowflake Moray	0	400	True	False	True	broad_pretraining	global_licensed_abundance
 94030	Anarchias galapagensis	Anarchias	Muraenidae	Muraenidae	Hardtail Moray	0	2	False	False	False	ineligible	below_required_observation_threshold
 153471	Echidna catenata	Echidna	Muraenidae	Muraenidae	Chain Moray	0	104	False	False	False	ineligible	below_required_observation_threshold
-54441	Echidna nebulosa	Echidna	Muraenidae	Muraenidae	Snowflake Moray	0	400	False	False	False	ineligible	below_required_observation_threshold
 49980	Echidna nocturna	Echidna	Muraenidae	Muraenidae	Palenose Moray	0	38	False	False	False	ineligible	below_required_observation_threshold
 617657	Echidna peli	Echidna	Muraenidae	Muraenidae	Pebbletooth Moray	0	3	False	False	False	ineligible	below_required_observation_threshold
 142970	Echidna polyzona	Echidna	Muraenidae	Muraenidae	Barred Moray	0	34	False	False	False	ineligible	below_required_observation_threshold
@@ -1109,6 +1109,9 @@ taxon_id	species	genus	scientist_family	inat_family	preferred_common_name	region
 486615	Uropterygius micropterus	Uropterygius	Muraenidae	Muraenidae	Tidepool Snakemoray	0	18	False	False	False	ineligible	below_required_observation_threshold
 569856	Uropterygius polyspilus	Uropterygius	Muraenidae	Muraenidae	Large-spotted Snakemoray	0	3	False	False	False	ineligible	below_required_observation_threshold
 114819	Uropterygius versutus	Uropterygius	Muraenidae	Muraenidae	Crafty Snakemoray	0	14	False	False	False	ineligible	below_required_observation_threshold
+111389	Pygoplites diacanthus	Pygoplites	Pomacanthidae	Pomacanthidae	Regal Angelfish	0	484	True	True	True	common_target_pretraining	requested_target_meets_licensed_abundance_threshold
+56797	Holacanthus passer	Holacanthus	Pomacanthidae	Pomacanthidae	King Angelfish	0	530	True	False	True	broad_pretraining	global_licensed_abundance
+49257	Pomacanthus paru	Pomacanthus	Pomacanthidae	Pomacanthidae	French Angelfish	0	571	True	False	True	broad_pretraining	global_licensed_abundance
 94416	Apolemichthys trimaculatus	Apolemichthys	Pomacanthidae	Pomacanthidae	Threespot Angelfish	0	101	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
 96939	Centropyge bicolor	Centropyge	Pomacanthidae	Pomacanthidae	Bicolor Angelfish	0	218	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
 96944	Centropyge eibli	Centropyge	Pomacanthidae	Pomacanthidae	Eibl's Angelfish	0	22	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
@@ -1118,7 +1121,6 @@ taxon_id	species	genus	scientist_family	inat_family	preferred_common_name	region
 84181	Pomacanthus imperator	Pomacanthus	Pomacanthidae	Pomacanthidae	Emperor Angelfish	0	318	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
 110017	Pomacanthus navarchus	Pomacanthus	Pomacanthidae	Pomacanthidae	Bluegirdle Angelfish	0	83	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
 110019	Pomacanthus semicirculatus	Pomacanthus	Pomacanthidae	Pomacanthidae	Semicircle Angelfish	0	178	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
-111389	Pygoplites diacanthus	Pygoplites	Pomacanthidae	Pomacanthidae	Regal Angelfish	0	484	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
 94412	Apolemichthys arcuatus	Apolemichthys	Pomacanthidae	Pomacanthidae	Bandit Angelfish	0	4	False	False	False	ineligible	below_required_observation_threshold
 94413	Apolemichthys griffisi	Apolemichthys	Pomacanthidae	Pomacanthidae	Griffis' Angelfish	0	1	False	False	False	ineligible	below_required_observation_threshold
 94415	Apolemichthys kingi	Apolemichthys	Pomacanthidae	Pomacanthidae	Tiger Angelfish	0	6	False	False	False	ineligible	below_required_observation_threshold
@@ -1160,28 +1162,40 @@ taxon_id	species	genus	scientist_family	inat_family	preferred_common_name	region
 49632	Holacanthus bermudensis	Holacanthus	Pomacanthidae	Pomacanthidae	Blue Angelfish	0	80	False	False	False	ineligible	below_required_observation_threshold
 47235	Holacanthus ciliaris	Holacanthus	Pomacanthidae	Pomacanthidae	Queen Angelfish	0	345	False	False	False	ineligible	below_required_observation_threshold
 102896	Holacanthus clarionensis	Holacanthus	Pomacanthidae	Pomacanthidae	Clarión Angelfish	0	39	False	False	False	ineligible	below_required_observation_threshold
-56797	Holacanthus passer	Holacanthus	Pomacanthidae	Pomacanthidae	King Angelfish	0	530	False	False	False	ineligible	below_required_observation_threshold
 49495	Holacanthus tricolor	Holacanthus	Pomacanthidae	Pomacanthidae	Rock Beauty	0	259	False	False	False	ineligible	below_required_observation_threshold
 110013	Pomacanthus annularis	Pomacanthus	Pomacanthidae	Pomacanthidae	Bluering Angelfish	0	59	False	False	False	ineligible	below_required_observation_threshold
 49427	Pomacanthus arcuatus	Pomacanthus	Pomacanthidae	Pomacanthidae	Grey Angelfish	0	314	False	False	False	ineligible	below_required_observation_threshold
 110014	Pomacanthus asfur	Pomacanthus	Pomacanthidae	Pomacanthidae	Arabian Angelfish	0	8	False	False	False	ineligible	below_required_observation_threshold
 110015	Pomacanthus chrysurus	Pomacanthus	Pomacanthidae	Pomacanthidae	Goldtail Angelfish	0	3	False	False	False	ineligible	below_required_observation_threshold
 110016	Pomacanthus maculosus	Pomacanthus	Pomacanthidae	Pomacanthidae	Halfmoon Angelfish	0	81	False	False	False	ineligible	below_required_observation_threshold
-49257	Pomacanthus paru	Pomacanthus	Pomacanthidae	Pomacanthidae	French Angelfish	0	571	False	False	False	ineligible	below_required_observation_threshold
 110018	Pomacanthus rhomboides	Pomacanthus	Pomacanthidae	Pomacanthidae	Old Woman Angelfish	0	22	False	False	False	ineligible	below_required_observation_threshold
 110020	Pomacanthus sexstriatus	Pomacanthus	Pomacanthidae	Pomacanthidae	Sixband Angelfish	0	229	False	False	False	ineligible	below_required_observation_threshold
 110021	Pomacanthus xanthometopon	Pomacanthus	Pomacanthidae	Pomacanthidae	Blueface Angelfish	0	69	False	False	False	ineligible	below_required_observation_threshold
 110022	Pomacanthus zonipectus	Pomacanthus	Pomacanthidae	Pomacanthidae	Cortez Angelfish	0	201	False	False	False	ineligible	below_required_observation_threshold
-49403	Abudefduf vaigiensis	Abudefduf	Pomacentridae	Pomacentridae	Indo-Pacific Sergeant Major	0	898	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
+49403	Abudefduf vaigiensis	Abudefduf	Pomacentridae	Pomacentridae	Indo-Pacific Sergeant Major	0	898	True	True	True	common_target_pretraining	requested_target_meets_licensed_abundance_threshold
+136345	Amphiprion clarkii	Amphiprion	Pomacentridae	Pomacentridae	Clark's Anemonefish	0	453	True	True	True	common_target_pretraining	requested_target_meets_licensed_abundance_threshold
+179872	Dascyllus reticulatus	Dascyllus	Pomacentridae	Pomacentridae	Reticulated Damselfish	0	359	True	True	True	common_target_pretraining	requested_target_meets_licensed_abundance_threshold
+49303	Dascyllus trimaculatus	Dascyllus	Pomacentridae	Pomacentridae	Three-spot Dascyllus	0	752	True	True	True	common_target_pretraining	requested_target_meets_licensed_abundance_threshold
+181028	Pomacentrus moluccensis	Pomacentrus	Pomacentridae	Pomacentridae	Lemon Damsel	0	360	True	True	True	common_target_pretraining	requested_target_meets_licensed_abundance_threshold
+49402	Abudefduf saxatilis	Abudefduf	Pomacentridae	Pomacentridae	Atlantic Sergeant Major	0	1312	True	False	True	broad_pretraining	global_licensed_abundance
+49401	Abudefduf sexfasciatus	Abudefduf	Pomacentridae	Pomacentridae	Scissortail Sergeant	0	750	True	False	True	broad_pretraining	global_licensed_abundance
+92989	Abudefduf troschelii	Abudefduf	Pomacentridae	Pomacentridae	Panamic Sergeant Major	0	688	True	False	True	broad_pretraining	global_licensed_abundance
+1315935	Azurina cyanea	Azurina	Pomacentridae	Pomacentridae	Blue Chromis	0	374	True	False	True	broad_pretraining	global_licensed_abundance
+1315932	Azurina multilineata	Azurina	Pomacentridae	Pomacentridae	Brown Chromis	0	421	True	False	True	broad_pretraining	global_licensed_abundance
+105832	Microspathodon dorsalis	Microspathodon	Pomacentridae	Pomacentridae	Giant Damselfish	0	532	True	False	True	broad_pretraining	global_licensed_abundance
+113101	Stegastes acapulcoensis	Stegastes	Pomacentridae	Pomacentridae	Acapulco Major	0	468	True	False	True	broad_pretraining	global_licensed_abundance
+128183	Stegastes partitus	Stegastes	Pomacentridae	Pomacentridae	Bicolor Damselfish	0	446	True	False	True	broad_pretraining	global_licensed_abundance
+118682	Chromis chromis	Chromis	Pomacentridae	Pomacentridae	Mediterranean Damselfish	0	588	True	False	True	novel_evaluation	held_out_for_unseen_species_evaluation
+49753	Microspathodon chrysurus	Microspathodon	Pomacentridae	Pomacentridae	Yellowtail Damselfish	0	468	True	False	True	novel_evaluation	held_out_for_unseen_species_evaluation
 134155	Amblyglyphidodon aureus	Amblyglyphidodon	Pomacentridae	Pomacentridae	Golden Damselfish	0	216	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
-136345	Amphiprion clarkii	Amphiprion	Pomacentridae	Pomacentridae	Clark's Anemonefish	0	453	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
 119391	Amphiprion percula	Amphiprion	Pomacentridae	Pomacentridae	Percula Anemonefish	0	33	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
 134156	Amphiprion perideraion	Amphiprion	Pomacentridae	Pomacentridae	Pink Skunk Anemonefish	0	308	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
 119430	Amphiprion polymnus	Amphiprion	Pomacentridae	Pomacentridae	Saddleback Anemonefish	0	55	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
-179872	Dascyllus reticulatus	Dascyllus	Pomacentridae	Pomacentridae	Reticulated Damselfish	0	359	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
-49303	Dascyllus trimaculatus	Dascyllus	Pomacentridae	Pomacentridae	Three-spot Dascyllus	0	752	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
 132371	Pomacentrus coelestis	Pomacentrus	Pomacentridae	Pomacentridae	Neon Damselfish	0	216	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
-181028	Pomacentrus moluccensis	Pomacentrus	Pomacentridae	Pomacentridae	Lemon Damsel	0	360	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
+123922	Abudefduf sordidus	Abudefduf	Pomacentridae	Pomacentridae	Blackspot Sergeant	0	510	True	False	False	eligible_not_selected	genus_quota_reached
+179880	Chromis viridis	Chromis	Pomacentridae	Pomacentridae	Blue-green Chromis	0	371	True	False	False	eligible_not_selected	scientist_family_quota_reached
+952775	Dascyllus aruanus	Dascyllus	Pomacentridae	Pomacentridae	Humbug Dascyllus	0	365	True	False	False	eligible_not_selected	scientist_family_quota_reached
+49304	Stegastes planifrons	Stegastes	Pomacentridae	Pomacentridae	Threespot Damselfish	0	358	True	False	False	eligible_not_selected	scientist_family_quota_reached
 49400	Abudefduf abdominalis	Abudefduf	Pomacentridae	Pomacentridae	Hawaiian Sergeant Major	0	88	False	False	False	ineligible	below_required_observation_threshold
 337754	Abudefduf bengalensis	Abudefduf	Pomacentridae	Pomacentridae	Bengal Sergeant	0	211	False	False	False	ineligible	below_required_observation_threshold
 871277	Abudefduf caudobimaculatus	Abudefduf	Pomacentridae	Pomacentridae	Okinawa Sergeant	0	1	False	False	False	ineligible	below_required_observation_threshold
@@ -1191,13 +1205,9 @@ taxon_id	species	genus	scientist_family	inat_family	preferred_common_name	region
 181014	Abudefduf lorenzi	Abudefduf	Pomacentridae	Pomacentridae	Black-tail Sergeant	0	40	False	False	False	ineligible	below_required_observation_threshold
 559948	Abudefduf natalensis	Abudefduf	Pomacentridae	Pomacentridae	Natal Sergeant	0	22	False	False	False	ineligible	below_required_observation_threshold
 345719	Abudefduf notatus	Abudefduf	Pomacentridae	Pomacentridae	Yellowtail Sergeant	0	22	False	False	False	ineligible	below_required_observation_threshold
-49402	Abudefduf saxatilis	Abudefduf	Pomacentridae	Pomacentridae	Atlantic Sergeant Major	0	1312	False	False	False	ineligible	below_required_observation_threshold
 337753	Abudefduf septemfasciatus	Abudefduf	Pomacentridae	Pomacentridae	Banded Sergeant	0	198	False	False	False	ineligible	below_required_observation_threshold
-49401	Abudefduf sexfasciatus	Abudefduf	Pomacentridae	Pomacentridae	Scissortail Sergeant	0	750	False	False	False	ineligible	below_required_observation_threshold
-123922	Abudefduf sordidus	Abudefduf	Pomacentridae	Pomacentridae	Blackspot Sergeant	0	510	False	False	False	ineligible	below_required_observation_threshold
 474803	Abudefduf sparoides	Abudefduf	Pomacentridae	Pomacentridae	False-eye Sergeant	0	31	False	False	False	ineligible	below_required_observation_threshold
 57338	Abudefduf taurus	Abudefduf	Pomacentridae	Pomacentridae	Night Sergeant	0	90	False	False	False	ineligible	below_required_observation_threshold
-92989	Abudefduf troschelii	Abudefduf	Pomacentridae	Pomacentridae	Panamic Sergeant Major	0	688	False	False	False	ineligible	below_required_observation_threshold
 481478	Abudefduf whitleyi	Abudefduf	Pomacentridae	Pomacentridae	Whitley's Sergeant	0	98	False	False	False	ineligible	below_required_observation_threshold
 319335	Acanthochromis polyacanthus	Acanthochromis	Pomacentridae	Pomacentridae	Spiny Chromis	0	120	False	False	False	ineligible	below_required_observation_threshold
 606226	Altrichthys alelia	Altrichthys	Pomacentridae	Pomacentridae	Alelia's Damselfish	0	5	False	False	False	ineligible	below_required_observation_threshold
@@ -1239,19 +1249,16 @@ taxon_id	species	genus	scientist_family	inat_family	preferred_common_name	region
 180382	Amphiprion sebae	Amphiprion	Pomacentridae	Pomacentridae	Sebae Anemonefish	0	1	False	False	False	ineligible	below_required_observation_threshold
 57756	Amphiprion tricinctus	Amphiprion	Pomacentridae	Pomacentridae	Three-band Anemonefish	0	1	False	False	False	ineligible	below_required_observation_threshold
 1315937	Azurina atrilobata	Azurina	Pomacentridae	Pomacentridae	Scissortail Chromis	0	287	False	False	False	ineligible	below_required_observation_threshold
-1315935	Azurina cyanea	Azurina	Pomacentridae	Pomacentridae	Blue Chromis	0	374	False	False	False	ineligible	below_required_observation_threshold
 1316760	Azurina elerae	Azurina	Pomacentridae	Pomacentridae	Twinspot chromis	0	6	False	False	False	ineligible	below_required_observation_threshold
 95019	Azurina hirundo	Azurina	Pomacentridae	Pomacentridae	Swallow Damsel	0	4	False	False	False	ineligible	below_required_observation_threshold
 1316758	Azurina intercrusma	Azurina	Pomacentridae	Pomacentridae	Peruvian Chromis	0	2	False	False	False	ineligible	below_required_observation_threshold
 1316757	Azurina lepidolepis	Azurina	Pomacentridae	Pomacentridae	Scaly Puller	0	45	False	False	False	ineligible	below_required_observation_threshold
-1315932	Azurina multilineata	Azurina	Pomacentridae	Pomacentridae	Brown Chromis	0	421	False	False	False	ineligible	below_required_observation_threshold
 424709	Cheiloprion labiatus	Cheiloprion	Pomacentridae	Pomacentridae	Biglip Damsel	0	8	False	False	False	ineligible	below_required_observation_threshold
 358107	Chromis albicauda	Chromis	Pomacentridae	Pomacentridae	White-tailed Chromis	0	4	False	False	False	ineligible	below_required_observation_threshold
 97750	Chromis alpha	Chromis	Pomacentridae	Pomacentridae	Yellow-speckled Chromis	0	26	False	False	False	ineligible	below_required_observation_threshold
 97751	Chromis alta	Chromis	Pomacentridae	Pomacentridae	Silverstripe Chromis	0	3	False	False	False	ineligible	below_required_observation_threshold
 182177	Chromis analis	Chromis	Pomacentridae	Pomacentridae	Yellow Chromis	0	37	False	False	False	ineligible	below_required_observation_threshold
 181020	Chromis atripectoralis	Chromis	Pomacentridae	Pomacentridae	Black-axil Chromis	0	145	False	False	False	ineligible	below_required_observation_threshold
-118682	Chromis chromis	Chromis	Pomacentridae	Pomacentridae	Mediterranean Damselfish	0	588	False	False	False	ineligible	below_required_observation_threshold
 204606	Chromis chrysura	Chromis	Pomacentridae	Pomacentridae	Stout-body Chromis	0	17	False	False	False	ineligible	below_required_observation_threshold
 519432	Chromis cinerascens	Chromis	Pomacentridae	Pomacentridae	Green Chromis	0	15	False	False	False	ineligible	below_required_observation_threshold
 97753	Chromis crusma	Chromis	Pomacentridae	Pomacentridae	Valparaiso Chromis	0	1	False	False	False	ineligible	below_required_observation_threshold
@@ -1278,7 +1285,6 @@ taxon_id	species	genus	scientist_family	inat_family	preferred_common_name	region
 147107	Chromis scotti	Chromis	Pomacentridae	Pomacentridae	Purple Reeffish	0	1	False	False	False	ineligible	below_required_observation_threshold
 181019	Chromis ternatensis	Chromis	Pomacentridae	Pomacentridae	Ternate Chromis	0	125	False	False	False	ineligible	below_required_observation_threshold
 128267	Chromis verater	Chromis	Pomacentridae	Pomacentridae	Three-spot Chromis	0	7	False	False	False	ineligible	below_required_observation_threshold
-179880	Chromis viridis	Chromis	Pomacentridae	Pomacentridae	Blue-green Chromis	0	371	False	False	False	ineligible	below_required_observation_threshold
 334629	Chromis weberi	Chromis	Pomacentridae	Pomacentridae	Weber's Puller	0	73	False	False	False	ineligible	below_required_observation_threshold
 530717	Chromis westaustralis	Chromis	Pomacentridae	Pomacentridae	West Australian Puller	0	3	False	False	False	ineligible	below_required_observation_threshold
 118577	Chromis xanthochira	Chromis	Pomacentridae	Pomacentridae	Yellow-axil chromis	0	1	False	False	False	ineligible	below_required_observation_threshold
@@ -1307,7 +1313,6 @@ taxon_id	species	genus	scientist_family	inat_family	preferred_common_name	region
 338073	Chrysiptera unimaculata	Chrysiptera	Pomacentridae	Pomacentridae	Onespot Demoiselle	0	140	False	False	False	ineligible	below_required_observation_threshold
 914304	Dascyllus abudafur	Dascyllus	Pomacentridae	Pomacentridae	Indian Ocean Humbug	0	190	False	False	False	ineligible	below_required_observation_threshold
 121392	Dascyllus albisella	Dascyllus	Pomacentridae	Pomacentridae	Hawaiian Dascyllus	0	116	False	False	False	ineligible	below_required_observation_threshold
-952775	Dascyllus aruanus	Dascyllus	Pomacentridae	Pomacentridae	Humbug Dascyllus	0	365	False	False	False	ineligible	below_required_observation_threshold
 179873	Dascyllus carneus	Dascyllus	Pomacentridae	Pomacentridae	Indian Dascyllus	0	64	False	False	False	ineligible	below_required_observation_threshold
 1654980	Dascyllus emamo	Dascyllus	Pomacentridae	Pomacentridae	Polynesian Humbug Dascyllus	0	42	False	False	False	ineligible	below_required_observation_threshold
 619653	Dascyllus flavicaudus	Dascyllus	Pomacentridae	Pomacentridae	yellowtail dascyllus	0	39	False	False	False	ineligible	below_required_observation_threshold
@@ -1325,8 +1330,6 @@ taxon_id	species	genus	scientist_family	inat_family	preferred_common_name	region
 181024	Lepidozygus tapeinosoma	Lepidozygus	Pomacentridae	Pomacentridae	Fusilier Damsel	0	13	False	False	False	ineligible	below_required_observation_threshold
 513053	Mecaenichthys immaculatus	Mecaenichthys	Pomacentridae	Pomacentridae	Immaculate Damsel	0	13	False	False	False	ineligible	below_required_observation_threshold
 105831	Microspathodon bairdii	Microspathodon	Pomacentridae	Pomacentridae	Bumphead Damselfish	0	91	False	False	False	ineligible	below_required_observation_threshold
-49753	Microspathodon chrysurus	Microspathodon	Pomacentridae	Pomacentridae	Yellowtail Damselfish	0	468	False	False	False	ineligible	below_required_observation_threshold
-105832	Microspathodon dorsalis	Microspathodon	Pomacentridae	Pomacentridae	Giant Damselfish	0	532	False	False	False	ineligible	below_required_observation_threshold
 619655	Microspathodon frontatus	Microspathodon	Pomacentridae	Pomacentridae	Guinean Damselfish	0	3	False	False	False	ineligible	below_required_observation_threshold
 495187	Neoglyphidodon carlsoni	Neoglyphidodon	Pomacentridae	Pomacentridae	Carlson's Damselfish	0	16	False	False	False	ineligible	below_required_observation_threshold
 272537	Neoglyphidodon crossi	Neoglyphidodon	Pomacentridae	Pomacentridae	Cross's Damselfish	0	2	False	False	False	ineligible	below_required_observation_threshold
@@ -1448,7 +1451,6 @@ taxon_id	species	genus	scientist_family	inat_family	preferred_common_name	region
 1316596	Pycnochromis vanderbilti	Pycnochromis	Pomacentridae	Pomacentridae	Blackfin Chromis	0	55	False	False	False	ineligible	below_required_observation_threshold
 347662	Similiparma hermani	Similiparma	Pomacentridae	Pomacentridae	Cape Damsel	0	4	False	False	False	ineligible	below_required_observation_threshold
 1256672	Similiparma lurida	Similiparma	Pomacentridae	Pomacentridae	Canary Damsel	0	145	False	False	False	ineligible	below_required_observation_threshold
-113101	Stegastes acapulcoensis	Stegastes	Pomacentridae	Pomacentridae	Acapulco Major	0	468	False	False	False	ineligible	below_required_observation_threshold
 49923	Stegastes adustus	Stegastes	Pomacentridae	Pomacentridae	Dusky Damselfish	0	89	False	False	False	ineligible	below_required_observation_threshold
 447830	Stegastes albifasciatus	Stegastes	Pomacentridae	Pomacentridae	Whitebar Gregory	0	21	False	False	False	ineligible	below_required_observation_threshold
 57343	Stegastes arcifrons	Stegastes	Pomacentridae	Pomacentridae	Galápagos Gregory	0	142	False	False	False	ineligible	below_required_observation_threshold
@@ -1463,10 +1465,8 @@ taxon_id	species	genus	scientist_family	inat_family	preferred_common_name	region
 485286	Stegastes limbatus	Stegastes	Pomacentridae	Pomacentridae	Ebony Gregory	0	10	False	False	False	ineligible	below_required_observation_threshold
 49922	Stegastes nigricans	Stegastes	Pomacentridae	Pomacentridae	Dusky Gregory	0	178	False	False	False	ineligible	below_required_observation_threshold
 619696	Stegastes otophorus	Stegastes	Pomacentridae	Pomacentridae	Freshwater gregory	0	3	False	False	False	ineligible	below_required_observation_threshold
-128183	Stegastes partitus	Stegastes	Pomacentridae	Pomacentridae	Bicolor Damselfish	0	446	False	False	False	ineligible	below_required_observation_threshold
 485011	Stegastes pelicieri	Stegastes	Pomacentridae	Pomacentridae	Mauritian Gregory	0	3	False	False	False	ineligible	below_required_observation_threshold
 619697	Stegastes pictus	Stegastes	Pomacentridae	Pomacentridae	yellowtip damselfish	0	6	False	False	False	ineligible	below_required_observation_threshold
-49304	Stegastes planifrons	Stegastes	Pomacentridae	Pomacentridae	Threespot Damselfish	0	358	False	False	False	ineligible	below_required_observation_threshold
 484792	Stegastes punctatus	Stegastes	Pomacentridae	Pomacentridae	Bluntsnout Gregory	0	35	False	False	False	ineligible	below_required_observation_threshold
 113107	Stegastes rectifraenum	Stegastes	Pomacentridae	Pomacentridae	Cortez Damselfish	0	33	False	False	False	ineligible	below_required_observation_threshold
 113108	Stegastes redemptus	Stegastes	Pomacentridae	Pomacentridae	Clarión Major	0	22	False	False	False	ineligible	below_required_observation_threshold
@@ -1474,8 +1474,11 @@ taxon_id	species	genus	scientist_family	inat_family	preferred_common_name	region
 1023724	Stegastes variabilis	Stegastes	Pomacentridae	Pomacentridae	Brazilian Cocoa Damselfish	0	26	False	False	False	ineligible	below_required_observation_threshold
 619700	Stegastes xanthurus	Stegastes	Pomacentridae	Pomacentridae	Caribbean Cocoa Damselfish	0	100	False	False	False	ineligible	below_required_observation_threshold
 113829	Teixeirichthys jordani	Teixeirichthys	Pomacentridae	Pomacentridae	Jordan's Damsel	0	1	False	False	False	ineligible	below_required_observation_threshold
+52456	Cephalopholis argus	Cephalopholis	Serranidae	Epinephelidae	Peacock Grouper	0	491	True	True	True	common_target_pretraining	requested_target_meets_licensed_abundance_threshold
+96991	Cephalopholis cruentata	Cephalopholis	Serranidae	Epinephelidae	Graysby	0	422	True	False	True	broad_pretraining	global_licensed_abundance
+100119	Epinephelus marginatus	Epinephelus	Serranidae	Epinephelidae	Dusky Grouper	0	353	True	False	True	broad_pretraining	global_licensed_abundance
+118674	Serranus scriba	Serranus	Serranidae	Serranidae	Painted Comber	0	593	True	False	True	broad_pretraining	global_licensed_abundance
 93453	Aethaloperca rogaa	Aethaloperca	Serranidae	Epinephelidae	Redmouth Grouper	0	68	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
-52456	Cephalopholis argus	Cephalopholis	Serranidae	Epinephelidae	Peacock Grouper	0	491	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
 96992	Cephalopholis cyanostigma	Cephalopholis	Serranidae	Epinephelidae	Bluespotted Grouper	0	132	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
 49639	Cephalopholis miniata	Cephalopholis	Serranidae	Epinephelidae	Coral Grouper	0	315	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
 97004	Cephalopholis sonnerati	Cephalopholis	Serranidae	Epinephelidae	Tomato Grouper	0	20	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
@@ -1493,7 +1496,6 @@ taxon_id	species	genus	scientist_family	inat_family	preferred_common_name	region
 96989	Cephalopholis aurantia	Cephalopholis	Serranidae	Epinephelidae	Golden Hind	0	1	False	False	False	ineligible	below_required_observation_threshold
 96990	Cephalopholis boenak	Cephalopholis	Serranidae	Epinephelidae	Chocolate Grouper	0	102	False	False	False	ineligible	below_required_observation_threshold
 1439800	Cephalopholis colonus	Cephalopholis	Serranidae	Epinephelidae	Pacific Creolefish	0	152	False	False	False	ineligible	below_required_observation_threshold
-96991	Cephalopholis cruentata	Cephalopholis	Serranidae	Epinephelidae	Graysby	0	422	False	False	False	ineligible	below_required_observation_threshold
 54941	Cephalopholis formosa	Cephalopholis	Serranidae	Epinephelidae	Bluelined Rockcod	0	79	False	False	False	ineligible	below_required_observation_threshold
 96993	Cephalopholis fulva	Cephalopholis	Serranidae	Epinephelidae	Coney	0	255	False	False	False	ineligible	below_required_observation_threshold
 96994	Cephalopholis hemistiktos	Cephalopholis	Serranidae	Epinephelidae	Yellowfin Hind	0	83	False	False	False	ineligible	below_required_observation_threshold
@@ -1552,7 +1554,6 @@ taxon_id	species	genus	scientist_family	inat_family	preferred_common_name	region
 100115	Epinephelus macrospilos	Epinephelus	Serranidae	Epinephelidae	Snubnose Grouper	0	24	False	False	False	ineligible	below_required_observation_threshold
 100116	Epinephelus maculatus	Epinephelus	Serranidae	Epinephelidae	Highfin Grouper	0	26	False	False	False	ineligible	below_required_observation_threshold
 100118	Epinephelus malabaricus	Epinephelus	Serranidae	Epinephelidae	Malabar Grouper	0	18	False	False	False	ineligible	below_required_observation_threshold
-100119	Epinephelus marginatus	Epinephelus	Serranidae	Epinephelidae	Dusky Grouper	0	353	False	False	False	ineligible	below_required_observation_threshold
 100120	Epinephelus melanostigma	Epinephelus	Serranidae	Epinephelidae	Oneblotch Grouper	0	1	False	False	False	ineligible	below_required_observation_threshold
 49637	Epinephelus morio	Epinephelus	Serranidae	Epinephelidae	Red Grouper	0	19	False	False	False	ineligible	below_required_observation_threshold
 100123	Epinephelus multinotatus	Epinephelus	Serranidae	Epinephelidae	Rankin Cod	0	8	False	False	False	ineligible	below_required_observation_threshold
@@ -1627,7 +1628,6 @@ taxon_id	species	genus	scientist_family	inat_family	preferred_common_name	region
 1316085	Serranus papilionaceus	Serranus	Serranidae	Serranidae	Butterfly-winged Comber	0	59	False	False	False	ineligible	below_required_observation_threshold
 179460	Serranus phoebe	Serranus	Serranidae	Serranidae	Phoebe	0	2	False	False	False	ineligible	below_required_observation_threshold
 112499	Serranus psittacinus	Serranus	Serranidae	Serranidae	Barred Serrano	0	71	False	False	False	ineligible	below_required_observation_threshold
-118674	Serranus scriba	Serranus	Serranidae	Serranidae	Painted Comber	0	593	False	False	False	ineligible	below_required_observation_threshold
 179459	Serranus subligarius	Serranus	Serranidae	Serranidae	Belted Sandfish	0	17	False	False	False	ineligible	below_required_observation_threshold
 131484	Serranus tabacarius	Serranus	Serranidae	Serranidae	Tobaccofish	0	48	False	False	False	ineligible	below_required_observation_threshold
 49747	Serranus tigrinus	Serranus	Serranidae	Serranidae	Harlequin Bass	0	203	False	False	False	ineligible	below_required_observation_threshold
@@ -1659,10 +1659,12 @@ taxon_id	species	genus	scientist_family	inat_family	preferred_common_name	region
 318322	Siganus unimaculatus	Siganus	Siganidae	Siganidae	Blackblotch Foxface	0	5	False	False	False	ineligible	below_required_observation_threshold
 180398	Siganus uspi	Siganus	Siganidae	Siganidae	Bicolor Rabbitfish	0	26	False	False	False	ineligible	below_required_observation_threshold
 188399	Siganus vermiculatus	Siganus	Siganidae	Siganidae	Maze Rabbitfish	0	12	False	False	False	ineligible	below_required_observation_threshold
+144017	Arothron hispidus	Arothron	Tetraodontidae	Tetraodontidae	White-spotted Puffer	0	466	True	True	True	common_target_pretraining	requested_target_meets_licensed_abundance_threshold
+119385	Arothron nigropunctatus	Arothron	Tetraodontidae	Tetraodontidae	Blackspotted Puffer	0	519	True	True	True	common_target_pretraining	requested_target_meets_licensed_abundance_threshold
+83318	Arothron meleagris	Arothron	Tetraodontidae	Tetraodontidae	Guineafowl Puffer	0	688	True	False	True	broad_pretraining	global_licensed_abundance
+128857	Canthigaster rostrata	Canthigaster	Tetraodontidae	Tetraodontidae	Caribbean Sharpnose Puffer	0	391	True	False	True	broad_pretraining	global_licensed_abundance
 153278	Arothron caeruleopunctatus	Arothron	Tetraodontidae	Tetraodontidae	Bluespotted Puffer	0	40	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
-144017	Arothron hispidus	Arothron	Tetraodontidae	Tetraodontidae	White-spotted Puffer	0	466	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
 196935	Arothron manilensis	Arothron	Tetraodontidae	Tetraodontidae	Narrowlined Puffer	0	122	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
-119385	Arothron nigropunctatus	Arothron	Tetraodontidae	Tetraodontidae	Blackspotted Puffer	0	519	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
 196933	Canthigaster bennetti	Canthigaster	Tetraodontidae	Tetraodontidae	Whitebelly Toby	0	66	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
 196943	Canthigaster compressa	Canthigaster	Tetraodontidae	Tetraodontidae	Fingerprint Toby	0	48	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
 196932	Canthigaster papua	Canthigaster	Tetraodontidae	Tetraodontidae	Papuan Toby	0	69	False	True	False	rare_target_holdout	requested_target_below_abundance_thresholds
@@ -1673,7 +1675,6 @@ taxon_id	species	genus	scientist_family	inat_family	preferred_common_name	region
 415123	Arothron immaculatus	Arothron	Tetraodontidae	Tetraodontidae	Yellow-eyed Puffer	0	35	False	False	False	ineligible	below_required_observation_threshold
 445672	Arothron inconditus	Arothron	Tetraodontidae	Tetraodontidae	Belly-striped Puffer	0	10	False	False	False	ineligible	below_required_observation_threshold
 124906	Arothron mappa	Arothron	Tetraodontidae	Tetraodontidae	Map Puffer	0	121	False	False	False	ineligible	below_required_observation_threshold
-83318	Arothron meleagris	Arothron	Tetraodontidae	Tetraodontidae	Guineafowl Puffer	0	688	False	False	False	ineligible	below_required_observation_threshold
 621534	Arothron multilineatus	Arothron	Tetraodontidae	Tetraodontidae	Multilined Puffer	0	2	False	False	False	ineligible	below_required_observation_threshold
 445674	Arothron reticularis	Arothron	Tetraodontidae	Tetraodontidae	Reticulated Puffer	0	8	False	False	False	ineligible	below_required_observation_threshold
 196936	Arothron stellatus	Arothron	Tetraodontidae	Tetraodontidae	Starry Puffer	0	166	False	False	False	ineligible	below_required_observation_threshold
@@ -1694,7 +1695,6 @@ taxon_id	species	genus	scientist_family	inat_family	preferred_common_name	region
 96714	Canthigaster punctatissima	Canthigaster	Tetraodontidae	Tetraodontidae	Spotted Sharpnose Puffer	0	139	False	False	False	ineligible	below_required_observation_threshold
 445730	Canthigaster pygmaea	Canthigaster	Tetraodontidae	Tetraodontidae	Pygmy Toby	0	2	False	False	False	ineligible	below_required_observation_threshold
 347529	Canthigaster rivulata	Canthigaster	Tetraodontidae	Tetraodontidae	Ocellate Toby	0	17	False	False	False	ineligible	below_required_observation_threshold
-128857	Canthigaster rostrata	Canthigaster	Tetraodontidae	Tetraodontidae	Caribbean Sharpnose Puffer	0	391	False	False	False	ineligible	below_required_observation_threshold
 445731	Canthigaster smithae	Canthigaster	Tetraodontidae	Tetraodontidae	Bicolored Toby	0	8	False	False	False	ineligible	below_required_observation_threshold
 193920	Canthigaster solandri	Canthigaster	Tetraodontidae	Tetraodontidae	Spotted Toby	0	124	False	False	False	ineligible	below_required_observation_threshold
 128855	Canthigaster supramacula	Canthigaster	Tetraodontidae	Tetraodontidae	West African Sharpnose Puffer	0	2	False	False	False	ineligible	below_required_observation_threshold

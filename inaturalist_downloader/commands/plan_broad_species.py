@@ -57,6 +57,22 @@ def main() -> None:
     summary = write_species_proposal(output_dir, rows, unmatched_targets, planning)
     print(json.dumps(summary, indent=2, sort_keys=True))
     print(f"Wrote proposal to {output_dir / 'broad_species_proposal.tsv'}")
+    if not summary["selected_download_species"]:
+        raise SystemExit(
+            "No species met the configured selection threshold. "
+            f"The largest candidate global photo pool contained "
+            f"{summary['max_global_observations']} observations, while "
+            f"min_global_observations is {summary['min_global_observations']}. "
+            "Calibrate the threshold against the filtered count inventory and the "
+            "observed downloader acceptance rate before downloading."
+        )
+    minimum_train_species = int(planning.get("min_broad_train_species") or 0)
+    if summary["broad_train_species"] < minimum_train_species:
+        raise SystemExit(
+            f"Plan selected {summary['broad_train_species']} broad training species, "
+            f"below the configured minimum of {minimum_train_species}. Review the "
+            "licensed count inventory, family scope, and selection caps."
+        )
 
 
 if __name__ == "__main__":

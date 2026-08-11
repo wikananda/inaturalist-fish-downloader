@@ -1,25 +1,45 @@
 {
-  "broad_train_species": 0,
+  "broad_train_species": 66,
   "candidate_species": 1761,
   "count_note": "Observation counts already apply the configured research-grade, photo, licence, and captive filters; accepted counts will still be lower after image, detector, semantic, diversity, and deduplication gates.",
-  "min_global_observations": 2000,
+  "eligible_species": 95,
+  "max_global_observations": 1312,
+  "min_global_observations": 350,
   "min_regional_observations": 0,
-  "novel_evaluation_species": 0,
+  "novel_evaluation_species": 5,
   "photo_license_codes": [
     "cc0",
     "cc-by",
     "cc-by-sa"
   ],
   "plan_name": "broad_fish_global_pretraining_v2",
-  "rare_target_species": 108,
+  "rare_target_species": 78,
   "region_name": "Global pretraining (Indonesia counts disabled)",
   "region_place_id": 6966,
   "require_regional_threshold": false,
   "role_counts": {
-    "ineligible": 1653,
-    "rare_target_holdout": 108
+    "broad_pretraining": 36,
+    "common_target_pretraining": 30,
+    "eligible_not_selected": 24,
+    "ineligible": 1588,
+    "novel_evaluation": 5,
+    "rare_target_holdout": 78
   },
-  "selected_by_scientist_family": {},
-  "selected_download_species": 0,
+  "selected_by_scientist_family": {
+    "Acanthuridae": 10,
+    "Carangidae": 2,
+    "Carcharhinidae": 2,
+    "Chaetodontidae": 5,
+    "Haemulidae": 2,
+    "Labridae": 15,
+    "Lutjanidae": 3,
+    "Mullidae": 4,
+    "Muraenidae": 2,
+    "Pomacanthidae": 3,
+    "Pomacentridae": 15,
+    "Serranidae": 4,
+    "Tetraodontidae": 4
+  },
+  "selected_download_species": 71,
   "unmatched_target_species": 6
 }
