@@ -1,0 +1,25 @@
+{
+  "broad_train_species": 0,
+  "candidate_species": 1761,
+  "count_note": "Observation counts already apply the configured research-grade, photo, licence, and captive filters; accepted counts will still be lower after image, detector, semantic, diversity, and deduplication gates.",
+  "min_global_observations": 2000,
+  "min_regional_observations": 0,
+  "novel_evaluation_species": 0,
+  "photo_license_codes": [
+    "cc0",
+    "cc-by",
+    "cc-by-sa"
+  ],
+  "plan_name": "broad_fish_global_pretraining_v2",
+  "rare_target_species": 108,
+  "region_name": "Global pretraining (Indonesia counts disabled)",
+  "region_place_id": 6966,
+  "require_regional_threshold": false,
+  "role_counts": {
+    "ineligible": 1653,
+    "rare_target_holdout": 108
+  },
+  "selected_by_scientist_family": {},
+  "selected_download_species": 0,
+  "unmatched_target_species": 6
+}

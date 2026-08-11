@@ -25,6 +25,10 @@ inat:
   license_code: null
   license_preference: []
   blocked_license_codes: []
+  # Never trust the API query alone: verify each returned photo licence again.
+  enforce_allowed_licenses: true
+  # Record and verify the observation's actual taxon against the requested taxon.
+  require_taxon_membership: true
   sleep_seconds: 0.0
   include_subspecies: false
   retries: 5
@@ -43,7 +47,16 @@ download:
   max_photos_per_observation: null
   max_crops_per_observation: null
   max_images_per_observer_per_species: null
+  enable_dataset_dedup: true
+  deduplicate_observation_ids: true
+  deduplicate_photo_ids: true
+  deduplicate_exact_content: true
+  deduplicate_perceptual_content: true
+  # Pilot calibration: radius 4 caused unrelated-fish false positives; 0 catches
+  # identical perceptual hashes (including common recompressions) conservatively.
+  perceptual_hash_distance: 0
   resume: true
+  refresh_exhausted_scopes: false
   rejected_raw_policy: keep
   rejected_raw_sample_rate: 0.05
   overwrite: false

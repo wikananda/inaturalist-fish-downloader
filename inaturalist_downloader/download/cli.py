@@ -33,7 +33,14 @@ CLI_FIELD_TO_PATH = {
     "max_photos_per_observation": "download.max_photos_per_observation",
     "max_crops_per_observation": "download.max_crops_per_observation",
     "max_images_per_observer_per_species": "download.max_images_per_observer_per_species",
+    "enable_dataset_dedup": "download.enable_dataset_dedup",
+    "deduplicate_observation_ids": "download.deduplicate_observation_ids",
+    "deduplicate_photo_ids": "download.deduplicate_photo_ids",
+    "deduplicate_exact_content": "download.deduplicate_exact_content",
+    "deduplicate_perceptual_content": "download.deduplicate_perceptual_content",
+    "perceptual_hash_distance": "download.perceptual_hash_distance",
     "resume": "download.resume",
+    "refresh_exhausted_scopes": "download.refresh_exhausted_scopes",
     "rejected_raw_policy": "download.rejected_raw_policy",
     "rejected_raw_sample_rate": "download.rejected_raw_sample_rate",
     "quality_grade": "inat.quality_grade",
@@ -48,6 +55,8 @@ CLI_FIELD_TO_PATH = {
     "per_page": "inat.per_page",
     "max_pages": "inat.max_pages",
     "license_code": "inat.license_code",
+    "enforce_allowed_licenses": "inat.enforce_allowed_licenses",
+    "require_taxon_membership": "inat.require_taxon_membership",
     "sleep_seconds": "inat.sleep_seconds",
     "include_subspecies": "inat.include_subspecies",
     "overwrite": "download.overwrite",
@@ -138,6 +147,7 @@ BOOL_FIELDS = {
     "overwrite",
     "adaptive_batching",
     "resume",
+    "refresh_exhausted_scopes",
     "skip_image_validation",
     "enable_detection",
     "allow_multiple_fish",
@@ -149,6 +159,13 @@ BOOL_FIELDS = {
     "crop_redetect",
     "crop_redetect_require_single",
     "enable_clip_filter",
+    "enforce_allowed_licenses",
+    "require_taxon_membership",
+    "enable_dataset_dedup",
+    "deduplicate_observation_ids",
+    "deduplicate_photo_ids",
+    "deduplicate_exact_content",
+    "deduplicate_perceptual_content",
 }
 
 INT_FIELDS = {
@@ -176,6 +193,7 @@ INT_FIELDS = {
     "min_fish_bbox_width",
     "min_fish_bbox_height",
     "clip_batch_size",
+    "perceptual_hash_distance",
 }
 
 FLOAT_FIELDS = {
@@ -240,6 +258,7 @@ HELP_TEXT = {
     "max_crops_per_observation": "Optional accepted-crop cap per source observation.",
     "max_images_per_observer_per_species": "Optional accepted-image cap for one observer within a species.",
     "resume": "Resume a matching per-species state from the manifest directory.",
+    "refresh_exhausted_scopes": "Re-scan exhausted scopes from page 1 for newly added observations while preserving accepted/seen IDs.",
     "rejected_raw_policy": "Keep, delete, or deterministically sample rejected raw downloads.",
     "rejected_raw_sample_rate": "Fraction of rejected raw images retained when policy is sample.",
     "quality_grade": "Observation quality filter. Use 'any' to skip this filter.",
@@ -322,6 +341,14 @@ HELP_TEXT = {
     "clip_device": "Optional CLIP device, for example 'cpu', 'mps', or 'cuda'.",
     "clip_threshold": "Minimum CLIP context score margin required to accept an image.",
     "clip_prompts_file": "Optional JSON file defining positive/negative CLIP prompts.",
+    "enforce_allowed_licenses": "Reject photos whose returned photo licence is missing or outside the configured allowed set.",
+    "require_taxon_membership": "Require the observation taxon to equal or descend from the requested species taxon.",
+    "enable_dataset_dedup": "Protect the accepted dataset from duplicate or conflicting source identities across all species.",
+    "deduplicate_observation_ids": "Reject an observation ID already accepted elsewhere in the dataset.",
+    "deduplicate_photo_ids": "Reject a photo ID already accepted elsewhere in the dataset.",
+    "deduplicate_exact_content": "Reject accepted crops with identical file content.",
+    "deduplicate_perceptual_content": "Reject visually near-identical accepted crops using a perceptual hash.",
+    "perceptual_hash_distance": "Maximum 64-bit perceptual-hash distance treated as a duplicate.",
 }
 
 OPTION_NAMES = {
@@ -597,6 +624,7 @@ def validate_args(args: argparse.Namespace) -> None:
         "max_crops_per_observation": None,
         "max_images_per_observer_per_species": None,
         "resume": False,
+        "refresh_exhausted_scopes": False,
         "rejected_raw_policy": "keep",
         "rejected_raw_sample_rate": 0.05,
         "place_preference": [],
@@ -624,6 +652,14 @@ def validate_args(args: argparse.Namespace) -> None:
         "crop_redetect_min_iou": 0.0,
         "crop_redetect_min_edge_margin_ratio": 0.0,
         "clip_backend": "clip",
+        "enforce_allowed_licenses": False,
+        "require_taxon_membership": False,
+        "enable_dataset_dedup": False,
+        "deduplicate_observation_ids": True,
+        "deduplicate_photo_ids": True,
+        "deduplicate_exact_content": True,
+        "deduplicate_perceptual_content": True,
+        "perceptual_hash_distance": 0,
     }
     for field, default in compatibility_defaults.items():
         if not hasattr(args, field):
@@ -724,6 +760,20 @@ def validate_args(args: argparse.Namespace) -> None:
                 f"inat.query_params.{query_license_field} cannot include blocked licenses: "
                 + ", ".join(blocked_query_values)
             )
+    allowed_licenses = set(args.license_preference)
+    if args.license_code:
+        allowed_licenses.add(args.license_code)
+    allowed_licenses.update(
+        _query_param_license_values(args.query_params.get("photo_license"))
+    )
+    args.allowed_license_code_set = allowed_licenses
+    if args.enforce_allowed_licenses and not args.allowed_license_code_set:
+        raise SystemExit(
+            "inat.enforce_allowed_licenses requires license_preference, "
+            "license_code, or query_params.photo_license"
+        )
+    if args.perceptual_hash_distance < 0 or args.perceptual_hash_distance > 64:
+        raise SystemExit("--perceptual-hash-distance must be between 0 and 64")
     if not args.skip_image_validation and not pillow_available():
         raise SystemExit(
             "Pillow is required for image validation. Install pillow or use --skip-image-validation."

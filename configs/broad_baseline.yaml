@@ -1,12 +1,12 @@
 paths:
-  species_file: plans/broad_baseline/selected_download_species.txt
-  output_dir: broad_downloads
-  raw_dir: broad_downloads_raw
-  manifest_dir: manifests/broad_baseline
+  species_file: plans/broad_global_v2/selected_download_species.txt
+  output_dir: broad_global_downloads
+  raw_dir: broad_global_downloads_raw
+  manifest_dir: manifests/broad_global_v2
 
 inat:
-  # Search Indonesia first and then fill each accepted quota globally.
-  place_preference: [6966, null]
+  # Broad fish-domain pretraining starts globally. Indonesia is a later fine-tune.
+  place_preference: [null]
   filter_files:
     - commercial_licenses
   quality_grade: research
@@ -19,7 +19,7 @@ inat:
 
 download:
   images_per_species: 500
-  max_candidates_per_species: 3000
+  max_candidates_per_species: 5000
   adaptive_batching: true
   min_candidate_batch_size: 32
   max_candidate_batch_size: 128

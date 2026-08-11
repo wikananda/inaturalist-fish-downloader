@@ -1,11 +1,19 @@
 planning:
-  name: broad_fish_baseline_v1
-  region_name: Indonesia
+  name: broad_fish_global_pretraining_v2
+  # Global supply drives pretraining selection. Local relevance is handled during
+  # the later Indonesia/SeaLens adaptation stage.
+  region_name: Global pretraining (Indonesia counts disabled)
   region_place_id: 6966
+  collect_regional_counts: false
+  require_regional_threshold: false
   quality_grade: research
   photos_only: true
-  min_regional_observations: 20
-  min_global_observations: 500
+  exclude_captive: true
+  photo_license_codes: [cc0, cc-by, cc-by-sa]
+  min_regional_observations: 0
+  # The pilot accepted 34.6% of candidates. A 2,000-observation licensed pool
+  # gives reasonable headroom for a 500 accepted-image target after filtering.
+  min_global_observations: 2000
   max_species_per_scientist_family: 15
   max_species_per_genus: 4
   novel_evaluation_fraction: 0.15
@@ -15,7 +23,7 @@ planning:
   retries: 5
   sleep_seconds: 0.0
   target_species_file: species.txt
-  output_dir: plans/broad_baseline
+  output_dir: plans/broad_global_v2
 
 # `scientist_family` is the stable label shown to scientists. `inat_taxa`
 # contains the current iNaturalist taxa that must be queried to populate it.

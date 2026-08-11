@@ -74,6 +74,8 @@ def fetch_species_counts(
     max_pages: int,
     retries: int,
     sleep_seconds: float,
+    photo_license_codes: list[str] | None = None,
+    exclude_captive: bool = False,
 ) -> dict[int, dict[str, Any]]:
     """Return species-count rows keyed by taxon ID for one search scope."""
     rows: dict[int, dict[str, Any]] = {}
@@ -89,6 +91,10 @@ def fetch_species_counts(
             params["quality_grade"] = quality_grade
         if photos_only:
             params["photos"] = "true"
+        if photo_license_codes:
+            params["photo_license"] = ",".join(photo_license_codes)
+        if exclude_captive:
+            params["captive"] = "false"
 
         payload = http_get_json(
             "/observations/species_counts",
@@ -135,25 +141,30 @@ def _collect_candidate_rows(
         for inat_taxon in family.get("inat_taxa", []):
             inat_family = str(inat_taxon["name"])
             family_taxon_id = int(inat_taxon["taxon_id"])
-            regional = fetcher(
-                taxon_id=family_taxon_id,
-                place_id=int(planning["region_place_id"]),
-                quality_grade=str(planning["quality_grade"]),
-                photos_only=bool(planning["photos_only"]),
-                per_page=int(planning["per_page"]),
-                max_pages=int(planning["max_pages"]),
-                retries=int(planning["retries"]),
-                sleep_seconds=float(planning["sleep_seconds"]),
-            )
+            shared_filters = {
+                "quality_grade": str(planning["quality_grade"]),
+                "photos_only": bool(planning["photos_only"]),
+                "per_page": int(planning["per_page"]),
+                "max_pages": int(planning["max_pages"]),
+                "retries": int(planning["retries"]),
+                "sleep_seconds": float(planning["sleep_seconds"]),
+                "photo_license_codes": list(
+                    planning.get("photo_license_codes") or []
+                ),
+                "exclude_captive": bool(planning.get("exclude_captive", False)),
+            }
+            if planning.get("collect_regional_counts", True):
+                regional = fetcher(
+                    taxon_id=family_taxon_id,
+                    place_id=int(planning["region_place_id"]),
+                    **shared_filters,
+                )
+            else:
+                regional = {}
             global_rows = fetcher(
                 taxon_id=family_taxon_id,
                 place_id=None,
-                quality_grade=str(planning["quality_grade"]),
-                photos_only=bool(planning["photos_only"]),
-                per_page=int(planning["per_page"]),
-                max_pages=int(planning["max_pages"]),
-                retries=int(planning["retries"]),
-                sleep_seconds=float(planning["sleep_seconds"]),
+                **shared_filters,
             )
             for taxon_id in set(regional) | set(global_rows):
                 regional_row = regional.get(taxon_id, {})
@@ -201,6 +212,7 @@ def select_species(
     family_limit = int(planning["max_species_per_scientist_family"])
     genus_limit = int(planning["max_species_per_genus"])
     novel_fraction = float(planning["novel_evaluation_fraction"])
+    require_regional = bool(planning.get("require_regional_threshold", True))
     rng = random.Random(int(planning["random_seed"]))
 
     found_targets = {row["species"].casefold() for row in rows} & target_species
@@ -208,15 +220,18 @@ def select_species(
     for row in rows:
         row["target_species"] = row["species"].casefold() in target_species
         row["eligible"] = (
-            int(row["regional_count"]) >= min_regional
-            and int(row["global_count"]) >= min_global
+            int(row["global_count"]) >= min_global
+            and (
+                not require_regional
+                or int(row["regional_count"]) >= min_regional
+            )
         )
         row["selected"] = False
         row["dataset_role"] = (
             "eligible_not_selected" if row["eligible"] else "ineligible"
         )
         row["selection_reason"] = (
-            "below_regional_or_global_threshold"
+            "below_required_observation_threshold"
             if not row["eligible"]
             else "eligible_not_selected"
         )
@@ -227,8 +242,8 @@ def select_species(
         eligible.sort(
             key=lambda row: (
                 not row["target_species"],
-                -int(row["regional_count"]),
                 -int(row["global_count"]),
+                -int(row["regional_count"]),
                 row["species"],
             )
         )
@@ -243,7 +258,7 @@ def select_species(
                 continue
             row["selected"] = True
             row["dataset_role"] = "common_target_pretraining"
-            row["selection_reason"] = "requested_target_meets_abundance_thresholds"
+            row["selection_reason"] = "requested_target_meets_licensed_abundance_threshold"
             selected.append(row)
             genus_counts[row["genus"]] += 1
 
@@ -258,7 +273,7 @@ def select_species(
                 continue
             row["selected"] = True
             row["dataset_role"] = "broad_pretraining"
-            row["selection_reason"] = "regional_and_global_abundance"
+            row["selection_reason"] = "global_licensed_abundance"
             selected.append(row)
             genus_counts[row["genus"]] += 1
 
@@ -355,6 +370,10 @@ def write_species_proposal(
         "region_place_id": planning["region_place_id"],
         "min_regional_observations": planning["min_regional_observations"],
         "min_global_observations": planning["min_global_observations"],
+        "require_regional_threshold": planning.get(
+            "require_regional_threshold", True
+        ),
+        "photo_license_codes": list(planning.get("photo_license_codes") or []),
         "candidate_species": len(rows),
         "selected_download_species": len(download_rows),
         "broad_train_species": len(train_rows),
@@ -364,8 +383,9 @@ def write_species_proposal(
         "role_counts": dict(sorted(role_counts.items())),
         "selected_by_scientist_family": dict(sorted(family_counts.items())),
         "count_note": (
-            "Observation counts are research-grade photo upper bounds; final accepted "
-            "counts will be lower after licence, image, detector, and CLIP filters."
+            "Observation counts already apply the configured research-grade, photo, "
+            "licence, and captive filters; accepted counts will still be lower after "
+            "image, detector, semantic, diversity, and deduplication gates."
         ),
     }
     (output / "plan_summary.json").write_text(

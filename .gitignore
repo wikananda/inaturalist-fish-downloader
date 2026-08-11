@@ -13,6 +13,10 @@ __pycache__/*
 *.pyc
 *.log
 docs/*
+!docs/downloader_dataset_safety.md
 models/*
 species_temp.txt
 .venv
+broad_downloads/*
+annotated/*
+dataset.csv

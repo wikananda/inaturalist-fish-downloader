@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import argparse
+import csv
+import hashlib
 import json
 import statistics
 from collections import Counter, defaultdict
@@ -32,6 +34,53 @@ def _species_name(record: dict[str, Any]) -> str:
     )
 
 
+def _duplicate_summary(
+    records: list[dict[str, Any]], field: str
+) -> dict[str, int]:
+    groups: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for record in records:
+        value = record.get(field)
+        if value not in (None, ""):
+            groups[str(value)].append(record)
+    duplicates = [group for group in groups.values() if len(group) > 1]
+    return {
+        "groups": len(duplicates),
+        "records": sum(len(group) for group in duplicates),
+        "cross_species_groups": sum(
+            len({_species_name(record).casefold() for record in group}) > 1
+            for group in duplicates
+        ),
+    }
+
+
+def _read_species_summary(path: Path) -> list[dict[str, str]]:
+    if not path.exists():
+        return []
+    with path.open("r", encoding="utf-8", newline="") as handle:
+        return list(csv.DictReader(handle, delimiter="\t"))
+
+
+def _resolve_accepted_path(record: dict[str, Any], manifest_dir: Path) -> Path | None:
+    value = record.get("saved_output_path") or record.get("target_output_path")
+    if not value:
+        return None
+    raw_path = Path(str(value))
+    candidates = [raw_path]
+    if not raw_path.is_absolute():
+        candidates.extend(
+            [manifest_dir.parent.parent / raw_path, manifest_dir.parent / raw_path]
+        )
+    return next((path for path in candidates if path.is_file()), None)
+
+
+def _sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
 def _score_summary(values: list[float]) -> dict[str, Any]:
     if not values:
         return {"count": 0}
@@ -57,6 +106,22 @@ def build_quality_report(manifest_dir: Path) -> dict[str, Any]:
     candidates = list(_read_jsonl(root / "candidates.jsonl"))
     accepted = list(_read_jsonl(root / "accepted.jsonl"))
     rejected = list(_read_jsonl(root / "rejected.jsonl"))
+    failures = list(_read_jsonl(root / "failures.jsonl"))
+    summary_rows = _read_species_summary(root / "species_summary.tsv")
+    legacy_hashes_computed = 0
+    accepted_paths_unavailable_for_hashing = 0
+    for record in accepted:
+        if record.get("content_sha256"):
+            continue
+        output_path = _resolve_accepted_path(record, root)
+        if output_path is None:
+            accepted_paths_unavailable_for_hashing += 1
+            continue
+        try:
+            record["content_sha256"] = _sha256_file(output_path)
+            legacy_hashes_computed += 1
+        except OSError:
+            accepted_paths_unavailable_for_hashing += 1
     reject_reasons = Counter(
         str(record.get("reject_reason") or "unknown") for record in rejected
     )
@@ -92,6 +157,19 @@ def build_quality_report(manifest_dir: Path) -> dict[str, Any]:
         )
 
     decided_count = len(accepted) + len(rejected)
+    accepted_license_counts = Counter(
+        str(record.get("license_code") or "missing").lower()
+        for record in accepted
+    )
+    allowed_commercial_derivative_licenses = {"cc0", "cc-by", "cc-by-sa"}
+    unsafe_license_records = sum(
+        str(record.get("license_code") or "").lower()
+        not in allowed_commercial_derivative_licenses
+        for record in accepted
+    )
+    stop_reasons = Counter(
+        str(row.get("stop_reason") or "missing") for row in summary_rows
+    )
     return {
         "manifest_dir": str(root),
         "candidate_records": len(candidates),
@@ -101,6 +179,32 @@ def build_quality_report(manifest_dir: Path) -> dict[str, Any]:
             round(len(accepted) / decided_count, 6) if decided_count else None
         ),
         "reject_reasons": dict(reject_reasons.most_common()),
+        "dataset_safety": {
+            "accepted_license_counts": dict(accepted_license_counts.most_common()),
+            "accepted_unsafe_or_missing_license_records": unsafe_license_records,
+            "accepted_duplicate_observation_ids": _duplicate_summary(
+                accepted, "observation_id"
+            ),
+            "accepted_duplicate_photo_ids": _duplicate_summary(accepted, "photo_id"),
+            "accepted_duplicate_exact_content": _duplicate_summary(
+                accepted, "content_sha256"
+            ),
+            "legacy_content_hashes_computed": legacy_hashes_computed,
+            "accepted_paths_unavailable_for_hashing": (
+                accepted_paths_unavailable_for_hashing
+            ),
+            "rejected_duplicate_or_label_conflicts": sum(
+                reason.startswith("duplicate_") or reason.startswith("conflicting_")
+                for reason in (
+                    str(record.get("reject_reason") or "") for record in rejected
+                )
+            ),
+        },
+        "run_completion": {
+            "species_summary_rows": len(summary_rows),
+            "stop_reasons": dict(stop_reasons.most_common()),
+            "failed_records": len(failures),
+        },
         "semantic_context_scores": {
             outcome: _score_summary(values)
             for outcome, values in sorted(semantic_scores.items())

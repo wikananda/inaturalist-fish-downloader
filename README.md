@@ -177,3 +177,7 @@ output files, adaptive refill behavior, and resume semantics.
 See `docs/automatic_crop_quality.md` for the deterministic crop gates, SigLIP 2
 calibration, optional strict SAM cascade, rejection reasons, quality-report
 command, and all automated and real-model tests.
+
+See `docs/downloader_dataset_safety.md` for the pilot issues, strict returned
+licence/taxon validation, dataset-wide ID/content deduplication, global abundance
+planning, truthful resume/failure reporting, and remaining limitations.

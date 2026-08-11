@@ -8,7 +8,7 @@ Requires-Dist: omegaconf>=2.3
 Provides-Extra: yolo
 Requires-Dist: ultralytics>=8; extra == "yolo"
 Provides-Extra: clip
-Requires-Dist: transformers>=4.40; extra == "clip"
+Requires-Dist: transformers>=4.50; extra == "clip"
 Requires-Dist: torch>=2.7; extra == "clip"
 Provides-Extra: sam3
 Requires-Dist: einops>=0.8; extra == "sam3"
@@ -23,7 +23,7 @@ Requires-Dist: pycocotools>=2.0.11; extra == "all"
 Requires-Dist: sam3>=0.1.0; extra == "all"
 Requires-Dist: torch>=2.7; extra == "all"
 Requires-Dist: torchvision>=0.22; extra == "all"
-Requires-Dist: transformers>=4.40; extra == "all"
+Requires-Dist: transformers>=4.50; extra == "all"
 Requires-Dist: triton>=3; platform_system == "Linux" and extra == "all"
 Requires-Dist: ultralytics>=8; extra == "all"
 Provides-Extra: dev

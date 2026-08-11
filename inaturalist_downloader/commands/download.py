@@ -18,7 +18,12 @@ from ..download.candidates import (
     download_photo_job,
     remaining_candidate_capacity,
 )
-from ..download.cli import output_paths, parse_args, validate_args
+from ..download.cli import (
+    effective_config_yaml,
+    output_paths,
+    parse_args,
+    validate_args,
+)
 from ..download.clip_filter import (
     preload_clip_model,
     run_clip_filter,
@@ -29,6 +34,7 @@ from ..download.detection import (
     preload_sam3_model,
     run_fish_detection_outputs,
 )
+from ..download.dedup import DatasetDeduplicator
 from ..download.image_quality import save_accepted_image, validate_image
 from ..download.progress import (
     load_progress,
@@ -95,6 +101,23 @@ def _search_signature(taxon_id: int, args, scopes: list[dict[str, Any]]) -> dict
         "order_by": args.order_by,
         "order": args.order,
         "query_params": args.query_params,
+        "license_validation": {
+            "enforce_allowed": getattr(args, "enforce_allowed_licenses", False),
+            "allowed": sorted(_allowed_license_codes(args)),
+            "blocked": sorted(getattr(args, "blocked_license_code_set", set())),
+        },
+        "require_taxon_membership": getattr(args, "require_taxon_membership", False),
+        "dataset_dedup": {
+            field: getattr(args, field, None)
+            for field in (
+                "enable_dataset_dedup",
+                "deduplicate_observation_ids",
+                "deduplicate_photo_ids",
+                "deduplicate_exact_content",
+                "deduplicate_perceptual_content",
+                "perceptual_hash_distance",
+            )
+        },
         "target_unit": getattr(args, "target_unit", "image"),
         "max_photos_per_observation": getattr(args, "max_photos_per_observation", None),
         "max_crops_per_observation": getattr(args, "max_crops_per_observation", None),
@@ -113,10 +136,23 @@ def _search_signature(taxon_id: int, args, scopes: list[dict[str, Any]]) -> dict
             "enabled": args.enable_detection,
             "backend": getattr(args, "detection_backend", None),
             "weights": getattr(args, "detector_weights", None),
+            "device": getattr(args, "detector_device", None),
             "confidence": getattr(args, "detector_confidence", None),
+            "imgsz": getattr(args, "detector_imgsz", None),
+            "class_names": sorted(
+                getattr(args, "detector_class_name_set", set()) or set()
+            ),
+            "class_ids": sorted(
+                getattr(args, "detector_class_id_set", set()) or set()
+            ),
+            "min_fish_area_ratio": getattr(args, "min_fish_area_ratio", None),
             "crop_padding": getattr(args, "crop_padding", None),
             "allow_multiple_fish": getattr(args, "allow_multiple_fish", None),
             "sam_score_threshold": getattr(args, "sam_score_threshold", None),
+            "sam_prompt": getattr(args, "sam_prompt", None),
+            "sam_max_instances_per_image": getattr(
+                args, "sam_max_instances_per_image", None
+            ),
             "sam_min_mask_area_ratio": getattr(
                 args, "sam_min_mask_area_ratio", None
             ),
@@ -124,6 +160,11 @@ def _search_signature(taxon_id: int, args, scopes: list[dict[str, Any]]) -> dict
             "sam_allow_yolo_fallback": getattr(
                 args, "sam_allow_yolo_fallback", None
             ),
+            "sam_crop_padding": getattr(args, "sam_crop_padding", None),
+            "sam_save_all_instances": getattr(args, "sam_save_all_instances", None),
+            "sam_checkpoint_path": getattr(args, "sam_checkpoint_path", None),
+            "sam_dtype": getattr(args, "sam_dtype", None),
+            "sam_autocast": getattr(args, "sam_autocast", None),
         },
         "crop_quality": {
             field: getattr(args, field, None)
@@ -164,8 +205,58 @@ def _is_blocked_license(record: dict[str, Any], args) -> bool:
     license_code = record.get("license_code")
     return bool(
         license_code
-        and str(license_code).strip().lower() in args.blocked_license_code_set
+        and str(license_code).strip().lower()
+        in getattr(args, "blocked_license_code_set", set())
     )
+
+
+def _allowed_license_codes(args) -> set[str]:
+    configured = getattr(args, "allowed_license_code_set", None)
+    if configured is not None:
+        return {
+            str(value).strip().lower()
+            for value in configured
+            if str(value).strip()
+        }
+    values = set(getattr(args, "license_preference", []) or [])
+    license_code = getattr(args, "license_code", None)
+    if license_code:
+        values.add(license_code)
+    return {
+        str(value).strip().lower() for value in values if str(value).strip()
+    }
+
+
+def _license_reject_reason(record: dict[str, Any], args) -> str | None:
+    if _is_blocked_license(record, args):
+        return "blocked_license"
+    if not getattr(args, "enforce_allowed_licenses", False):
+        return None
+    license_code = str(record.get("license_code") or "").strip().lower()
+    if not license_code:
+        return "missing_photo_license"
+    if license_code not in _allowed_license_codes(args):
+        return "disallowed_photo_license"
+    return None
+
+
+def _taxon_reject_reason(record: dict[str, Any], args) -> str | None:
+    if not getattr(args, "require_taxon_membership", False):
+        return None
+    requested_taxon_id = record.get("requested_taxon_id") or record.get("taxon_id")
+    observation_taxon_id = record.get("observation_taxon_id")
+    if observation_taxon_id is None:
+        return "missing_observation_taxon"
+    requested = int(requested_taxon_id)
+    observed = int(observation_taxon_id)
+    ancestor_ids = {
+        int(value)
+        for value in (record.get("observation_ancestor_ids") or [])
+        if value is not None
+    }
+    if observed != requested and requested not in ancestor_ids:
+        return "observation_taxon_mismatch"
+    return None
 
 
 def _should_keep_rejected_raw(record: dict[str, Any], args) -> bool:
@@ -253,6 +344,7 @@ def download_species_images(
     output_dir: Path,
     raw_dir: Path,
     manifest_dir: Path,
+    dataset_deduplicator: DatasetDeduplicator | None = None,
 ) -> None:
     """Refill one species until its accepted image/observation target is met."""
     taxon_id, canonical_name = resolve_taxon_id(
@@ -272,6 +364,18 @@ def download_species_images(
     rejected_path = manifest_dir / "rejected.jsonl"
     summary_path = manifest_dir / "species_summary.tsv"
     state_path = manifest_dir / "state" / f"{species_slug}.json"
+    if dataset_deduplicator is None:
+        dataset_deduplicator = DatasetDeduplicator(
+            accepted_path,
+            enabled=getattr(args, "enable_dataset_dedup", False),
+            observation_ids=getattr(args, "deduplicate_observation_ids", True),
+            photo_ids=getattr(args, "deduplicate_photo_ids", True),
+            exact_content=getattr(args, "deduplicate_exact_content", True),
+            perceptual_content=getattr(
+                args, "deduplicate_perceptual_content", True
+            ),
+            perceptual_distance=getattr(args, "perceptual_hash_distance", 0),
+        )
 
     scopes = _observation_search_plan(args)
     scope_keys = [scope["key"] for scope in scopes]
@@ -283,6 +387,16 @@ def download_species_images(
         resume=bool(getattr(args, "resume", False) and not args.overwrite),
     )
     target_unit = getattr(args, "target_unit", "image")
+    if (
+        getattr(args, "refresh_exhausted_scopes", False)
+        and progress.target_count(target_unit) < args.images_per_species
+        and all(progress.exhausted_scopes.values())
+    ):
+        progress.refresh_exhausted_scopes()
+        safe_print(
+            "  refreshing exhausted scopes from page 1; accepted and seen IDs "
+            "are preserved"
+        )
     stop_reason = None
 
     while progress.target_count(target_unit) < args.images_per_species:
@@ -291,11 +405,11 @@ def download_species_images(
             None,
         )
         if active_scope is None:
-            stop_reason = "api_exhausted"
+            stop_reason = "search_space_exhausted"
             break
 
         remaining_capacity = remaining_candidate_capacity(
-            args, progress.candidates_scanned
+            args, progress.candidate_budget_scanned
         )
         if remaining_capacity is not None and remaining_capacity <= 0:
             stop_reason = "candidate_budget_exhausted"
@@ -343,6 +457,7 @@ def download_species_images(
             continue
 
         progress.candidates_scanned += len(jobs)
+        progress.candidate_budget_scanned += len(jobs)
         place_label = active_scope["place_id"] or "global"
         license_label = active_scope["license_code"] or "any license"
         safe_print(
@@ -371,7 +486,15 @@ def download_species_images(
         batch_rejected: list[dict[str, Any]] = []
         downloadable_jobs = []
         for candidate in jobs:
-            if not _is_blocked_license(candidate, args):
+            reject_reason = _license_reject_reason(candidate, args)
+            if reject_reason is None:
+                reject_reason = _taxon_reject_reason(candidate, args)
+            dedup_decision = None
+            if reject_reason is None:
+                dedup_decision = dataset_deduplicator.check_source_identity(candidate)
+                if not dedup_decision.accepted:
+                    reject_reason = dedup_decision.reason
+            if reject_reason is None:
                 downloadable_jobs.append(candidate)
                 continue
             record = {
@@ -380,10 +503,11 @@ def download_species_images(
                 "download_status": "skipped",
                 "download_error": None,
                 "raw_path": str(raw_species_dir / candidate["filename"]),
-                "reject_reason": "blocked_license",
+                "reject_reason": reject_reason,
                 "validation": {},
                 "detection": {},
                 "clip": {},
+                "dedup": dedup_decision.metrics if dedup_decision else {},
                 "raw_retained": False,
             }
             _update_output_state(
@@ -598,6 +722,34 @@ def download_species_images(
                 )
             else:
                 accept_status = pending["accept_status"]
+
+            dedup_decision = dataset_deduplicator.check_and_register(
+                record,
+                Path(pending["output_path"]),
+            )
+            record["dedup"] = dedup_decision.metrics
+            if not dedup_decision.accepted:
+                # This path belongs to the incoming candidate. Remove it even if
+                # it was left by an interrupted pre-manifest run; otherwise a
+                # rejected duplicate could still leak into folder-based training.
+                duplicate_output_path = Path(pending["output_path"])
+                if duplicate_output_path.exists():
+                    duplicate_output_path.unlink()
+                record["status"] = "rejected"
+                record["reject_reason"] = dedup_decision.reason
+                _update_output_state(
+                    record, Path(pending["output_path"]), saved_output=False
+                )
+                batch_rejected.append(record)
+                group["records"].append(record)
+                progress.rejected += 1
+                continue
+
+            record["content_sha256"] = dedup_decision.metrics.get("content_sha256")
+            record["perceptual_dhash"] = dedup_decision.metrics.get(
+                "perceptual_dhash"
+            )
+
             record["status"] = accept_status
             record["reject_reason"] = None
             _update_output_state(record, Path(pending["output_path"]), saved_output=True)
@@ -629,7 +781,11 @@ def download_species_images(
     if progress.target_count(target_unit) >= args.images_per_species:
         stop_reason = "target_reached"
     elif stop_reason is None:
-        stop_reason = "api_exhausted" if all(progress.exhausted_scopes.values()) else "stopped"
+        stop_reason = (
+            "search_space_exhausted"
+            if all(progress.exhausted_scopes.values())
+            else "stopped"
+        )
     progress.stop_reason = stop_reason
     save_progress(state_path, progress)
 
@@ -671,16 +827,44 @@ def main() -> None:
     raw_dir.mkdir(parents=True, exist_ok=True)
     manifest_dir.mkdir(parents=True, exist_ok=True)
     args.run_id = time.strftime("%Y%m%d-%H%M%S")
-
+    (manifest_dir / "effective_config.yaml").write_text(
+        effective_config_yaml(args.effective_config), encoding="utf-8"
+    )
     if args.redownload:
         species_file = Path(args.redownload)
         args.overwrite = True
         args.resume = False
         safe_print(f"Redownload mode active: using {species_file} and forcing overwrite.")
 
+    append_jsonl(
+        manifest_dir / "run_history.jsonl",
+        [
+            {
+                "run_id": args.run_id,
+                "config_path": args.config_path,
+                "species_file": str(species_file),
+                "output_dir": str(output_dir),
+                "raw_dir": str(raw_dir),
+                "manifest_dir": str(manifest_dir),
+                "resume": bool(args.resume and not args.overwrite),
+                "redownload": bool(args.redownload),
+            }
+        ],
+    )
+
     species_list = load_species(species_file)
     if not species_list:
         raise SystemExit(f"No species found in {species_file}")
+
+    dataset_deduplicator = DatasetDeduplicator(
+        manifest_dir / "accepted.jsonl",
+        enabled=getattr(args, "enable_dataset_dedup", False),
+        observation_ids=getattr(args, "deduplicate_observation_ids", True),
+        photo_ids=getattr(args, "deduplicate_photo_ids", True),
+        exact_content=getattr(args, "deduplicate_exact_content", True),
+        perceptual_content=getattr(args, "deduplicate_perceptual_content", True),
+        perceptual_distance=getattr(args, "perceptual_hash_distance", 0),
+    )
 
     if args.enable_detection:
         backend = args.detection_backend
@@ -712,6 +896,7 @@ def main() -> None:
     with concurrent.futures.ThreadPoolExecutor(
         max_workers=args.species_workers
     ) as executor:
+        failures = []
         future_to_species = {
             executor.submit(
                 download_species_images,
@@ -720,6 +905,7 @@ def main() -> None:
                 output_dir,
                 raw_dir,
                 manifest_dir,
+                dataset_deduplicator,
             ): species_name
             for species_name in species_list
         }
@@ -729,6 +915,22 @@ def main() -> None:
                 future.result()
             except Exception as exc:
                 safe_print(f"\n[{species_name}] failed: {exc}")
+                failures.append(
+                    {
+                        "run_id": args.run_id,
+                        "species_name": species_name,
+                        "status": "failed",
+                        "error_type": type(exc).__name__,
+                        "error": str(exc),
+                    }
+                )
+
+    if failures:
+        append_jsonl(manifest_dir / "failures.jsonl", failures)
+        raise SystemExit(
+            f"{len(failures)} species failed. Details: "
+            f"{manifest_dir / 'failures.jsonl'}. Re-run the same command to resume."
+        )
 
 
 if __name__ == "__main__":

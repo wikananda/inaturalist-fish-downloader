@@ -20,7 +20,7 @@ def append_jsonl(path: Path, records: list[dict]) -> None:
 
 
 def append_species_summary(path: Path, row: dict) -> None:
-    """Append one species-level summary row to a TSV file."""
+    """Atomically upsert the latest species-level summary row to a TSV file."""
     fieldnames = [
         "run_id",
         "species_name",
@@ -41,10 +41,34 @@ def append_species_summary(path: Path, row: dict) -> None:
         "stop_reason",
     ]
 
+    normalized = {key: row.get(key, "") for key in fieldnames}
+    identity = str(normalized.get("taxon_id") or normalized.get("canonical_name"))
+
     with MANIFEST_LOCK:
-        should_write_header = not path.exists()
-        with path.open("a", encoding="utf-8", newline="") as f:
-            writer = csv.DictWriter(f, fieldnames=fieldnames, delimiter="\t")
-            if should_write_header:
-                writer.writeheader()
-            writer.writerow({key: row.get(key, "") for key in fieldnames})
+        rows = []
+        replaced = False
+        if path.exists():
+            with path.open("r", encoding="utf-8", newline="") as handle:
+                for existing in csv.DictReader(handle, delimiter="\t"):
+                    existing_identity = str(
+                        existing.get("taxon_id") or existing.get("canonical_name")
+                    )
+                    if existing_identity == identity:
+                        if not replaced:
+                            rows.append(normalized)
+                            replaced = True
+                        continue
+                    rows.append(existing)
+        if not replaced:
+            rows.append(normalized)
+
+        path.parent.mkdir(parents=True, exist_ok=True)
+        temporary = path.with_suffix(path.suffix + ".tmp")
+        with temporary.open("w", encoding="utf-8", newline="") as handle:
+            writer = csv.DictWriter(handle, fieldnames=fieldnames, delimiter="\t")
+            writer.writeheader()
+            for existing in rows:
+                writer.writerow(
+                    {key: existing.get(key, "") for key in fieldnames}
+                )
+        temporary.replace(path)

@@ -139,6 +139,60 @@ class BroadPlanTests(unittest.TestCase):
         self.assertEqual(train_names.strip(), "Example fish")
         self.assertEqual(summary["broad_train_species"], 1)
 
+    def test_global_plan_queries_licensed_counts_without_regional_gate(self):
+        config = {
+            "planning": {
+                "name": "global-test",
+                "region_name": "unused",
+                "region_place_id": 6966,
+                "collect_regional_counts": False,
+                "require_regional_threshold": False,
+                "quality_grade": "research",
+                "photos_only": True,
+                "exclude_captive": True,
+                "photo_license_codes": ["cc0", "cc-by", "cc-by-sa"],
+                "min_regional_observations": 0,
+                "min_global_observations": 2000,
+                "max_species_per_scientist_family": 5,
+                "max_species_per_genus": 2,
+                "novel_evaluation_fraction": 0,
+                "random_seed": 42,
+                "per_page": 500,
+                "max_pages": 1,
+                "retries": 1,
+                "sleep_seconds": 0,
+            },
+            "families": [
+                {
+                    "scientist_family": "Exampleidae",
+                    "inat_taxa": [{"name": "Exampleidae", "taxon_id": 10}],
+                }
+            ],
+        }
+        calls = []
+
+        def fetcher(**kwargs):
+            calls.append(kwargs)
+            return {
+                11: {
+                    "taxon_id": 11,
+                    "species": "Abundant fish",
+                    "preferred_common_name": "Abundant",
+                    "count": 2500,
+                }
+            }
+
+        rows, _ = build_species_proposal(config, set(), fetcher=fetcher)
+
+        self.assertEqual(len(calls), 1)
+        self.assertIsNone(calls[0]["place_id"])
+        self.assertEqual(
+            calls[0]["photo_license_codes"], ["cc0", "cc-by", "cc-by-sa"]
+        )
+        self.assertTrue(calls[0]["exclude_captive"])
+        self.assertEqual(rows[0]["regional_count"], 0)
+        self.assertTrue(rows[0]["eligible"])
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -123,6 +123,12 @@ class DownloadFilterConfigTests(unittest.TestCase):
                     "quality_grade": "research",
                     "photos": [{"id": 456, "url": "https://example.test/square.jpg"}],
                     "user": {"id": 789, "login": "observer"},
+                    "taxon": {
+                        "id": 22,
+                        "name": "Example fish",
+                        "rank": "species",
+                        "ancestor_ids": [1, 2, 3],
+                    },
                 }
             ]
         }
@@ -150,6 +156,8 @@ class DownloadFilterConfigTests(unittest.TestCase):
             )
 
         self.assertEqual(len(photos), 1)
+        self.assertEqual(photos[0]["observation_taxon_id"], 22)
+        self.assertEqual(photos[0]["observation_ancestor_ids"], [1, 2, 3])
         api_get.assert_called_once()
         params = api_get.call_args.kwargs
         self.assertEqual(params["order_by"], "created_at")

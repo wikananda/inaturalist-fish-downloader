@@ -97,6 +97,7 @@ def iter_observation_photos(
 
         for observation in results:
             user = observation.get("user") or {}
+            observation_taxon = observation.get("taxon") or {}
             for photo in observation.get("photos", []):
                 yield {
                     "_page": page,
@@ -111,6 +112,13 @@ def iter_observation_photos(
                     "place_guess": observation.get("place_guess"),
                     "user_id": user.get("id"),
                     "user_login": user.get("login"),
+                    "observation_taxon_id": observation_taxon.get("id"),
+                    "observation_taxon_name": observation_taxon.get("name"),
+                    "observation_taxon_rank": observation_taxon.get("rank"),
+                    "observation_ancestor_ids": observation_taxon.get(
+                        "ancestor_ids"
+                    )
+                    or [],
                 }
 
 

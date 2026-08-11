@@ -17,6 +17,16 @@ from ..common.utils import slugify
 
 _PLACE_ID_UNSET = object()
 
+LICENSE_URLS = {
+    "cc0": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "cc-by": "https://creativecommons.org/licenses/by/4.0/",
+    "cc-by-sa": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "cc-by-nd": "https://creativecommons.org/licenses/by-nd/4.0/",
+    "cc-by-nc": "https://creativecommons.org/licenses/by-nc/4.0/",
+    "cc-by-nc-sa": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+    "cc-by-nc-nd": "https://creativecommons.org/licenses/by-nc-nd/4.0/",
+}
+
 
 def candidate_batch_limit_for_args(args: argparse.Namespace) -> int:
     """Calculate how many candidates to request in one refill batch."""
@@ -133,6 +143,7 @@ def collect_photo_jobs(
         if max_photos_per_observation == 1 and observation_id is not None:
             seen_observation_ids.add(int(observation_id))
         image_url = photo_url_for_size(raw_url, args.photo_size)
+        returned_license = str(photo.get("license_code") or "").strip().lower()
         filename = (
             f"{species_slug}__obs_{observation_id}__photo_{photo_id}"
             f"{infer_extension(image_url)}"
@@ -143,6 +154,7 @@ def collect_photo_jobs(
                 "species_name": species_name,
                 "canonical_name": canonical_name,
                 "taxon_id": taxon_id,
+                "requested_taxon_id": taxon_id,
                 "observation_id": observation_id,
                 "photo_id": photo_id,
                 "photo_url": image_url,
@@ -151,6 +163,7 @@ def collect_photo_jobs(
                 "requested_license_code": license_code,
                 "license_priority": license_priority,
                 "license_code": photo.get("license_code"),
+                "license_url": LICENSE_URLS.get(returned_license),
                 "quality_grade": photo.get("quality_grade"),
                 "place_id": effective_place_id,
                 "observed_on": photo.get("observed_on"),
@@ -159,6 +172,22 @@ def collect_photo_jobs(
                 "place_guess": photo.get("place_guess"),
                 "user_id": photo.get("user_id"),
                 "user_login": photo.get("user_login"),
+                "attribution_name": photo.get("user_login"),
+                "observation_url": (
+                    f"https://www.inaturalist.org/observations/{observation_id}"
+                    if observation_id is not None
+                    else None
+                ),
+                "photo_page_url": (
+                    f"https://www.inaturalist.org/photos/{photo_id}"
+                    if photo_id is not None
+                    else None
+                ),
+                "observation_taxon_id": photo.get("observation_taxon_id"),
+                "observation_taxon_name": photo.get("observation_taxon_name"),
+                "observation_taxon_rank": photo.get("observation_taxon_rank"),
+                "observation_ancestor_ids": photo.get("observation_ancestor_ids")
+                or [],
                 "status": "candidate",
                 "reject_reason": None,
                 "scores": {},

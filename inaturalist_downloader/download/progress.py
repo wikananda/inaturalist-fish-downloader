@@ -29,12 +29,14 @@ class SpeciesProgress:
     accepted_outputs: int = 0
     accepted_by_user: dict[str, int] = field(default_factory=dict)
     candidates_scanned: int = 0
+    candidate_budget_scanned: int = 0
     downloaded: int = 0
     download_failed: int = 0
     rejected: int = 0
     unused_valid: int = 0
     batch_index: int = 0
     stop_reason: str | None = None
+    refresh_count: int = 0
 
     def target_count(self, target_unit: str) -> int:
         if target_unit == "observation":
@@ -69,12 +71,14 @@ class SpeciesProgress:
             "accepted_outputs": self.accepted_outputs,
             "accepted_by_user": self.accepted_by_user,
             "candidates_scanned": self.candidates_scanned,
+            "candidate_budget_scanned": self.candidate_budget_scanned,
             "downloaded": self.downloaded,
             "download_failed": self.download_failed,
             "rejected": self.rejected,
             "unused_valid": self.unused_valid,
             "batch_index": self.batch_index,
             "stop_reason": self.stop_reason,
+            "refresh_count": self.refresh_count,
         }
 
     @classmethod
@@ -104,13 +108,29 @@ class SpeciesProgress:
                 for key, value in payload.get("accepted_by_user", {}).items()
             },
             candidates_scanned=int(payload.get("candidates_scanned", 0)),
+            candidate_budget_scanned=int(
+                payload.get(
+                    "candidate_budget_scanned",
+                    payload.get("candidates_scanned", 0),
+                )
+            ),
             downloaded=int(payload.get("downloaded", 0)),
             download_failed=int(payload.get("download_failed", 0)),
             rejected=int(payload.get("rejected", 0)),
             unused_valid=int(payload.get("unused_valid", 0)),
             batch_index=int(payload.get("batch_index", 0)),
             stop_reason=payload.get("stop_reason"),
+            refresh_count=int(payload.get("refresh_count", 0)),
         )
+
+    def refresh_exhausted_scopes(self) -> None:
+        """Reopen all scopes while preserving accepted and already-seen identities."""
+        for key in self.next_pages:
+            self.next_pages[key] = 1
+            self.exhausted_scopes[key] = False
+        self.candidate_budget_scanned = 0
+        self.stop_reason = None
+        self.refresh_count += 1
 
 
 def new_progress(signature: dict[str, Any], scope_keys: list[str]) -> SpeciesProgress:
