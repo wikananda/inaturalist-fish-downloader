@@ -17,7 +17,7 @@ yolo = [
   "ultralytics>=8",
 ]
 clip = [
-  "transformers>=4.40",
+  "transformers>=4.50",
   "torch>=2.7",
 ]
 sam3 = [
@@ -34,7 +34,7 @@ all = [
   "sam3>=0.1.0",
   "torch>=2.7",
   "torchvision>=0.22",
-  "transformers>=4.40",
+  "transformers>=4.50",
   "triton>=3; platform_system == 'Linux'",
   "ultralytics>=8",
 ]
@@ -50,6 +50,11 @@ inat-prepare-split = "inaturalist_downloader.commands.prepare_split:main"
 inat-check-images = "inaturalist_downloader.commands.check_images:main"
 inat-check-coverage = "inaturalist_downloader.commands.check_coverage:main"
 inat-benchmark-croppers = "inaturalist_downloader.commands.benchmark_croppers:main"
+inat-audit-images = "inaturalist_downloader.commands.audit_images:main"
+inat-filter-validated = "inaturalist_downloader.commands.filter_validated:main"
+inat-build-final-ds = "inaturalist_downloader.commands.build_final_ds:main"
+inat-plan-broad-species = "inaturalist_downloader.commands.plan_broad_species:main"
+inat-quality-report = "inaturalist_downloader.commands.quality_report:main"
 
 [tool.setuptools.packages.find]
 include = ["inaturalist_downloader*"]

@@ -2,6 +2,8 @@
 downloads/*
 downloads_raw/*
 dataset_split/*
+filtered_ds/*
+final_ds/*
 *.zip
 manifests/*
 !dataset_split/.gitkeep

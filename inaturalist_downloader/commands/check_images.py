@@ -44,16 +44,23 @@ def main() -> None:
         print(f"{folder.name}: {image_count}/{args.target}")
 
         if image_count < args.target:
-            not_meeting_target.append(species_name_from_folder_slug(folder.name))
+            not_meeting_target.append(
+                {
+                    "species": species_name_from_folder_slug(folder.name),
+                    "folder": folder.name,
+                    "count": image_count,
+                }
+            )
 
     print("\nFolders not meeting the target count:")
     if not_meeting_target:
-        for species in not_meeting_target:
-            print(species)
+        for item in not_meeting_target:
+            print(f"{item['species']}: {item['count']}/{args.target}")
 
         redownload_path = Path(args.redownload_file)
+        redownload_species = [item["species"] for item in not_meeting_target]
         redownload_path.write_text(
-            "\n".join(not_meeting_target) + "\n", encoding="utf-8"
+            "\n".join(redownload_species) + "\n", encoding="utf-8"
         )
         print(f"\nSaved {len(not_meeting_target)} species to {redownload_path}")
     else:

@@ -6,10 +6,12 @@ from pathlib import Path
 from typing import Optional
 
 try:
-    from PIL import Image, ImageOps, UnidentifiedImageError
+    from PIL import Image, ImageFilter, ImageOps, ImageStat, UnidentifiedImageError
 except ImportError:  # pragma: no cover - handled at runtime for optional validation.
     Image = None
+    ImageFilter = None
     ImageOps = None
+    ImageStat = None
     UnidentifiedImageError = OSError
 
 

@@ -1,0 +1,23 @@
+{
+  "positive": [
+    "a complete single fish fully visible inside the image",
+    "the entire fish body from head to tail is visible",
+    "one recognizable fish occupying most of a clean crop",
+    "a clear side view of one fish in water",
+    "a centered underwater fish with space around its body",
+    "a complete fish suitable for species identification"
+  ],
+  "negative": [
+    "only part of a fish is visible",
+    "a fish cut off by the image boundary",
+    "only the head or tail of a fish",
+    "a tiny distant fish surrounded mostly by background",
+    "mostly coral rocks or water with a very small fish",
+    "several overlapping fish",
+    "two or more fish in the same crop",
+    "a person holding a fish",
+    "a fish out of water",
+    "a dead fish in a market or on a table",
+    "an aquarium display label drawing or illustration of a fish"
+  ]
+}

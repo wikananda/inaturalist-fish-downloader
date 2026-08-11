@@ -26,14 +26,19 @@ def append_species_summary(path: Path, row: dict) -> None:
         "species_name",
         "canonical_name",
         "taxon_id",
+        "target_unit",
+        "target",
         "candidates",
         "scanned_candidates",
         "downloaded",
         "download_failed",
         "accepted",
+        "accepted_outputs",
+        "accepted_observations",
         "rejected",
         "unused_valid",
         "search_exhausted",
+        "stop_reason",
     ]
 
     with MANIFEST_LOCK:

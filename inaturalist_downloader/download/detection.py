@@ -9,6 +9,8 @@ from pathlib import Path
 from typing import Any, Optional
 
 from .image_quality import Image, ImageOps, pillow_available, save_pil_image
+from .crop_quality import evaluate_crop_quality, evaluate_redetection_quality
+from .model_imports import model_import_context
 
 DETECTOR_LOCK = threading.Lock()
 DETECTOR_MODEL = None
@@ -44,7 +46,8 @@ def get_detector_model(weights_path: str):
             return DETECTOR_MODEL
 
         try:
-            from ultralytics import YOLO
+            with model_import_context():
+                from ultralytics import YOLO
         except Exception as exc:
             raise RuntimeError(_ultralytics_error_message(exc)) from exc
 
@@ -81,9 +84,24 @@ def detection_class_allowed(
 def validate_detector_import() -> None:
     """Fail early if Ultralytics cannot import in the active interpreter."""
     try:
-        from ultralytics import YOLO  # noqa: F401
+        with model_import_context():
+            from ultralytics import YOLO  # noqa: F401
     except Exception as exc:
         raise RuntimeError(_ultralytics_error_message(exc)) from exc
+
+
+def validate_sam3_import() -> None:
+    """Fail early with an actionable SAM 3 dependency error."""
+    try:
+        with model_import_context():
+            from sam3.model.sam3_image_processor import Sam3Processor  # noqa: F401
+            from sam3.model_builder import build_sam3_image_model  # noqa: F401
+    except Exception as exc:
+        raise RuntimeError(
+            "SAM 3 is not importable. Install the project's sam3 optional "
+            "dependencies and ensure a repository-local triton/ checkout is not "
+            f"shadowing installed packages. Original error: {type(exc).__name__}: {exc}"
+        ) from exc
 
 
 def ensure_sam3_model_files(args: argparse.Namespace) -> Path:
@@ -136,8 +154,9 @@ def preload_sam3_model(args: argparse.Namespace) -> Path:
         raise RuntimeError("SAM 3 preload requires Pillow, which is not installed.")
 
     try:
-        from sam3.model.sam3_image_processor import Sam3Processor
-        from sam3.model_builder import build_sam3_image_model
+        with model_import_context():
+            from sam3.model.sam3_image_processor import Sam3Processor
+            from sam3.model_builder import build_sam3_image_model
     except Exception as exc:
         raise RuntimeError(
             f"SAM 3 package is not importable: {type(exc).__name__}: {exc}"
@@ -324,13 +343,7 @@ def run_fish_detection(
     if not pillow_available():
         return False, "pillow_not_installed", {"enabled": True}
 
-    if accepted_path.exists() and not args.overwrite:
-        return True, None, {
-            "enabled": True,
-            "saved": "existing",
-            "created_output": False,
-            "model": args.detector_weights,
-        }
+    output_exists = accepted_path.exists() and not args.overwrite
 
     with Image.open(raw_path) as source_image:
         image_format = source_image.format
@@ -365,9 +378,40 @@ def run_fish_detection(
         metrics["crop_box_xyxy"] = list(crop_box)
 
         crop = image.crop(crop_box)
-        save_pil_image(crop, accepted_path, image_format)
-        metrics["saved"] = "written"
-        metrics["created_output"] = True
+        quality_ok, reject_reason, quality_metrics = evaluate_crop_quality(
+            crop=crop,
+            source_size=(width, height),
+            fish_box=selected["bbox_xyxy"],
+            crop_box=crop_box,
+            args=args,
+        )
+        metrics["crop_quality"] = quality_metrics
+        if not quality_ok:
+            return False, reject_reason, metrics
+
+        if getattr(args, "crop_redetect", False):
+            redetected_boxes, redetect_base_metrics = _yolo_detect_boxes(crop, args)
+            expected_box = quality_metrics["geometry"]["fish_box_in_crop_xyxy"]
+            redetect_ok, reject_reason, redetect_metrics = (
+                evaluate_redetection_quality(
+                    boxes=redetected_boxes,
+                    expected_box=expected_box,
+                    crop_size=crop.size,
+                    args=args,
+                )
+            )
+            redetect_metrics["detector"] = redetect_base_metrics
+            metrics["crop_redetection"] = redetect_metrics
+            if not redetect_ok:
+                return False, reject_reason, metrics
+
+        if output_exists:
+            metrics["saved"] = "existing"
+            metrics["created_output"] = False
+        else:
+            save_pil_image(crop, accepted_path, image_format)
+            metrics["saved"] = "written"
+            metrics["created_output"] = True
         return True, None, metrics
 
 
@@ -408,8 +452,8 @@ def run_cascade_detection_outputs(
 
     YOLO supplies fish boxes; each box is fed to SAM 3 as a positive geometric prompt
     to obtain a tighter mask bbox. We crop the (padded) refined bbox but keep all pixels
-    inside it (no masking). If SAM returns nothing for a box, we fall back to the YOLO
-    box crop so no detection is lost.
+    inside it (no masking). A configurable policy either rejects failed SAM
+    refinement or falls back to the YOLO box.
     """
     metrics: dict[str, Any] = {
         "enabled": True,
@@ -427,8 +471,9 @@ def run_cascade_detection_outputs(
 
     started = time.perf_counter()
     try:
-        from sam3.model.sam3_image_processor import Sam3Processor
-        from sam3.model_builder import build_sam3_image_model
+        with model_import_context():
+            from sam3.model.sam3_image_processor import Sam3Processor
+            from sam3.model_builder import build_sam3_image_model
     except Exception as exc:
         metrics["error"] = f"{type(exc).__name__}: {exc}"
         metrics["inference_seconds"] = round(time.perf_counter() - started, 6)
@@ -462,6 +507,10 @@ def run_cascade_detection_outputs(
             if not boxes:
                 metrics["inference_seconds"] = round(time.perf_counter() - started, 6)
                 return [], "no_fish_detected", metrics
+            if len(boxes) > 1 and not args.allow_multiple_fish:
+                metrics["detections"] = boxes
+                metrics["inference_seconds"] = round(time.perf_counter() - started, 6)
+                return [], "multiple_fish_detected", metrics
 
             if not args.sam_save_all_instances or not args.allow_multiple_fish:
                 boxes = boxes[:1]
@@ -499,6 +548,9 @@ def run_cascade_detection_outputs(
                     yolo_box = box["bbox_xyxy"]
                     refine = "fallback_yolo"
                     sam_score = None
+                    sam_iou = None
+                    mask_area_ratio = None
+                    quality_box = yolo_box
                     crop_box = _padded_crop_box(
                         tuple(yolo_box),
                         width=width,
@@ -526,20 +578,91 @@ def run_cascade_detection_outputs(
                                 instances,
                                 key=lambda inst: _box_iou(inst["bbox_xyxy"], yolo_box),
                             )
-                            crop_box = best["crop_box_xyxy"]
-                            sam_score = best["score"]
-                            refine = "sam_refined"
+                            sam_iou = _box_iou(best["bbox_xyxy"], yolo_box)
+                            if sam_iou >= float(
+                                getattr(args, "sam_min_yolo_iou", 0.0)
+                            ):
+                                crop_box = best["crop_box_xyxy"]
+                                quality_box = best["bbox_xyxy"]
+                                mask_area_ratio = best["mask_area_ratio"]
+                                sam_score = best["score"]
+                                refine = "sam_refined"
+                            else:
+                                metrics.setdefault("sam_warnings", []).append(
+                                    f"instance {index}: SAM/YOLO IoU {sam_iou:.4f} "
+                                    "below threshold"
+                                )
                     except Exception as exc:
                         metrics.setdefault("sam_warnings", []).append(
                             f"{type(exc).__name__}: {exc}"
                         )
+
+                    if refine != "sam_refined" and not bool(
+                        getattr(args, "sam_allow_yolo_fallback", True)
+                    ):
+                        metrics.setdefault("quality_rejections", []).append(
+                            {
+                                "instance_index": index,
+                                "reject_reason": "sam_refinement_failed",
+                                "sam_yolo_iou": sam_iou,
+                            }
+                        )
+                        continue
+
+                    crop = image.crop(crop_box)
+                    quality_ok, quality_reason, quality_metrics = (
+                        evaluate_crop_quality(
+                            crop=crop,
+                            source_size=(width, height),
+                            fish_box=quality_box,
+                            crop_box=crop_box,
+                            args=args,
+                            mask_area_ratio=mask_area_ratio,
+                        )
+                    )
+                    if not quality_ok:
+                        metrics.setdefault("quality_rejections", []).append(
+                            {
+                                "instance_index": index,
+                                "reject_reason": quality_reason,
+                                "crop_quality": quality_metrics,
+                            }
+                        )
+                        continue
+
+                    redetection_metrics = {}
+                    if getattr(args, "crop_redetect", False):
+                        redetected_boxes, redetect_base_metrics = _yolo_detect_boxes(
+                            crop, args
+                        )
+                        expected_box = quality_metrics["geometry"][
+                            "fish_box_in_crop_xyxy"
+                        ]
+                        redetect_ok, redetect_reason, redetection_metrics = (
+                            evaluate_redetection_quality(
+                                boxes=redetected_boxes,
+                                expected_box=expected_box,
+                                crop_size=crop.size,
+                                args=args,
+                            )
+                        )
+                        redetection_metrics["detector"] = redetect_base_metrics
+                        if not redetect_ok:
+                            metrics.setdefault("quality_rejections", []).append(
+                                {
+                                    "instance_index": index,
+                                    "reject_reason": redetect_reason,
+                                    "crop_quality": quality_metrics,
+                                    "crop_redetection": redetection_metrics,
+                                }
+                            )
+                            continue
 
                     output_path = _instance_path(accepted_path, index)
                     if output_path.exists() and not args.overwrite:
                         status = "accepted_crop_existing"
                         created_output = False
                     else:
-                        crop = image.crop(crop_box)
                         save_pil_image(crop, output_path, image_format)
                         status = "accepted_crop"
                         created_output = True
@@ -557,8 +680,13 @@ def run_cascade_detection_outputs(
                             "sam_score": (
                                 round(sam_score, 6) if sam_score is not None else None
                             ),
+                            "sam_yolo_iou": (
+                                round(sam_iou, 6) if sam_iou is not None else None
+                            ),
                             "crop_box_xyxy": list(crop_box),
                         },
+                        "crop_quality": quality_metrics,
+                        "crop_redetection": redetection_metrics,
                     }
                     outputs.append(
                         DetectionOutput(
@@ -576,7 +704,11 @@ def run_cascade_detection_outputs(
             metrics["inference_seconds"] = round(time.perf_counter() - started, 6)
             metrics["fish_detection_count"] = len(outputs)
             if not outputs:
-                return [], "no_fish_detected", metrics
+                reasons = metrics.get("quality_rejections", [])
+                reject_reason = (
+                    reasons[0]["reject_reason"] if reasons else "no_fish_detected"
+                )
+                return [], reject_reason, metrics
             return outputs, None, metrics
     except Exception as exc:
         metrics["error"] = f"{type(exc).__name__}: {exc}"
@@ -612,8 +744,9 @@ def run_sam3_detection_outputs(
 
     started = time.perf_counter()
     try:
-        from sam3.model.sam3_image_processor import Sam3Processor
-        from sam3.model_builder import build_sam3_image_model
+        with model_import_context():
+            from sam3.model.sam3_image_processor import Sam3Processor
+            from sam3.model_builder import build_sam3_image_model
     except Exception as exc:
         metrics["error"] = f"{type(exc).__name__}: {exc}"
         metrics["inference_seconds"] = round(time.perf_counter() - started, 6)
@@ -689,6 +822,25 @@ def run_sam3_detection_outputs(
             )
             outputs = []
             for index, instance in enumerate(raw_instances, start=1):
+                crop = image.crop(instance["crop_box_xyxy"])
+                quality_ok, quality_reason, quality_metrics = evaluate_crop_quality(
+                    crop=crop,
+                    source_size=(width, height),
+                    fish_box=instance["bbox_xyxy"],
+                    crop_box=instance["crop_box_xyxy"],
+                    args=args,
+                    mask_area_ratio=instance["mask_area_ratio"],
+                )
+                if not quality_ok:
+                    metrics.setdefault("quality_rejections", []).append(
+                        {
+                            "instance_index": index,
+                            "reject_reason": quality_reason,
+                            "crop_quality": quality_metrics,
+                        }
+                    )
+                    continue
+
                 output_path = _instance_path(accepted_path, index)
                 instance_metrics = {
                     **metrics,
@@ -701,6 +853,7 @@ def run_sam3_detection_outputs(
                     "instance_index": index,
                     "instance_count": source_instance_count,
                     "species_verification": species_verification,
+                    "crop_quality": quality_metrics,
                 }
 
                 if output_path.exists() and not args.overwrite:
@@ -709,7 +862,6 @@ def run_sam3_detection_outputs(
                     status = "accepted_crop_existing"
                     created_output = False
                 else:
-                    crop = image.crop(instance["crop_box_xyxy"])
                     save_pil_image(crop, output_path, image_format)
                     instance_metrics["saved"] = "written"
                     instance_metrics["created_output"] = True
@@ -730,6 +882,13 @@ def run_sam3_detection_outputs(
                     )
                 )
 
+            metrics["fish_detection_count"] = len(outputs)
+            if not outputs:
+                reasons = metrics.get("quality_rejections", [])
+                reject_reason = (
+                    reasons[0]["reject_reason"] if reasons else "no_fish_detected"
+                )
+                return [], reject_reason, metrics
             return outputs, None, metrics
     except Exception as exc:
         metrics["error"] = f"{type(exc).__name__}: {exc}"

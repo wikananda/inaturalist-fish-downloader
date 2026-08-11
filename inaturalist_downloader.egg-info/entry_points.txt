@@ -1,0 +1,10 @@
+[console_scripts]
+inat-audit-images = inaturalist_downloader.commands.audit_images:main
+inat-benchmark-croppers = inaturalist_downloader.commands.benchmark_croppers:main
+inat-build-final-ds = inaturalist_downloader.commands.build_final_ds:main
+inat-check-coverage = inaturalist_downloader.commands.check_coverage:main
+inat-check-images = inaturalist_downloader.commands.check_images:main
+inat-download = inaturalist_downloader.commands.download:main
+inat-extract-species = inaturalist_downloader.commands.extract_species:main
+inat-filter-validated = inaturalist_downloader.commands.filter_validated:main
+inat-prepare-split = inaturalist_downloader.commands.prepare_split:main

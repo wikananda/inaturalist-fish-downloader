@@ -1,0 +1,80 @@
+planning:
+  name: broad_fish_baseline_v1
+  region_name: Indonesia
+  region_place_id: 6966
+  quality_grade: research
+  photos_only: true
+  min_regional_observations: 20
+  min_global_observations: 500
+  max_species_per_scientist_family: 15
+  max_species_per_genus: 4
+  novel_evaluation_fraction: 0.15
+  random_seed: 42
+  per_page: 500
+  max_pages: 10
+  retries: 5
+  sleep_seconds: 0.0
+  target_species_file: species.txt
+  output_dir: plans/broad_baseline
+
+# `scientist_family` is the stable label shown to scientists. `inat_taxa`
+# contains the current iNaturalist taxa that must be queried to populate it.
+# Confirmed crosswalk:
+# - Scaridae/parrotfishes are included by the current Labridae taxon.
+# - Caesionidae/fusiliers are included by the current Lutjanidae taxon.
+# - Anthiadidae is distinct and is intentionally not folded into Serranidae.
+# - Epinephelidae is included with Serranidae so the requested grouper species
+#   are not silently omitted by current iNaturalist taxonomy.
+families:
+  - scientist_family: Acanthuridae
+    inat_taxa:
+      - {name: Acanthuridae, taxon_id: 47619}
+  - scientist_family: Carangidae
+    inat_taxa:
+      - {name: Carangidae, taxon_id: 47232}
+  - scientist_family: Carcharhinidae
+    inat_taxa:
+      - {name: Carcharhinidae, taxon_id: 52301}
+  - scientist_family: Chaetodontidae
+    inat_taxa:
+      - {name: Chaetodontidae, taxon_id: 47318}
+  - scientist_family: Ephippidae
+    inat_taxa:
+      - {name: Ephippidae, taxon_id: 49317}
+  - scientist_family: Haemulidae
+    inat_taxa:
+      - {name: Haemulidae, taxon_id: 49263}
+  - scientist_family: Labridae
+    notes: Includes Scaridae/parrotfishes in current iNaturalist taxonomy.
+    inat_taxa:
+      - {name: Labridae, taxon_id: 49284}
+  - scientist_family: Lutjanidae
+    notes: Includes Caesionidae/fusiliers in current iNaturalist taxonomy.
+    inat_taxa:
+      - {name: Lutjanidae, taxon_id: 47295}
+  - scientist_family: Mobulidae
+    inat_taxa:
+      - {name: Mobulidae, taxon_id: 715805}
+  - scientist_family: Mullidae
+    inat_taxa:
+      - {name: Mullidae, taxon_id: 118620}
+  - scientist_family: Muraenidae
+    inat_taxa:
+      - {name: Muraenidae, taxon_id: 47313}
+  - scientist_family: Pomacanthidae
+    inat_taxa:
+      - {name: Pomacanthidae, taxon_id: 47237}
+  - scientist_family: Pomacentridae
+    inat_taxa:
+      - {name: Pomacentridae, taxon_id: 48313}
+  - scientist_family: Serranidae
+    notes: Scientist-facing grouper family; Anthiadidae remains separate.
+    inat_taxa:
+      - {name: Serranidae, taxon_id: 47765}
+      - {name: Epinephelidae, taxon_id: 1363728}
+  - scientist_family: Siganidae
+    inat_taxa:
+      - {name: Siganidae, taxon_id: 84096}
+  - scientist_family: Tetraodontidae
+    inat_taxa:
+      - {name: Tetraodontidae, taxon_id: 49266}

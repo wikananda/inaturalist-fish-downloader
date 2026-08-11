@@ -19,6 +19,7 @@ inat:
   order_by: votes
   order: desc
   query_params: {}
+  place_preference: []
   per_page: 100
   max_pages: 100
   license_code: null
@@ -32,6 +33,19 @@ download:
   images_per_species: 100
   candidate_multiplier: 1.5
   max_candidates_per_species: null
+  adaptive_batching: true
+  min_candidate_batch_size: 32
+  max_candidate_batch_size: 128
+  initial_acceptance_rate: 0.25
+  acceptance_rate_floor: 0.10
+  batch_safety_factor: 1.10
+  target_unit: image
+  max_photos_per_observation: null
+  max_crops_per_observation: null
+  max_images_per_observer_per_species: null
+  resume: true
+  rejected_raw_policy: keep
+  rejected_raw_sample_rate: 0.05
   overwrite: false
   redownload: null
   species_workers: 10
@@ -61,6 +75,8 @@ detection:
   sam_score_threshold: 0.0
   sam_max_instances_per_image: null
   sam_min_mask_area_ratio: 0.02
+  sam_min_yolo_iou: 0.0
+  sam_allow_yolo_fallback: true
   sam_crop_padding: 0.15
   sam_save_all_instances: true
   sam_preload: true
@@ -72,8 +88,32 @@ detection:
   sam_dtype: float32
   sam_autocast: false
 
+crop_quality:
+  enable: false
+  min_short_side: 0
+  min_long_side: 0
+  min_fish_bbox_width: 0
+  min_fish_bbox_height: 0
+  min_fish_crop_area_ratio: 0.0
+  max_fish_crop_area_ratio: 1.0
+  min_source_edge_margin_ratio: 0.0
+  min_crop_edge_margin_ratio: 0.0
+  min_edge_variance: 0.0
+  min_entropy: 0.0
+  sam_min_mask_crop_area_ratio: 0.0
+  sam_max_mask_crop_area_ratio: 1.0
+  redetect: false
+  redetect_confidence: 0.3
+  redetect_require_single: true
+  redetect_min_area_ratio: 0.0
+  redetect_max_area_ratio: 1.0
+  redetect_min_iou: 0.0
+  redetect_min_edge_margin_ratio: 0.0
+
 clip:
   enable: true
+  batch_size: 32
+  backend: clip
   model: openai/clip-vit-base-patch32
   cache_dir: models
   device: null

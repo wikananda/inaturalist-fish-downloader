@@ -9,7 +9,7 @@ from omegaconf import OmegaConf
 
 from ..common.utils import parse_csv_int_set, parse_csv_set
 from .clip_filter import load_clip_prompts, validate_clip_import
-from .detection import validate_detector_import
+from .detection import validate_detector_import, validate_sam3_import
 from .image_quality import pillow_available
 
 CONFIG_DIR = Path(__file__).resolve().parents[2] / "configs"
@@ -23,6 +23,19 @@ CLI_FIELD_TO_PATH = {
     "images_per_species": "download.images_per_species",
     "candidate_multiplier": "download.candidate_multiplier",
     "max_candidates_per_species": "download.max_candidates_per_species",
+    "adaptive_batching": "download.adaptive_batching",
+    "min_candidate_batch_size": "download.min_candidate_batch_size",
+    "max_candidate_batch_size": "download.max_candidate_batch_size",
+    "initial_acceptance_rate": "download.initial_acceptance_rate",
+    "acceptance_rate_floor": "download.acceptance_rate_floor",
+    "batch_safety_factor": "download.batch_safety_factor",
+    "target_unit": "download.target_unit",
+    "max_photos_per_observation": "download.max_photos_per_observation",
+    "max_crops_per_observation": "download.max_crops_per_observation",
+    "max_images_per_observer_per_species": "download.max_images_per_observer_per_species",
+    "resume": "download.resume",
+    "rejected_raw_policy": "download.rejected_raw_policy",
+    "rejected_raw_sample_rate": "download.rejected_raw_sample_rate",
     "quality_grade": "inat.quality_grade",
     "photo_size": "inat.photo_size",
     "place_id": "inat.place_id",
@@ -63,6 +76,8 @@ CLI_FIELD_TO_PATH = {
     "sam_score_threshold": "detection.sam_score_threshold",
     "sam_max_instances_per_image": "detection.sam_max_instances_per_image",
     "sam_min_mask_area_ratio": "detection.sam_min_mask_area_ratio",
+    "sam_min_yolo_iou": "detection.sam_min_yolo_iou",
+    "sam_allow_yolo_fallback": "detection.sam_allow_yolo_fallback",
     "sam_crop_padding": "detection.sam_crop_padding",
     "sam_save_all_instances": "detection.sam_save_all_instances",
     "sam_preload": "detection.sam_preload",
@@ -73,7 +88,29 @@ CLI_FIELD_TO_PATH = {
     "sam_checkpoint_path": "detection.sam_checkpoint_path",
     "sam_dtype": "detection.sam_dtype",
     "sam_autocast": "detection.sam_autocast",
+    "enable_crop_quality": "crop_quality.enable",
+    "crop_min_short_side": "crop_quality.min_short_side",
+    "crop_min_long_side": "crop_quality.min_long_side",
+    "min_fish_bbox_width": "crop_quality.min_fish_bbox_width",
+    "min_fish_bbox_height": "crop_quality.min_fish_bbox_height",
+    "min_fish_crop_area_ratio": "crop_quality.min_fish_crop_area_ratio",
+    "max_fish_crop_area_ratio": "crop_quality.max_fish_crop_area_ratio",
+    "min_source_edge_margin_ratio": "crop_quality.min_source_edge_margin_ratio",
+    "min_crop_edge_margin_ratio": "crop_quality.min_crop_edge_margin_ratio",
+    "min_crop_edge_variance": "crop_quality.min_edge_variance",
+    "min_crop_entropy": "crop_quality.min_entropy",
+    "sam_min_mask_crop_area_ratio": "crop_quality.sam_min_mask_crop_area_ratio",
+    "sam_max_mask_crop_area_ratio": "crop_quality.sam_max_mask_crop_area_ratio",
+    "crop_redetect": "crop_quality.redetect",
+    "crop_redetect_confidence": "crop_quality.redetect_confidence",
+    "crop_redetect_require_single": "crop_quality.redetect_require_single",
+    "crop_redetect_min_area_ratio": "crop_quality.redetect_min_area_ratio",
+    "crop_redetect_max_area_ratio": "crop_quality.redetect_max_area_ratio",
+    "crop_redetect_min_iou": "crop_quality.redetect_min_iou",
+    "crop_redetect_min_edge_margin_ratio": "crop_quality.redetect_min_edge_margin_ratio",
     "enable_clip_filter": "clip.enable",
+    "clip_batch_size": "clip.batch_size",
+    "clip_backend": "clip.backend",
     "clip_model": "clip.model",
     "clip_cache_dir": "clip.cache_dir",
     "clip_device": "clip.device",
@@ -86,6 +123,7 @@ FILE_ONLY_FIELD_TO_PATH = {
     "query_params": "inat.query_params",
     "license_preference": "inat.license_preference",
     "blocked_license_codes": "inat.blocked_license_codes",
+    "place_preference": "inat.place_preference",
 }
 
 FIELD_TO_PATH = {
@@ -98,18 +136,29 @@ BOOL_FIELDS = {
     "alive_only",
     "include_subspecies",
     "overwrite",
+    "adaptive_batching",
+    "resume",
     "skip_image_validation",
     "enable_detection",
     "allow_multiple_fish",
     "sam_save_all_instances",
     "sam_preload",
     "sam_autocast",
+    "sam_allow_yolo_fallback",
+    "enable_crop_quality",
+    "crop_redetect",
+    "crop_redetect_require_single",
     "enable_clip_filter",
 }
 
 INT_FIELDS = {
     "images_per_species",
     "max_candidates_per_species",
+    "min_candidate_batch_size",
+    "max_candidate_batch_size",
+    "max_photos_per_observation",
+    "max_crops_per_observation",
+    "max_images_per_observer_per_species",
     "place_id",
     "term_id",
     "per_page",
@@ -122,10 +171,19 @@ INT_FIELDS = {
     "min_file_size_kb",
     "detector_imgsz",
     "sam_max_instances_per_image",
+    "crop_min_short_side",
+    "crop_min_long_side",
+    "min_fish_bbox_width",
+    "min_fish_bbox_height",
+    "clip_batch_size",
 }
 
 FLOAT_FIELDS = {
     "candidate_multiplier",
+    "initial_acceptance_rate",
+    "acceptance_rate_floor",
+    "batch_safety_factor",
+    "rejected_raw_sample_rate",
     "sleep_seconds",
     "max_aspect_ratio",
     "min_intensity_range",
@@ -134,7 +192,21 @@ FLOAT_FIELDS = {
     "crop_padding",
     "sam_score_threshold",
     "sam_min_mask_area_ratio",
+    "sam_min_yolo_iou",
     "sam_crop_padding",
+    "min_fish_crop_area_ratio",
+    "max_fish_crop_area_ratio",
+    "min_source_edge_margin_ratio",
+    "min_crop_edge_margin_ratio",
+    "min_crop_edge_variance",
+    "min_crop_entropy",
+    "sam_min_mask_crop_area_ratio",
+    "sam_max_mask_crop_area_ratio",
+    "crop_redetect_confidence",
+    "crop_redetect_min_area_ratio",
+    "crop_redetect_max_area_ratio",
+    "crop_redetect_min_iou",
+    "crop_redetect_min_edge_margin_ratio",
     "clip_threshold",
 }
 
@@ -143,7 +215,10 @@ CHOICE_FIELDS = {
     "photo_size": ["square", "thumb", "small", "medium", "large", "original"],
     "order": ["asc", "desc"],
     "detection_backend": ["yolo", "sam3", "cascade"],
+    "target_unit": ["image", "observation"],
+    "rejected_raw_policy": ["keep", "delete", "sample"],
     "sam_dtype": ["float32", "float16", "bfloat16"],
+    "clip_backend": ["clip", "siglip2"],
 }
 
 HELP_TEXT = {
@@ -154,6 +229,19 @@ HELP_TEXT = {
     "images_per_species": "Maximum number of accepted images to keep for each species.",
     "candidate_multiplier": "Collect this many candidate photos per final accepted target.",
     "max_candidates_per_species": "Hard cap for candidate photos scanned per species.",
+    "adaptive_batching": "Size refill batches from the remaining target and observed acceptance rate.",
+    "min_candidate_batch_size": "Minimum candidate photos processed in one adaptive refill batch.",
+    "max_candidate_batch_size": "Maximum candidate photos processed in one adaptive refill batch.",
+    "initial_acceptance_rate": "Acceptance-rate estimate used before the first completed batch.",
+    "acceptance_rate_floor": "Minimum acceptance rate used when estimating the next refill size.",
+    "batch_safety_factor": "Multiplier applied to adaptive refill estimates.",
+    "target_unit": "Count accepted images or independent observations toward the species target.",
+    "max_photos_per_observation": "Optional source-photo cap per iNaturalist observation; use 1 for independent data.",
+    "max_crops_per_observation": "Optional accepted-crop cap per source observation.",
+    "max_images_per_observer_per_species": "Optional accepted-image cap for one observer within a species.",
+    "resume": "Resume a matching per-species state from the manifest directory.",
+    "rejected_raw_policy": "Keep, delete, or deterministically sample rejected raw downloads.",
+    "rejected_raw_sample_rate": "Fraction of rejected raw images retained when policy is sample.",
     "quality_grade": "Observation quality filter. Use 'any' to skip this filter.",
     "photo_size": "Requested image size variant from iNaturalist photo URLs.",
     "place_id": "Optional iNaturalist place ID to use when fetching observation photos.",
@@ -194,6 +282,8 @@ HELP_TEXT = {
     "sam_score_threshold": "Minimum SAM 3 instance score.",
     "sam_max_instances_per_image": "Optional cap on SAM 3 crops saved from one source image.",
     "sam_min_mask_area_ratio": "Reject SAM 3 masks below this image-area ratio.",
+    "sam_min_yolo_iou": "Minimum IoU agreement between a YOLO box and its SAM-refined box.",
+    "sam_allow_yolo_fallback": "Allow a plain YOLO crop when SAM cannot refine a YOLO box.",
     "sam_crop_padding": "Padding around each SAM 3 instance crop as a fraction of box size.",
     "sam_save_all_instances": "Save every selected SAM 3 fish instance instead of only the highest-scoring one.",
     "sam_preload": "Download/check SAM 3 model files before starting image downloads.",
@@ -204,7 +294,29 @@ HELP_TEXT = {
     "sam_checkpoint_path": "Optional local SAM 3 checkpoint path. When set, Hugging Face download is skipped if it exists.",
     "sam_dtype": "Torch floating dtype used for SAM inference.",
     "sam_autocast": "Use Torch autocast during SAM inference. Disabled by default for stable SAM 3.1 CUDA inference.",
+    "enable_crop_quality": "Apply deterministic geometry, truncation, and final-crop visual quality gates.",
+    "crop_min_short_side": "Minimum shorter side of a final fish crop in pixels.",
+    "crop_min_long_side": "Minimum longer side of a final fish crop in pixels.",
+    "min_fish_bbox_width": "Minimum detector fish-box width in source pixels.",
+    "min_fish_bbox_height": "Minimum detector fish-box height in source pixels.",
+    "min_fish_crop_area_ratio": "Minimum fish-box area divided by final-crop area.",
+    "max_fish_crop_area_ratio": "Maximum fish-box area divided by final-crop area.",
+    "min_source_edge_margin_ratio": "Minimum normalized gap from the fish box to every source-image edge.",
+    "min_crop_edge_margin_ratio": "Minimum normalized gap from the fish box to every final-crop edge.",
+    "min_crop_edge_variance": "Minimum final-crop edge variance; zero disables the blur/flatness gate.",
+    "min_crop_entropy": "Minimum grayscale entropy of the final crop; zero disables the information gate.",
+    "sam_min_mask_crop_area_ratio": "Minimum SAM mask area divided by final-crop area.",
+    "sam_max_mask_crop_area_ratio": "Maximum SAM mask area divided by final-crop area.",
+    "crop_redetect": "Run YOLO again on the final crop as an independent consistency check.",
+    "crop_redetect_confidence": "Minimum confidence for the final-crop YOLO consistency check.",
+    "crop_redetect_require_single": "Require exactly one fish during final-crop re-detection.",
+    "crop_redetect_min_area_ratio": "Minimum re-detected fish-box area divided by final-crop area.",
+    "crop_redetect_max_area_ratio": "Maximum re-detected fish-box area divided by final-crop area.",
+    "crop_redetect_min_iou": "Minimum IoU between the source detection mapped into the crop and re-detection.",
+    "crop_redetect_min_edge_margin_ratio": "Minimum gap from the re-detected fish to every crop edge.",
     "enable_clip_filter": "Run CLIP context filtering after detection/cropping or accepted image preparation.",
+    "clip_batch_size": "Maximum crops scored in one CLIP forward pass.",
+    "clip_backend": "Semantic filter backend: original CLIP or SigLIP 2.",
     "clip_model": "CLIP model name or local path for Transformers.",
     "clip_cache_dir": "Directory used to cache downloaded CLIP model files.",
     "clip_device": "Optional CLIP device, for example 'cpu', 'mps', or 'cuda'.",
@@ -473,10 +585,76 @@ def parse_args() -> argparse.Namespace:
 
 def validate_args(args: argparse.Namespace) -> None:
     """Validate downloader CLI arguments and populate derived detector filters."""
+    compatibility_defaults = {
+        "adaptive_batching": False,
+        "min_candidate_batch_size": 32,
+        "max_candidate_batch_size": 128,
+        "initial_acceptance_rate": 0.25,
+        "acceptance_rate_floor": 0.10,
+        "batch_safety_factor": 1.10,
+        "target_unit": "image",
+        "max_photos_per_observation": None,
+        "max_crops_per_observation": None,
+        "max_images_per_observer_per_species": None,
+        "resume": False,
+        "rejected_raw_policy": "keep",
+        "rejected_raw_sample_rate": 0.05,
+        "place_preference": [],
+        "clip_batch_size": 32,
+        "sam_min_yolo_iou": 0.0,
+        "sam_allow_yolo_fallback": True,
+        "enable_crop_quality": False,
+        "crop_min_short_side": 0,
+        "crop_min_long_side": 0,
+        "min_fish_bbox_width": 0,
+        "min_fish_bbox_height": 0,
+        "min_fish_crop_area_ratio": 0.0,
+        "max_fish_crop_area_ratio": 1.0,
+        "min_source_edge_margin_ratio": 0.0,
+        "min_crop_edge_margin_ratio": 0.0,
+        "min_crop_edge_variance": 0.0,
+        "min_crop_entropy": 0.0,
+        "sam_min_mask_crop_area_ratio": 0.0,
+        "sam_max_mask_crop_area_ratio": 1.0,
+        "crop_redetect": False,
+        "crop_redetect_confidence": 0.3,
+        "crop_redetect_require_single": True,
+        "crop_redetect_min_area_ratio": 0.0,
+        "crop_redetect_max_area_ratio": 1.0,
+        "crop_redetect_min_iou": 0.0,
+        "crop_redetect_min_edge_margin_ratio": 0.0,
+        "clip_backend": "clip",
+    }
+    for field, default in compatibility_defaults.items():
+        if not hasattr(args, field):
+            setattr(args, field, default)
+
     if args.images_per_species <= 0:
         raise SystemExit("--images-per-species must be greater than 0")
     if args.candidate_multiplier < 1:
         raise SystemExit("--candidate-multiplier must be at least 1")
+    if args.min_candidate_batch_size <= 0:
+        raise SystemExit("--min-candidate-batch-size must be greater than 0")
+    if args.max_candidate_batch_size < args.min_candidate_batch_size:
+        raise SystemExit(
+            "--max-candidate-batch-size must be >= --min-candidate-batch-size"
+        )
+    if not 0 < args.initial_acceptance_rate <= 1:
+        raise SystemExit("--initial-acceptance-rate must be in (0, 1]")
+    if not 0 < args.acceptance_rate_floor <= 1:
+        raise SystemExit("--acceptance-rate-floor must be in (0, 1]")
+    if args.batch_safety_factor <= 0:
+        raise SystemExit("--batch-safety-factor must be greater than 0")
+    if not 0 <= args.rejected_raw_sample_rate <= 1:
+        raise SystemExit("--rejected-raw-sample-rate must be in [0, 1]")
+    for field in (
+        "max_photos_per_observation",
+        "max_crops_per_observation",
+        "max_images_per_observer_per_species",
+    ):
+        value = getattr(args, field)
+        if value is not None and value <= 0:
+            raise SystemExit(f"--{field.replace('_', '-')} must be greater than 0")
     if (
         args.max_candidates_per_species is not None
         and args.max_candidates_per_species < args.images_per_species
@@ -490,6 +668,19 @@ def validate_args(args: argparse.Namespace) -> None:
         raise SystemExit("--species-workers must be greater than 0")
     if args.download_workers <= 0:
         raise SystemExit("--download-workers must be greater than 0")
+    if args.clip_batch_size <= 0:
+        raise SystemExit("--clip-batch-size must be greater than 0")
+    if args.place_preference in (None, ""):
+        args.place_preference = []
+    if not isinstance(args.place_preference, list):
+        raise SystemExit("inat.place_preference must be a list of place IDs or null")
+    normalized_places = []
+    for place_id in args.place_preference:
+        if place_id is None:
+            normalized_places.append(None)
+        else:
+            normalized_places.append(int(place_id))
+    args.place_preference = normalized_places
     if args.term_value_id and args.term_id is None and not args.alive_only:
         raise SystemExit("--term-value-id requires --term-id unless --alive-only is used")
     if not isinstance(args.query_params, dict):
@@ -548,6 +739,59 @@ def validate_args(args: argparse.Namespace) -> None:
     if args.min_intensity_range < 0:
         raise SystemExit("--min-intensity-range must be greater than or equal to 0")
 
+    for field in (
+        "crop_min_short_side",
+        "crop_min_long_side",
+        "min_fish_bbox_width",
+        "min_fish_bbox_height",
+    ):
+        if getattr(args, field) < 0:
+            raise SystemExit(
+                f"--{field.replace('_', '-')} must be greater than or equal to 0"
+            )
+    for field in (
+        "min_fish_crop_area_ratio",
+        "max_fish_crop_area_ratio",
+        "min_source_edge_margin_ratio",
+        "min_crop_edge_margin_ratio",
+        "sam_min_mask_crop_area_ratio",
+        "sam_max_mask_crop_area_ratio",
+        "crop_redetect_confidence",
+        "crop_redetect_min_area_ratio",
+        "crop_redetect_max_area_ratio",
+        "crop_redetect_min_iou",
+        "crop_redetect_min_edge_margin_ratio",
+    ):
+        value = getattr(args, field)
+        if value < 0 or value > 1:
+            raise SystemExit(
+                f"--{field.replace('_', '-')} must be between 0 and 1"
+            )
+    if args.min_fish_crop_area_ratio > args.max_fish_crop_area_ratio:
+        raise SystemExit(
+            "--min-fish-crop-area-ratio must be <= --max-fish-crop-area-ratio"
+        )
+    if args.sam_min_mask_crop_area_ratio > args.sam_max_mask_crop_area_ratio:
+        raise SystemExit(
+            "--sam-min-mask-crop-area-ratio must be <= "
+            "--sam-max-mask-crop-area-ratio"
+        )
+    if args.crop_redetect_min_area_ratio > args.crop_redetect_max_area_ratio:
+        raise SystemExit(
+            "--crop-redetect-min-area-ratio must be <= "
+            "--crop-redetect-max-area-ratio"
+        )
+    if args.min_crop_edge_variance < 0:
+        raise SystemExit("--min-crop-edge-variance must be greater than or equal to 0")
+    if args.min_crop_entropy < 0:
+        raise SystemExit("--min-crop-entropy must be greater than or equal to 0")
+    if args.enable_crop_quality and not args.enable_detection:
+        raise SystemExit("--enable-crop-quality requires --enable-detection")
+    if args.crop_redetect and args.detection_backend not in ("yolo", "cascade"):
+        raise SystemExit(
+            "--crop-redetect requires the yolo or cascade detection backend"
+        )
+
     if args.enable_detection:
         if args.detection_backend in ("yolo", "cascade") and not args.detector_weights:
             raise SystemExit("--enable-detection requires --detector-weights")
@@ -563,6 +807,8 @@ def validate_args(args: argparse.Namespace) -> None:
             raise SystemExit("--sam-score-threshold must be between 0 and 1")
         if args.sam_min_mask_area_ratio < 0 or args.sam_min_mask_area_ratio > 1:
             raise SystemExit("--sam-min-mask-area-ratio must be between 0 and 1")
+        if args.sam_min_yolo_iou < 0 or args.sam_min_yolo_iou > 1:
+            raise SystemExit("--sam-min-yolo-iou must be between 0 and 1")
         if args.sam_crop_padding < 0:
             raise SystemExit("--sam-crop-padding must be greater than or equal to 0")
         if args.sam_dtype not in CHOICE_FIELDS["sam_dtype"]:
@@ -585,13 +831,18 @@ def validate_args(args: argparse.Namespace) -> None:
                 validate_detector_import()
             except RuntimeError as exc:
                 raise SystemExit(str(exc)) from exc
+        if args.detection_backend in ("sam3", "cascade"):
+            try:
+                validate_sam3_import()
+            except RuntimeError as exc:
+                raise SystemExit(str(exc)) from exc
     else:
         args.detector_class_id_set = set()
         args.detector_class_name_set = set()
 
     if args.enable_clip_filter:
         try:
-            validate_clip_import()
+            validate_clip_import(args.clip_backend)
         except RuntimeError as exc:
             raise SystemExit(str(exc)) from exc
         try:

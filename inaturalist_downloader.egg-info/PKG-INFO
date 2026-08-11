@@ -1,0 +1,31 @@
+Metadata-Version: 2.4
+Name: inaturalist-downloader
+Version: 0.1.0
+Summary: Utilities for extracting fish species from iNaturalist and building image datasets.
+Requires-Python: >=3.10
+Requires-Dist: Pillow>=10
+Requires-Dist: omegaconf>=2.3
+Provides-Extra: yolo
+Requires-Dist: ultralytics>=8; extra == "yolo"
+Provides-Extra: clip
+Requires-Dist: transformers>=4.40; extra == "clip"
+Requires-Dist: torch>=2.7; extra == "clip"
+Provides-Extra: sam3
+Requires-Dist: einops>=0.8; extra == "sam3"
+Requires-Dist: pycocotools>=2.0.11; extra == "sam3"
+Requires-Dist: sam3>=0.1.0; extra == "sam3"
+Requires-Dist: torch>=2.7; extra == "sam3"
+Requires-Dist: torchvision>=0.22; extra == "sam3"
+Requires-Dist: triton>=3; platform_system == "Linux" and extra == "sam3"
+Provides-Extra: all
+Requires-Dist: einops>=0.8; extra == "all"
+Requires-Dist: pycocotools>=2.0.11; extra == "all"
+Requires-Dist: sam3>=0.1.0; extra == "all"
+Requires-Dist: torch>=2.7; extra == "all"
+Requires-Dist: torchvision>=0.22; extra == "all"
+Requires-Dist: transformers>=4.40; extra == "all"
+Requires-Dist: triton>=3; platform_system == "Linux" and extra == "all"
+Requires-Dist: ultralytics>=8; extra == "all"
+Provides-Extra: dev
+Requires-Dist: Pillow>=10; extra == "dev"
+Requires-Dist: omegaconf>=2.3; extra == "dev"

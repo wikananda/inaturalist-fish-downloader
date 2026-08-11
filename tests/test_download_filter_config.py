@@ -1,4 +1,5 @@
 import argparse
+import json
 import shutil
 import sys
 import tempfile
@@ -11,6 +12,7 @@ from omegaconf import OmegaConf
 
 from inaturalist_downloader.common.inat import iter_observation_photos
 from inaturalist_downloader.commands.download import download_species_images
+from inaturalist_downloader.download.candidates import adaptive_candidate_batch_limit
 from inaturalist_downloader.download.cli import merge_filter_configs, parse_args, validate_args
 from inaturalist_downloader.download import clip_filter as clip_module
 from inaturalist_downloader.download import detection as detection_module
@@ -30,6 +32,32 @@ from inaturalist_downloader.download.detection import (
 
 
 class DownloadFilterConfigTests(unittest.TestCase):
+    def test_adaptive_candidate_batch_is_bounded(self):
+        args = argparse.Namespace(
+            adaptive_batching=True,
+            initial_acceptance_rate=0.25,
+            acceptance_rate_floor=0.10,
+            batch_safety_factor=1.10,
+            min_candidate_batch_size=32,
+            max_candidate_batch_size=128,
+        )
+
+        first_batch = adaptive_candidate_batch_limit(
+            args,
+            remaining_target=500,
+            accepted_count=0,
+            processed_count=0,
+        )
+        final_batch = adaptive_candidate_batch_limit(
+            args,
+            remaining_target=2,
+            accepted_count=80,
+            processed_count=100,
+        )
+
+        self.assertEqual(first_batch, 128)
+        self.assertEqual(final_batch, 32)
+
     def test_profile_filter_file_merges_before_profile_overrides(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             temp_path = Path(temp_dir)
@@ -433,7 +461,7 @@ class DownloadFilterConfigTests(unittest.TestCase):
         self.assertEqual(_box_iou([0, 0, 10, 10], [0, 0, 10, 10]), 1.0)
         self.assertEqual(_box_iou([0, 0, 10, 10], [20, 20, 30, 30]), 0.0)
 
-    def _run_cascade(self, yolo_boxes, sam_output):
+    def _run_cascade(self, yolo_boxes, sam_output, **arg_overrides):
         """Helper: run run_cascade_detection_outputs with YOLO + SAM faked out."""
 
         class FakeModel:
@@ -507,6 +535,8 @@ class DownloadFilterConfigTests(unittest.TestCase):
             crop_padding=0.0,
             overwrite=True,
         )
+        for field, value in arg_overrides.items():
+            setattr(args, field, value)
 
         self._reset_sam3_model_cache()
         try:
@@ -586,6 +616,60 @@ class DownloadFilterConfigTests(unittest.TestCase):
         self.assertEqual(detection["refine"], "fallback_yolo")
         self.assertEqual(detection["crop_box_xyxy"], [5, 5, 25, 25])
         self.assertTrue(outputs[0].accepted_path.exists())
+
+    def test_cascade_strict_mode_rejects_failed_sam_refinement(self):
+        yolo_boxes = [
+            {
+                "bbox_xyxy": [5.0, 5.0, 25.0, 25.0],
+                "confidence": 0.9,
+                "class_id": 0,
+                "class_name": "fish",
+                "area_ratio": 0.3,
+                "selection_score": 0.27,
+            }
+        ]
+        sam_output = {"boxes": [], "scores": [], "masks": None}
+
+        outputs, reject_reason, metrics, _ = self._run_cascade(
+            yolo_boxes,
+            sam_output,
+            sam_allow_yolo_fallback=False,
+        )
+
+        self.assertEqual(outputs, [])
+        self.assertEqual(reject_reason, "sam_refinement_failed")
+        self.assertEqual(
+            metrics["quality_rejections"][0]["reject_reason"],
+            "sam_refinement_failed",
+        )
+
+    def test_cascade_strict_mode_rejects_low_sam_yolo_iou(self):
+        yolo_boxes = [
+            {
+                "bbox_xyxy": [5.0, 5.0, 25.0, 25.0],
+                "confidence": 0.9,
+                "class_id": 0,
+                "class_name": "fish",
+                "area_ratio": 0.3,
+                "selection_score": 0.27,
+            }
+        ]
+        sam_output = {
+            "boxes": [[40.0, 40.0, 55.0, 55.0]],
+            "scores": [0.9],
+            "masks": None,
+        }
+
+        outputs, reject_reason, metrics, _ = self._run_cascade(
+            yolo_boxes,
+            sam_output,
+            sam_allow_yolo_fallback=False,
+            sam_min_yolo_iou=0.4,
+        )
+
+        self.assertEqual(outputs, [])
+        self.assertEqual(reject_reason, "sam_refinement_failed")
+        self.assertEqual(metrics["quality_rejections"][0]["sam_yolo_iou"], 0.0)
 
     def test_preload_clip_model_loads_and_warms(self):
         class FakeTensor:
@@ -850,6 +934,110 @@ class DownloadFilterConfigTests(unittest.TestCase):
         self.assertEqual(len(accepted_lines), 2)
         self.assertIn("fish__inst_1.jpg", accepted_lines[0])
         self.assertIn('"species_verification": "unverified"', accepted_lines[0])
+
+    def test_download_species_images_fills_unique_observations_then_global(self):
+        args = self._download_args(images_per_species=2)
+        args.target_unit = "observation"
+        args.max_photos_per_observation = 1
+        args.max_crops_per_observation = 1
+        args.place_preference = [6966, None]
+        args.license_preference = []
+        args.resume = True
+        calls = []
+
+        def collect_photo_jobs(**kwargs):
+            place_id = kwargs["place_id_override"]
+            calls.append(place_id)
+            photo_id = 1 if place_id == 6966 else 2
+            return [self._candidate(photo_id, "cc0")], 2, True
+
+        def download_photo_job(candidate, destination, overwrite, sleep_seconds, retries):
+            return {**candidate, "raw_path": str(destination), "download_status": "downloaded"}
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_path = Path(temp_dir)
+            manifest_dir = temp_path / "manifests"
+            manifest_dir.mkdir()
+            with patch(
+                "inaturalist_downloader.commands.download.resolve_taxon_id",
+                return_value=(1, "Test fish"),
+            ), patch(
+                "inaturalist_downloader.commands.download.collect_photo_jobs",
+                side_effect=collect_photo_jobs,
+            ), patch(
+                "inaturalist_downloader.commands.download.download_photo_job",
+                side_effect=download_photo_job,
+            ), patch(
+                "inaturalist_downloader.commands.download.save_accepted_image",
+                return_value="accepted",
+            ):
+                download_species_images(
+                    "Test fish",
+                    args,
+                    temp_path / "downloads",
+                    temp_path / "raw",
+                    manifest_dir,
+                )
+
+            state = json.loads(
+                (manifest_dir / "state" / "test_fish.json").read_text()
+            )
+            accepted_lines = (manifest_dir / "accepted.jsonl").read_text().splitlines()
+
+        self.assertEqual(calls, [6966, None])
+        self.assertEqual(state["accepted_observation_ids"], [1, 2])
+        self.assertEqual(len(accepted_lines), 2)
+
+    def test_download_species_images_resumes_from_saved_page(self):
+        args = self._download_args(images_per_species=1)
+        args.target_unit = "observation"
+        args.max_photos_per_observation = 1
+        args.max_crops_per_observation = 1
+        args.place_preference = [None]
+        args.license_preference = []
+        args.resume = True
+        args.max_pages = 3
+        starts = []
+
+        def collect_photo_jobs(**kwargs):
+            starts.append(kwargs["start_page"])
+            photo_id = kwargs["start_page"]
+            return [self._candidate(photo_id, "cc0")], kwargs["start_page"] + 1, False
+
+        def download_photo_job(candidate, destination, overwrite, sleep_seconds, retries):
+            return {**candidate, "raw_path": str(destination), "download_status": "downloaded"}
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_path = Path(temp_dir)
+            manifest_dir = temp_path / "manifests"
+            manifest_dir.mkdir()
+            with patch(
+                "inaturalist_downloader.commands.download.resolve_taxon_id",
+                return_value=(1, "Test fish"),
+            ), patch(
+                "inaturalist_downloader.commands.download.collect_photo_jobs",
+                side_effect=collect_photo_jobs,
+            ), patch(
+                "inaturalist_downloader.commands.download.download_photo_job",
+                side_effect=download_photo_job,
+            ), patch(
+                "inaturalist_downloader.commands.download.save_accepted_image",
+                return_value="accepted",
+            ):
+                download_species_images(
+                    "Test fish", args, temp_path / "downloads", temp_path / "raw", manifest_dir
+                )
+                args.images_per_species = 2
+                download_species_images(
+                    "Test fish", args, temp_path / "downloads", temp_path / "raw", manifest_dir
+                )
+
+            state = json.loads(
+                (manifest_dir / "state" / "test_fish.json").read_text()
+            )
+
+        self.assertEqual(starts, [1, 2])
+        self.assertEqual(state["accepted_observation_ids"], [1, 2])
 
     def _download_args(self, images_per_species=1):
         return argparse.Namespace(

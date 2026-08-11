@@ -1,0 +1,141 @@
+"""Summarize automatic crop-filter outcomes from downloader manifests."""
+
+from __future__ import annotations
+
+import argparse
+import json
+import statistics
+from collections import Counter, defaultdict
+from pathlib import Path
+from typing import Any, Iterable
+
+
+def _read_jsonl(path: Path) -> Iterable[dict[str, Any]]:
+    if not path.exists():
+        return
+    with path.open("r", encoding="utf-8") as handle:
+        for line_number, line in enumerate(handle, start=1):
+            value = line.strip()
+            if not value:
+                continue
+            try:
+                payload = json.loads(value)
+            except json.JSONDecodeError as exc:
+                raise ValueError(f"Invalid JSON at {path}:{line_number}: {exc}") from exc
+            if isinstance(payload, dict):
+                yield payload
+
+
+def _species_name(record: dict[str, Any]) -> str:
+    return str(
+        record.get("canonical_name") or record.get("species_name") or "unknown"
+    )
+
+
+def _score_summary(values: list[float]) -> dict[str, Any]:
+    if not values:
+        return {"count": 0}
+    ordered = sorted(values)
+
+    def percentile(fraction: float) -> float:
+        index = round((len(ordered) - 1) * fraction)
+        return ordered[index]
+
+    return {
+        "count": len(values),
+        "min": round(ordered[0], 6),
+        "p10": round(percentile(0.10), 6),
+        "median": round(float(statistics.median(ordered)), 6),
+        "p90": round(percentile(0.90), 6),
+        "max": round(ordered[-1], 6),
+    }
+
+
+def build_quality_report(manifest_dir: Path) -> dict[str, Any]:
+    """Build acceptance, rejection, and score summaries from one manifest run."""
+    root = Path(manifest_dir)
+    candidates = list(_read_jsonl(root / "candidates.jsonl"))
+    accepted = list(_read_jsonl(root / "accepted.jsonl"))
+    rejected = list(_read_jsonl(root / "rejected.jsonl"))
+    reject_reasons = Counter(
+        str(record.get("reject_reason") or "unknown") for record in rejected
+    )
+    accepted_by_species = Counter(_species_name(record) for record in accepted)
+    rejected_by_species = Counter(_species_name(record) for record in rejected)
+    semantic_scores: dict[str, list[float]] = defaultdict(list)
+    crop_edge_variances: dict[str, list[float]] = defaultdict(list)
+
+    for outcome, records in (("accepted", accepted), ("rejected", rejected)):
+        for record in records:
+            clip = record.get("clip") or {}
+            if clip.get("context_score") is not None:
+                semantic_scores[outcome].append(float(clip["context_score"]))
+            crop_quality = (record.get("detection") or {}).get("crop_quality") or {}
+            visual = crop_quality.get("visual") or {}
+            if visual.get("edge_variance") is not None:
+                crop_edge_variances[outcome].append(float(visual["edge_variance"]))
+
+    species_rows = []
+    for species in sorted(set(accepted_by_species) | set(rejected_by_species)):
+        accepted_count = accepted_by_species[species]
+        rejected_count = rejected_by_species[species]
+        decided = accepted_count + rejected_count
+        species_rows.append(
+            {
+                "species": species,
+                "accepted": accepted_count,
+                "rejected": rejected_count,
+                "acceptance_rate": (
+                    round(accepted_count / decided, 6) if decided else None
+                ),
+            }
+        )
+
+    decided_count = len(accepted) + len(rejected)
+    return {
+        "manifest_dir": str(root),
+        "candidate_records": len(candidates),
+        "accepted_records": len(accepted),
+        "rejected_records": len(rejected),
+        "acceptance_rate": (
+            round(len(accepted) / decided_count, 6) if decided_count else None
+        ),
+        "reject_reasons": dict(reject_reasons.most_common()),
+        "semantic_context_scores": {
+            outcome: _score_summary(values)
+            for outcome, values in sorted(semantic_scores.items())
+        },
+        "crop_edge_variance": {
+            outcome: _score_summary(values)
+            for outcome, values in sorted(crop_edge_variances.items())
+        },
+        "species": species_rows,
+    }
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Summarize accepted/rejected crop-quality outcomes."
+    )
+    parser.add_argument("--manifest-dir", type=Path, required=True)
+    parser.add_argument(
+        "--output",
+        type=Path,
+        default=None,
+        help="JSON output path. Defaults to <manifest-dir>/quality_report.json.",
+    )
+    return parser.parse_args()
+
+
+def main() -> None:
+    args = parse_args()
+    output = args.output or args.manifest_dir / "quality_report.json"
+    report = build_quality_report(args.manifest_dir)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    print(json.dumps(report, indent=2, sort_keys=True))
+    print(f"Wrote {output}")
+
+
+if __name__ == "__main__":
+    main()

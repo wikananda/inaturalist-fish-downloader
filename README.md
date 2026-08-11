@@ -79,19 +79,49 @@ inat-check-images 60 --images-dir downloads
 
 Species below the target are written to `redownload.txt`.
 
-5. Prepare train/validation/test folders after editing `train.txt`, `val.txt`, and `test.txt`:
+5. Track manual curation edits before and after inspecting `downloads/`:
+
+```bash
+inat-audit-images snapshot --images-dir downloads
+```
+
+After manually deleting or cropping images, write a change report:
+
+```bash
+inat-audit-images diff --images-dir downloads
+```
+
+The diff writes `manifests/manual_audit_changes.jsonl` with `added`, `deleted`, and `modified` records based on file hashes and image dimensions.
+
+6. Extract Label Studio validated images into a filtered training dataset:
+
+```bash
+inat-filter-validated --csv dataset.csv --images-dir downloads --output-dir filtered_ds
+```
+
+The command copies only rows where `valid` is `validated` and writes `manifests/validated_filter_report.jsonl` with copied, skipped, missing, duplicate, and ignored rows. Use `--dry-run` to preview the report without creating files.
+
+7. Build a final dataset from species that meet your minimum image threshold:
+
+```bash
+inat-build-final-ds 50 --images-dir filtered_ds --output-dir final_ds
+```
+
+The command copies complete-enough species folders into `final_ds/`, prints counts for included and excluded species, and writes `manifests/final_ds_included.tsv` plus `manifests/final_ds_excluded.tsv`. Use `--dry-run` to preview without copying, or `--overwrite` to replace existing folders in `final_ds/`.
+
+8. Prepare train/validation/test folders after editing `train.txt`, `val.txt`, and `test.txt`:
 
 ```bash
 inat-prepare-split --images-dir downloads --output-dir dataset_split --mode copy
 ```
 
-6. Check that all species are covered by the split files:
+9. Check that all species are covered by the split files:
 
 ```bash
 inat-check-coverage --species-file species.txt --split-dir .
 ```
 
-7. Benchmark YOLO vs SAM 3 crop quality on existing raw downloads:
+10. Benchmark YOLO vs SAM 3 crop quality on existing raw downloads:
 
 ```bash
 inat-benchmark-croppers \
@@ -124,3 +154,26 @@ inat-download --config smoke --print-config
 Reusable iNaturalist observation filter presets live in `configs/filters/`. Add them to a download profile with `inat.filter_files` to experiment with quality grade, captive/alive, photo license, annotations, ordering, and raw `/observations` query parameters. The default profile excludes juvenile observations and uses commercial-safe photo licenses in this order: `cc0`, `cc-by`, then `cc-by-sa`. Sex filters are available as `not_female` and `not_male`; combine either with `not_juvenile` when you want to exclude one sex while keeping other observations.
 
 More details are in `docs/configuration.md`, `docs/yolo_setup.md`, and `docs/clip_setup.md`.
+
+## Broad fish baseline
+
+Generate a taxonomy-aware species proposal without downloading images:
+
+```bash
+inat-plan-broad-species --config configs/broad_baseline_plan.yaml
+```
+
+After reviewing `plans/broad_baseline/broad_species_proposal.tsv`, run a small
+pilot and then the resumable accepted-observation download:
+
+```bash
+inat-download --config broad_baseline --species-file pilot_species.txt --images-per-species 30
+inat-download --config broad_baseline
+```
+
+See `docs/broad_baseline.md` for the confirmed family crosswalk, selection rules,
+output files, adaptive refill behavior, and resume semantics.
+
+See `docs/automatic_crop_quality.md` for the deterministic crop gates, SigLIP 2
+calibration, optional strict SAM cascade, rejection reasons, quality-report
+command, and all automated and real-model tests.

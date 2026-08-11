@@ -1,0 +1,40 @@
+{
+  "broad_train_species": 135,
+  "candidate_species": 2323,
+  "count_note": "Observation counts are research-grade photo upper bounds; final accepted counts will be lower after licence, image, detector, and CLIP filters.",
+  "min_global_observations": 500,
+  "min_regional_observations": 20,
+  "novel_evaluation_species": 6,
+  "plan_name": "broad_fish_baseline_v1",
+  "rare_target_species": 14,
+  "region_name": "Indonesia",
+  "region_place_id": 6966,
+  "role_counts": {
+    "broad_pretraining": 41,
+    "common_target_pretraining": 94,
+    "eligible_not_selected": 119,
+    "ineligible": 2049,
+    "novel_evaluation": 6,
+    "rare_target_holdout": 14
+  },
+  "selected_by_scientist_family": {
+    "Acanthuridae": 14,
+    "Carangidae": 6,
+    "Carcharhinidae": 3,
+    "Chaetodontidae": 13,
+    "Ephippidae": 3,
+    "Haemulidae": 5,
+    "Labridae": 19,
+    "Lutjanidae": 12,
+    "Mobulidae": 2,
+    "Mullidae": 7,
+    "Muraenidae": 7,
+    "Pomacanthidae": 11,
+    "Pomacentridae": 15,
+    "Serranidae": 13,
+    "Siganidae": 4,
+    "Tetraodontidae": 7
+  },
+  "selected_download_species": 141,
+  "unmatched_target_species": 6
+}
