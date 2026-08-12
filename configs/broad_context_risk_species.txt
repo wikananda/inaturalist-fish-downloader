@@ -1,0 +1,10 @@
+# Classes with concentrated catch/specimen context in the V3 targeted audit.
+# Hold these out of automatic primary training until a full-source context gate
+# or manual/scientist review produces at least 100 clean underwater examples.
+Acanthopagrus australis
+Allomycterus pilatus
+Aplodinotus grunniens
+Lagodon rhomboides
+Neogobius melanostomus
+Pterois volitans
+Tetractenos glaber

@@ -1,0 +1,205 @@
+taxon_id	species	genus	scientist_family	inat_family	global_count	v3_role	v3_accepted	exact_label_accepted	metadata_mismatch_count	family_smoothed_yield	estimated_exact_accepted	planned_accepted_target	v4_role	selection_reason
+135283	Acanthurus lineatus	Acanthurus	Acanthuridae	Acanthuridae	450	common_target_pretraining	200	200	0	0.32413	146	200	primary_train	v3_exact_label_count_meets_minimum
+121704	Acanthurus olivaceus	Acanthurus	Acanthuridae	Acanthuridae	265	common_target_pretraining	109	109	0	0.32413	86	200	primary_train	v3_exact_label_count_meets_minimum
+180389	Ctenochaetus striatus	Ctenochaetus	Acanthuridae	Acanthuridae	608	common_target_pretraining	200	200	0	0.32413	197	200	primary_train	v3_exact_label_count_meets_minimum
+52451	Naso lituratus	Naso	Acanthuridae	Acanthuridae	485	common_target_pretraining	200	200	0	0.32413	157	200	primary_train	v3_exact_label_count_meets_minimum
+49641	Zebrasoma scopas	Zebrasoma	Acanthuridae	Acanthuridae	359	common_target_pretraining	112	112	0	0.32413	116	200	primary_train	v3_exact_label_count_meets_minimum
+424818	Zebrasoma velifer	Zebrasoma	Acanthuridae	Acanthuridae	407	common_target_pretraining	162	162	0	0.32413	132	200	primary_train	v3_exact_label_count_meets_minimum
+121196	Acanthurus coeruleus	Acanthurus	Acanthuridae	Acanthuridae	1231	broad_pretraining	200	200	0	0.32413	399	200	primary_train	v3_exact_label_count_meets_minimum
+59931	Acanthurus triostegus	Acanthurus	Acanthuridae	Acanthuridae	660	broad_pretraining	200	134	66	0.32413	214	200	primary_train	v3_exact_label_count_meets_minimum
+56772	Prionurus laticlavius	Prionurus	Acanthuridae	Acanthuridae	689	broad_pretraining	84	84	0	0.32413	223	200	reserve_backfill	near_minimum_or_projection_uncertain
+52459	Zebrasoma flavescens	Zebrasoma	Acanthuridae	Acanthuridae	306	broad_pretraining	86	86	0	0.32413	99	200	reserve_backfill	near_minimum_or_projection_uncertain
+121195	Acanthurus chirurgus	Acanthurus	Acanthuridae	Acanthuridae	256	eligible_not_selected			0	0.32413	83	200	reserve_backfill	near_minimum_or_projection_uncertain
+132410	Acanthurus nigrofuscus	Acanthurus	Acanthuridae	Acanthuridae	486	eligible_not_selected			0	0.32413	158	200	primary_train	unselected_v3_candidate_projected_to_reach_minimum
+1315888	Acanthurus sandvicensis	Acanthurus	Acanthuridae	Acanthuridae	466	eligible_not_selected		66	0	0.32413	151	200	primary_train	relabelled_seed_plus_supply_projected_to_reach_minimum
+871060	Acanthurus tractus	Acanthurus	Acanthuridae	Acanthuridae	651	eligible_not_selected			0	0.32413	211	200	primary_train	unselected_v3_candidate_projected_to_reach_minimum
+132366	Acanthurus xanthopterus	Acanthurus	Acanthuridae	Acanthuridae	382	eligible_not_selected			0	0.32413	124	200	primary_train	unselected_v3_candidate_projected_to_reach_minimum
+121738	Aetobatus ocellatus	Aetobatus	Aetobatidae	Aetobatidae	256	broad_pretraining	69	69	0	0.281939	72	200	reserve_backfill	near_minimum_or_projection_uncertain
+127530	Pseudanthias squamipinnis	Pseudanthias	Anthiadidae	Anthiadidae	342	broad_pretraining	153	82	71	0.274373	94	200	reserve_backfill	near_minimum_or_projection_uncertain
+1579632	Pseudanthias cheirospilos	Pseudanthias	Anthiadidae	Anthiadidae	232	ineligible		70	0	0.274373	64	200	reserve_backfill	near_minimum_or_projection_uncertain
+47239	Aulostomus chinensis	Aulostomus	Aulostomidae	Aulostomidae	570	broad_pretraining	105	105	0	0.193029	110	200	primary_train	v3_exact_label_count_meets_minimum
+47238	Aulostomus maculatus	Aulostomus	Aulostomidae	Aulostomidae	574	broad_pretraining	68	68	0	0.193029	111	200	reserve_backfill	near_minimum_or_projection_uncertain
+57743	Balistapus undulatus	Balistapus	Balistidae	Balistidae	546	broad_pretraining	200	200	0	0.3864	211	200	primary_train	v3_exact_label_count_meets_minimum
+123392	Balistoides viridescens	Balistoides	Balistidae	Balistidae	461	broad_pretraining	140	140	0	0.3864	178	200	primary_train	v3_exact_label_count_meets_minimum
+52464	Melichthys niger	Melichthys	Balistidae	Balistidae	407	broad_pretraining	161	161	0	0.3864	157	200	primary_train	v3_exact_label_count_meets_minimum
+52411	Melichthys vidua	Melichthys	Balistidae	Balistidae	254	broad_pretraining	123	123	0	0.3864	98	200	primary_train	v3_exact_label_count_meets_minimum
+53669	Odonus niger	Odonus	Balistidae	Balistidae	251	broad_pretraining	96	96	0	0.3864	97	200	reserve_backfill	near_minimum_or_projection_uncertain
+83884	Rhinecanthus aculeatus	Rhinecanthus	Balistidae	Balistidae	446	broad_pretraining	200	200	0	0.3864	172	200	primary_train	v3_exact_label_count_meets_minimum
+210294	Lipophrys pholis	Lipophrys	Blenniidae	Blenniidae	462	broad_pretraining	56	56	0	0.171521	79	0	excluded_low_supply	unlikely_to_reach_100_after_current_gates
+49933	Parablennius marmoreus	Parablennius	Blenniidae	Blenniidae	277	broad_pretraining	26	26	0	0.171521	48	0	excluded_low_supply	unlikely_to_reach_100_after_current_gates
+118686	Parablennius sanguinolentus	Parablennius	Blenniidae	Blenniidae	336	broad_pretraining	44	44	0	0.171521	58	0	excluded_low_supply	unlikely_to_reach_100_after_current_gates
+123690	Caranx melampygus	Caranx	Carangidae	Carangidae	564	common_target_pretraining	200	200	0	0.307688	174	200	primary_train	v3_exact_label_count_meets_minimum
+82330	Caranx ruber	Caranx	Carangidae	Carangidae	476	broad_pretraining	173	173	0	0.307688	146	200	primary_train	v3_exact_label_count_meets_minimum
+47228	Caranx sexfasciatus	Caranx	Carangidae	Carangidae	300	broad_pretraining	49	49	0	0.307688	92	200	reserve_backfill	near_minimum_or_projection_uncertain
+67964	Carcharhinus melanopterus	Carcharhinus	Carcharhinidae	Carcharhinidae	380	common_target_pretraining	109	109	0	0.255932	97	200	primary_train	v3_exact_label_count_meets_minimum
+52314	Triaenodon obesus	Triaenodon	Carcharhinidae	Carcharhinidae	746	common_target_pretraining	163	163	0	0.255932	191	200	primary_train	v3_exact_label_count_meets_minimum
+97146	Chaetodon baronessa	Chaetodon	Chaetodontidae	Chaetodontidae	282	common_target_pretraining	123	123	0	0.387977	109	200	primary_train	v3_exact_label_count_meets_minimum
+97167	Chaetodon kleinii	Chaetodon	Chaetodontidae	Chaetodontidae	407	common_target_pretraining	200	200	0	0.387977	158	200	primary_train	v3_exact_label_count_meets_minimum
+52457	Chaetodon auriga	Chaetodon	Chaetodontidae	Chaetodontidae	897	broad_pretraining	200	200	0	0.387977	348	200	primary_train	v3_exact_label_count_meets_minimum
+100990	Forcipiger flavissimus	Forcipiger	Chaetodontidae	Chaetodontidae	328	broad_pretraining	157	157	0	0.387977	127	200	primary_train	v3_exact_label_count_meets_minimum
+85124	Johnrandallia nigrirostris	Johnrandallia	Chaetodontidae	Chaetodontidae	380	broad_pretraining	107	107	0	0.387977	147	200	primary_train	v3_exact_label_count_meets_minimum
+97150	Chaetodon citrinellus	Chaetodon	Chaetodontidae	Chaetodontidae	302	eligible_not_selected			0	0.387977	117	200	primary_train	unselected_v3_candidate_projected_to_reach_minimum
+97157	Chaetodon ephippium	Chaetodon	Chaetodontidae	Chaetodontidae	280	eligible_not_selected			0	0.387977	109	200	reserve_backfill	near_minimum_or_projection_uncertain
+55534	Chaetodon humeralis	Chaetodon	Chaetodontidae	Chaetodontidae	361	eligible_not_selected			0	0.387977	140	200	primary_train	unselected_v3_candidate_projected_to_reach_minimum
+47316	Chaetodon lunula	Chaetodon	Chaetodontidae	Chaetodontidae	564	eligible_not_selected			0	0.387977	219	200	primary_train	unselected_v3_candidate_projected_to_reach_minimum
+48743	Chaetodon lunulatus	Chaetodon	Chaetodontidae	Chaetodontidae	578	eligible_not_selected			0	0.387977	224	200	primary_train	unselected_v3_candidate_projected_to_reach_minimum
+97174	Chaetodon melannotus	Chaetodon	Chaetodontidae	Chaetodontidae	306	eligible_not_selected			0	0.387977	119	200	primary_train	unselected_v3_candidate_projected_to_reach_minimum
+49273	Chaetodon ocellatus	Chaetodon	Chaetodontidae	Chaetodontidae	263	eligible_not_selected			0	0.387977	102	200	reserve_backfill	near_minimum_or_projection_uncertain
+52454	Chaetodon ornatissimus	Chaetodon	Chaetodontidae	Chaetodontidae	352	eligible_not_selected			0	0.387977	137	200	primary_train	unselected_v3_candidate_projected_to_reach_minimum
+97202	Chaetodon striatus	Chaetodon	Chaetodontidae	Chaetodontidae	376	eligible_not_selected			0	0.387977	146	200	primary_train	unselected_v3_candidate_projected_to_reach_minimum
+97207	Chaetodon trifascialis	Chaetodon	Chaetodontidae	Chaetodontidae	410	eligible_not_selected			0	0.387977	159	200	primary_train	unselected_v3_candidate_projected_to_reach_minimum
+97208	Chaetodon ulietensis	Chaetodon	Chaetodontidae	Chaetodontidae	270	eligible_not_selected			0	0.387977	105	200	reserve_backfill	near_minimum_or_projection_uncertain
+48747	Chaetodon vagabundus	Chaetodon	Chaetodontidae	Chaetodontidae	528	eligible_not_selected			0	0.387977	205	200	primary_train	unselected_v3_candidate_projected_to_reach_minimum
+132687	Cirrhitichthys oxycephalus	Cirrhitichthys	Cirrhitidae	Cirrhitidae	338	broad_pretraining	44	44	0	0.231073	78	0	excluded_low_supply	unlikely_to_reach_100_after_current_gates
+47578	Paracirrhites arcatus	Paracirrhites	Cirrhitidae	Cirrhitidae	287	broad_pretraining	64	64	0	0.231073	66	0	excluded_low_supply	unlikely_to_reach_100_after_current_gates
+67658	Paracirrhites forsteri	Paracirrhites	Cirrhitidae	Cirrhitidae	625	broad_pretraining	152	152	0	0.231073	144	200	primary_train	v3_exact_label_count_meets_minimum
+623850	Hypanus americanus	Hypanus	Dasyatidae	Dasyatidae	370	broad_pretraining	85	85	0	0.293482	109	200	reserve_backfill	near_minimum_or_projection_uncertain
+113735	Taeniura lymma	Taeniura	Dasyatidae	Dasyatidae	381	broad_pretraining	138	138	0	0.293482	112	200	primary_train	v3_exact_label_count_meets_minimum
+93673	Allomycterus pilatus	Allomycterus	Diodontidae	Diodontidae	337	broad_pretraining	76	76	0	0.296277	100	0	context_risk_holdout	class_concentrated_dead_caught_held_or_specimen_context
+49269	Diodon holocanthus	Diodon	Diodontidae	Diodontidae	703	broad_pretraining	197	197	0	0.296277	208	200	primary_train	v3_exact_label_count_meets_minimum
+52313	Diodon hystrix	Diodon	Diodontidae	Diodontidae	845	broad_pretraining	200	200	0	0.296277	250	200	primary_train	v3_exact_label_count_meets_minimum
+48844	Echeneis naucrates	Echeneis	Echeneidae	Echeneidae	256	broad_pretraining	68	68	0	0.280616	72	200	reserve_backfill	near_minimum_or_projection_uncertain
+57399	Fistularia commersonii	Fistularia	Fistulariidae	Fistulariidae	889	broad_pretraining	72	72	0	0.155613	138	200	reserve_backfill	near_minimum_or_projection_uncertain
+101420	Gerres cinereus	Gerres	Gerreidae	Gerreidae	340	broad_pretraining	156	156	0	0.357743	122	200	primary_train	v3_exact_label_count_meets_minimum
+49964	Ginglymostoma cirratum	Ginglymostoma	Ginglymostomatidae	Ginglymostomatidae	328	broad_pretraining	74	74	0	0.263461	86	200	reserve_backfill	near_minimum_or_projection_uncertain
+118703	Gobius cobitis	Gobius	Gobiidae	Gobiidae	279	broad_pretraining	32	32	0	0.216044	60	0	excluded_low_supply	unlikely_to_reach_100_after_current_gates
+118704	Gobius niger	Gobius	Gobiidae	Gobiidae	300	broad_pretraining	59	59	0	0.216044	65	0	excluded_low_supply	unlikely_to_reach_100_after_current_gates
+106743	Neogobius melanostomus	Neogobius	Gobiidae	Gobiidae	426	broad_pretraining	90	90	0	0.216044	92	0	context_risk_holdout	class_concentrated_dead_caught_held_or_specimen_context
+122002	Plectorhinchus chaetodonoides	Plectorhinchus	Haemulidae	Haemulidae	250	common_target_pretraining	84	84	0	0.279814	70	200	reserve_backfill	near_minimum_or_projection_uncertain
+49947	Anisotremus virginicus	Anisotremus	Haemulidae	Haemulidae	260	broad_pretraining	99	99	0	0.279814	73	200	reserve_backfill	near_minimum_or_projection_uncertain
+1316786	Brachygenys chrysargyrea	Brachygenys	Haemulidae	Haemulidae	252	broad_pretraining	37	37	0	0.279814	71	0	excluded_low_supply	unlikely_to_reach_100_after_current_gates
+62600	Haemulon flavolineatum	Haemulon	Haemulidae	Haemulidae	829	broad_pretraining	200	200	0	0.279814	232	200	primary_train	v3_exact_label_count_meets_minimum
+49262	Haemulon sciurus	Haemulon	Haemulidae	Haemulidae	572	broad_pretraining	181	181	0	0.279814	160	200	primary_train	v3_exact_label_count_meets_minimum
+49625	Holocentrus rufus	Holocentrus	Holocentridae	Holocentridae	360	broad_pretraining	165	165	0	0.37774	136	200	primary_train	v3_exact_label_count_meets_minimum
+49624	Myripristis jacobus	Myripristis	Holocentridae	Holocentridae	307	broad_pretraining	82	82	0	0.37774	116	200	reserve_backfill	near_minimum_or_projection_uncertain
+130526	Neoniphon sammara	Neoniphon	Holocentridae	Holocentridae	255	broad_pretraining	146	146	0	0.37774	96	200	primary_train	v3_exact_label_count_meets_minimum
+210173	Kyphosus vaigiensis	Kyphosus	Kyphosidae	Kyphosidae	256	broad_pretraining	89	89	0	0.308394	79	200	reserve_backfill	near_minimum_or_projection_uncertain
+82355	Cheilinus undulatus	Cheilinus	Labridae	Labridae	250	common_target_pretraining	60	60	0	0.301386	75	0	excluded_low_supply	unlikely_to_reach_100_after_current_gates
+187233	Chlorurus spilurus	Chlorurus	Labridae	Labridae	456	common_target_pretraining	121	121	0	0.301386	137	200	primary_train	v3_exact_label_count_meets_minimum
+52323	Coris gaimard	Coris	Labridae	Labridae	268	common_target_pretraining	128	128	0	0.301386	81	200	primary_train	v3_exact_label_count_meets_minimum
+102045	Halichoeres hortulanus	Halichoeres	Labridae	Labridae	585	common_target_pretraining	200	200	0	0.301386	176	200	primary_train	v3_exact_label_count_meets_minimum
+102580	Hemigymnus melapterus	Hemigymnus	Labridae	Labridae	541	common_target_pretraining	158	158	0	0.301386	163	200	primary_train	v3_exact_label_count_meets_minimum
+103901	Labroides dimidiatus	Labroides	Labridae	Labridae	696	common_target_pretraining	183	183	0	0.301386	210	200	primary_train	v3_exact_label_count_meets_minimum
+84175	Scarus ghobban	Scarus	Labridae	Labridae	664	common_target_pretraining	200	200	0	0.301386	200	200	primary_train	v3_exact_label_count_meets_minimum
+68025	Scarus niger	Scarus	Labridae	Labridae	375	common_target_pretraining	150	150	0	0.301386	113	200	primary_train	v3_exact_label_count_meets_minimum
+52498	Scarus psittacus	Scarus	Labridae	Labridae	340	common_target_pretraining	152	152	0	0.301386	102	200	primary_train	v3_exact_label_count_meets_minimum
+83297	Scarus rubroviolaceus	Scarus	Labridae	Labridae	513	common_target_pretraining	166	166	0	0.301386	155	200	primary_train	v3_exact_label_count_meets_minimum
+67963	Thalassoma hardwicke	Thalassoma	Labridae	Labridae	644	common_target_pretraining	200	200	0	0.301386	194	200	primary_train	v3_exact_label_count_meets_minimum
+113980	Thalassoma lunare	Thalassoma	Labridae	Labridae	773	common_target_pretraining	200	200	0	0.301386	233	200	primary_train	v3_exact_label_count_meets_minimum
+112867	Sparisoma viride	Sparisoma	Labridae	Labridae	1057	broad_pretraining	200	200	0	0.301386	319	200	primary_train	v3_exact_label_count_meets_minimum
+49491	Thalassoma bifasciatum	Thalassoma	Labridae	Labridae	1191	broad_pretraining	200	200	0	0.301386	359	200	primary_train	v3_exact_label_count_meets_minimum
+50972	Thalassoma pavo	Thalassoma	Labridae	Labridae	1033	broad_pretraining	200	200	0	0.301386	311	200	primary_train	v3_exact_label_count_meets_minimum
+57333	Bodianus diplotaenia	Bodianus	Labridae	Labridae	556	eligible_not_selected			0	0.301386	168	200	primary_train	unselected_v3_candidate_projected_to_reach_minimum
+49428	Bodianus rufus	Bodianus	Labridae	Labridae	303	eligible_not_selected			0	0.301386	91	200	reserve_backfill	near_minimum_or_projection_uncertain
+97307	Cheilinus chlorourus	Cheilinus	Labridae	Labridae	328	eligible_not_selected			0	0.301386	99	200	reserve_backfill	near_minimum_or_projection_uncertain
+97308	Cheilinus fasciatus	Cheilinus	Labridae	Labridae	300	eligible_not_selected			0	0.301386	90	200	reserve_backfill	near_minimum_or_projection_uncertain
+68028	Chlorurus sordidus	Chlorurus	Labridae	Labridae	369	eligible_not_selected			0	0.301386	111	200	primary_train	unselected_v3_candidate_projected_to_reach_minimum
+50968	Coris julis	Coris	Labridae	Labridae	688	eligible_not_selected			0	0.301386	207	200	primary_train	unselected_v3_candidate_projected_to_reach_minimum
+100036	Epibulus insidiator	Epibulus	Labridae	Labridae	406	eligible_not_selected			0	0.301386	122	200	primary_train	unselected_v3_candidate_projected_to_reach_minimum
+52508	Gomphosus varius	Gomphosus	Labridae	Labridae	492	eligible_not_selected			0	0.301386	148	200	primary_train	unselected_v3_candidate_projected_to_reach_minimum
+49272	Halichoeres bivittatus	Halichoeres	Labridae	Labridae	687	eligible_not_selected			0	0.301386	207	200	primary_train	unselected_v3_candidate_projected_to_reach_minimum
+49946	Halichoeres garnoti	Halichoeres	Labridae	Labridae	431	eligible_not_selected			0	0.301386	130	200	primary_train	unselected_v3_candidate_projected_to_reach_minimum
+102080	Halichoeres scapularis	Halichoeres	Labridae	Labridae	256	eligible_not_selected			0	0.301386	77	0	excluded_low_supply	unlikely_to_reach_100_after_current_gates
+102088	Halichoeres trimaculatus	Halichoeres	Labridae	Labridae	338	eligible_not_selected			0	0.301386	102	200	reserve_backfill	near_minimum_or_projection_uncertain
+107180	Notolabrus celidotus	Notolabrus	Labridae	Labridae	259	eligible_not_selected			0	0.301386	78	0	excluded_low_supply	unlikely_to_reach_100_after_current_gates
+63597	Novaculichthys taeniourus	Novaculichthys	Labridae	Labridae	290	eligible_not_selected			0	0.301386	87	200	reserve_backfill	near_minimum_or_projection_uncertain
+112145	Scarus frenatus	Scarus	Labridae	Labridae	322	eligible_not_selected			0	0.301386	97	200	reserve_backfill	near_minimum_or_projection_uncertain
+49690	Scarus iseri	Scarus	Labridae	Labridae	536	eligible_not_selected			0	0.301386	162	200	primary_train	unselected_v3_candidate_projected_to_reach_minimum
+112166	Scarus taeniopterus	Scarus	Labridae	Labridae	332	eligible_not_selected			0	0.301386	100	200	reserve_backfill	near_minimum_or_projection_uncertain
+112169	Scarus vetula	Scarus	Labridae	Labridae	383	eligible_not_selected			0	0.301386	115	200	primary_train	unselected_v3_candidate_projected_to_reach_minimum
+112858	Sparisoma aurofrenatum	Sparisoma	Labridae	Labridae	502	eligible_not_selected			0	0.301386	151	200	primary_train	unselected_v3_candidate_projected_to_reach_minimum
+112860	Sparisoma cretense	Sparisoma	Labridae	Labridae	823	eligible_not_selected			0	0.301386	248	200	primary_train	unselected_v3_candidate_projected_to_reach_minimum
+112864	Sparisoma rubripinne	Sparisoma	Labridae	Labridae	300	eligible_not_selected			0	0.301386	90	200	reserve_backfill	near_minimum_or_projection_uncertain
+52554	Symphodus tinca	Symphodus	Labridae	Labridae	463	eligible_not_selected			0	0.301386	140	200	primary_train	unselected_v3_candidate_projected_to_reach_minimum
+1561489	Thalassoma amblycephalum	Thalassoma	Labridae	Labridae	331	eligible_not_selected			0	0.301386	100	200	reserve_backfill	near_minimum_or_projection_uncertain
+113973	Thalassoma duperrey	Thalassoma	Labridae	Labridae	290	eligible_not_selected			0	0.301386	87	200	reserve_backfill	near_minimum_or_projection_uncertain
+49493	Thalassoma lucasanum	Thalassoma	Labridae	Labridae	804	eligible_not_selected			0	0.301386	242	200	primary_train	unselected_v3_candidate_projected_to_reach_minimum
+113981	Thalassoma lutescens	Thalassoma	Labridae	Labridae	392	eligible_not_selected			0	0.301386	118	200	primary_train	unselected_v3_candidate_projected_to_reach_minimum
+113985	Thalassoma purpureum	Thalassoma	Labridae	Labridae	262	eligible_not_selected			0	0.301386	79	0	excluded_low_supply	unlikely_to_reach_100_after_current_gates
+113987	Thalassoma rueppellii	Thalassoma	Labridae	Labridae	273	eligible_not_selected			0	0.301386	82	200	reserve_backfill	near_minimum_or_projection_uncertain
+117459	Monotaxis grandoculis	Monotaxis	Lethrinidae	Lethrinidae	383	broad_pretraining	177	177	0	0.363699	139	200	primary_train	v3_exact_label_count_meets_minimum
+68030	Lutjanus bohar	Lutjanus	Lutjanidae	Lutjanidae	290	common_target_pretraining	104	104	0	0.32517	94	200	primary_train	v3_exact_label_count_meets_minimum
+81989	Lutjanus apodus	Lutjanus	Lutjanidae	Lutjanidae	803	broad_pretraining	200	200	0	0.32517	261	200	primary_train	v3_exact_label_count_meets_minimum
+49509	Lutjanus griseus	Lutjanus	Lutjanidae	Lutjanidae	586	broad_pretraining	187	187	0	0.32517	191	200	primary_train	v3_exact_label_count_meets_minimum
+47292	Ocyurus chrysurus	Ocyurus	Lutjanidae	Lutjanidae	406	broad_pretraining	169	169	0	0.32517	132	200	primary_train	v3_exact_label_count_meets_minimum
+49601	Mola mola	Mola	Molidae	Molidae	252	broad_pretraining	24	24	0	0.223598	56	0	excluded_low_supply	unlikely_to_reach_100_after_current_gates
+49498	Aluterus scriptus	Aluterus	Monacanthidae	Monacanthidae	459	broad_pretraining	130	130	0	0.285867	131	200	primary_train	v3_exact_label_count_meets_minimum
+106222	Mugil cephalus	Mugil	Mugilidae	Mugilidae	577	broad_pretraining	152	152	0	0.274973	159	200	primary_train	v3_exact_label_count_meets_minimum
+123346	Mulloidichthys flavolineatus	Mulloidichthys	Mullidae	Mullidae	553	common_target_pretraining	102	102	0	0.249479	138	200	primary_train	v3_exact_label_count_meets_minimum
+122682	Mulloidichthys vanicolensis	Mulloidichthys	Mullidae	Mullidae	251	common_target_pretraining	36	36	0	0.249479	63	0	excluded_low_supply	unlikely_to_reach_100_after_current_gates
+196838	Parupeneus barberinus	Parupeneus	Mullidae	Mullidae	262	common_target_pretraining	92	92	0	0.249479	65	200	reserve_backfill	near_minimum_or_projection_uncertain
+131234	Parupeneus multifasciatus	Parupeneus	Mullidae	Mullidae	420	common_target_pretraining	159	159	0	0.249479	105	200	primary_train	v3_exact_label_count_meets_minimum
+187709	Mulloidichthys dentatus	Mulloidichthys	Mullidae	Mullidae	254	broad_pretraining	23	23	0	0.249479	63	0	excluded_low_supply	unlikely_to_reach_100_after_current_gates
+128172	Mulloidichthys martinicus	Mulloidichthys	Mullidae	Mullidae	425	broad_pretraining	63	63	0	0.249479	106	200	reserve_backfill	near_minimum_or_projection_uncertain
+118619	Mullus surmuletus	Mullus	Mullidae	Mullidae	414	broad_pretraining	149	149	0	0.249479	103	200	primary_train	v3_exact_label_count_meets_minimum
+121000	Gymnothorax javanicus	Gymnothorax	Muraenidae	Muraenidae	443	common_target_pretraining	89	89	0	0.228981	101	200	reserve_backfill	near_minimum_or_projection_uncertain
+54441	Echidna nebulosa	Echidna	Muraenidae	Muraenidae	400	broad_pretraining	79	79	0	0.228981	92	200	reserve_backfill	near_minimum_or_projection_uncertain
+128105	Gymnothorax moringa	Gymnothorax	Muraenidae	Muraenidae	341	broad_pretraining	73	73	0	0.228981	78	200	reserve_backfill	near_minimum_or_projection_uncertain
+1556594	Myliobatis tenuicaudata	Myliobatis	Myliobatidae	Myliobatidae	393	broad_pretraining	94	94	0	0.266681	105	200	reserve_backfill	near_minimum_or_projection_uncertain
+471636	Scolopsis bilineata	Scolopsis	Nemipteridae	Nemipteridae	491	broad_pretraining	200	200	0	0.402396	198	200	primary_train	v3_exact_label_count_meets_minimum
+135220	Scolopsis margaritifera	Scolopsis	Nemipteridae	Nemipteridae	251	broad_pretraining	117	117	0	0.402396	101	200	primary_train	v3_exact_label_count_meets_minimum
+577603	Lactophrys triqueter	Lactophrys	Ostraciidae	Ostraciidae	468	broad_pretraining	200	200	0	0.431639	202	200	primary_train	v3_exact_label_count_meets_minimum
+49378	Ostracion cubicum	Ostracion	Ostraciidae	Ostraciidae	439	broad_pretraining	200	200	0	0.431639	189	200	primary_train	v3_exact_label_count_meets_minimum
+47527	Ostracion meleagris	Ostracion	Ostraciidae	Ostraciidae	553	broad_pretraining	200	200	0	0.431639	239	200	primary_train	v3_exact_label_count_meets_minimum
+49210	Plotosus lineatus	Plotosus	Plotosidae	Plotosidae	277	broad_pretraining	31	31	0	0.225413	62	0	excluded_low_supply	unlikely_to_reach_100_after_current_gates
+84181	Pomacanthus imperator	Pomacanthus	Pomacanthidae	Pomacanthidae	318	common_target_pretraining	162	162	0	0.400573	127	200	primary_train	v3_exact_label_count_meets_minimum
+111389	Pygoplites diacanthus	Pygoplites	Pomacanthidae	Pomacanthidae	484	common_target_pretraining	200	200	0	0.400573	194	200	primary_train	v3_exact_label_count_meets_minimum
+47235	Holacanthus ciliaris	Holacanthus	Pomacanthidae	Pomacanthidae	345	broad_pretraining	169	169	0	0.400573	138	200	primary_train	v3_exact_label_count_meets_minimum
+49495	Holacanthus tricolor	Holacanthus	Pomacanthidae	Pomacanthidae	259	broad_pretraining	93	93	0	0.400573	104	200	reserve_backfill	near_minimum_or_projection_uncertain
+49427	Pomacanthus arcuatus	Pomacanthus	Pomacanthidae	Pomacanthidae	314	broad_pretraining	113	113	0	0.400573	126	200	primary_train	v3_exact_label_count_meets_minimum
+49257	Pomacanthus paru	Pomacanthus	Pomacanthidae	Pomacanthidae	571	broad_pretraining	200	200	0	0.400573	229	200	primary_train	v3_exact_label_count_meets_minimum
+49403	Abudefduf vaigiensis	Abudefduf	Pomacentridae	Pomacentridae	898	common_target_pretraining	200	200	0	0.231227	208	200	primary_train	v3_exact_label_count_meets_minimum
+136345	Amphiprion clarkii	Amphiprion	Pomacentridae	Pomacentridae	453	common_target_pretraining	122	122	0	0.231227	105	200	primary_train	v3_exact_label_count_meets_minimum
+134156	Amphiprion perideraion	Amphiprion	Pomacentridae	Pomacentridae	308	common_target_pretraining	33	33	0	0.231227	71	0	excluded_low_supply	unlikely_to_reach_100_after_current_gates
+179872	Dascyllus reticulatus	Dascyllus	Pomacentridae	Pomacentridae	359	common_target_pretraining	58	58	0	0.231227	83	200	reserve_backfill	near_minimum_or_projection_uncertain
+49303	Dascyllus trimaculatus	Dascyllus	Pomacentridae	Pomacentridae	752	common_target_pretraining	200	200	0	0.231227	174	200	primary_train	v3_exact_label_count_meets_minimum
+181028	Pomacentrus moluccensis	Pomacentrus	Pomacentridae	Pomacentridae	360	common_target_pretraining	91	91	0	0.231227	83	200	reserve_backfill	near_minimum_or_projection_uncertain
+49402	Abudefduf saxatilis	Abudefduf	Pomacentridae	Pomacentridae	1312	broad_pretraining	200	200	0	0.231227	303	200	primary_train	v3_exact_label_count_meets_minimum
+49401	Abudefduf sexfasciatus	Abudefduf	Pomacentridae	Pomacentridae	750	broad_pretraining	200	200	0	0.231227	173	200	primary_train	v3_exact_label_count_meets_minimum
+92989	Abudefduf troschelii	Abudefduf	Pomacentridae	Pomacentridae	688	broad_pretraining	106	106	0	0.231227	159	200	primary_train	v3_exact_label_count_meets_minimum
+1315932	Azurina multilineata	Azurina	Pomacentridae	Pomacentridae	421	broad_pretraining	51	51	0	0.231227	97	200	reserve_backfill	near_minimum_or_projection_uncertain
+118682	Chromis chromis	Chromis	Pomacentridae	Pomacentridae	588	broad_pretraining	95	95	0	0.231227	136	200	reserve_backfill	near_minimum_or_projection_uncertain
+49753	Microspathodon chrysurus	Microspathodon	Pomacentridae	Pomacentridae	468	broad_pretraining	148	148	0	0.231227	108	200	primary_train	v3_exact_label_count_meets_minimum
+113101	Stegastes acapulcoensis	Stegastes	Pomacentridae	Pomacentridae	468	broad_pretraining	88	88	0	0.231227	108	200	reserve_backfill	near_minimum_or_projection_uncertain
+128183	Stegastes partitus	Stegastes	Pomacentridae	Pomacentridae	446	broad_pretraining	85	85	0	0.231227	103	200	reserve_backfill	near_minimum_or_projection_uncertain
+123922	Abudefduf sordidus	Abudefduf	Pomacentridae	Pomacentridae	510	eligible_not_selected			0	0.231227	118	200	primary_train	unselected_v3_candidate_projected_to_reach_minimum
+119053	Amblyglyphidodon curacao	Amblyglyphidodon	Pomacentridae	Pomacentridae	298	eligible_not_selected			0	0.231227	69	0	excluded_low_supply	unlikely_to_reach_100_after_current_gates
+132688	Amphiprion ocellaris	Amphiprion	Pomacentridae	Pomacentridae	313	eligible_not_selected			0	0.231227	72	0	excluded_low_supply	unlikely_to_reach_100_after_current_gates
+1315937	Azurina atrilobata	Azurina	Pomacentridae	Pomacentridae	287	eligible_not_selected			0	0.231227	66	0	excluded_low_supply	unlikely_to_reach_100_after_current_gates
+1315935	Azurina cyanea	Azurina	Pomacentridae	Pomacentridae	374	eligible_not_selected			0	0.231227	86	200	reserve_backfill	near_minimum_or_projection_uncertain
+179880	Chromis viridis	Chromis	Pomacentridae	Pomacentridae	371	eligible_not_selected			0	0.231227	86	200	reserve_backfill	near_minimum_or_projection_uncertain
+952775	Dascyllus aruanus	Dascyllus	Pomacentridae	Pomacentridae	365	eligible_not_selected			0	0.231227	84	200	reserve_backfill	near_minimum_or_projection_uncertain
+49304	Stegastes planifrons	Stegastes	Pomacentridae	Pomacentridae	358	eligible_not_selected			0	0.231227	83	200	reserve_backfill	near_minimum_or_projection_uncertain
+49749	Aplodinotus grunniens	Aplodinotus	Sciaenidae	Sciaenidae	392	broad_pretraining	118	118	0	0.293886	115	0	context_risk_holdout	class_concentrated_dead_caught_held_or_specimen_context
+123459	Pterois miles	Pterois	Scorpaenidae	Scorpaenidae	382	broad_pretraining	19	19	0	0.11523	44	0	excluded_low_supply	unlikely_to_reach_100_after_current_gates
+47280	Pterois volitans	Pterois	Scorpaenidae	Scorpaenidae	664	broad_pretraining	15	15	0	0.11523	77	0	context_risk_holdout	class_concentrated_dead_caught_held_or_specimen_context
+52456	Cephalopholis argus	Cephalopholis	Serranidae	Epinephelidae	491	common_target_pretraining	200	200	0	0.305322	150	200	primary_train	v3_exact_label_count_meets_minimum
+49639	Cephalopholis miniata	Cephalopholis	Serranidae	Epinephelidae	315	common_target_pretraining	97	97	0	0.305322	96	200	reserve_backfill	near_minimum_or_projection_uncertain
+100099	Epinephelus fasciatus	Epinephelus	Serranidae	Epinephelidae	263	common_target_pretraining	118	118	0	0.305322	80	200	primary_train	v3_exact_label_count_meets_minimum
+100121	Epinephelus merra	Epinephelus	Serranidae	Epinephelidae	331	common_target_pretraining	78	78	0	0.305322	101	200	reserve_backfill	near_minimum_or_projection_uncertain
+96991	Cephalopholis cruentata	Cephalopholis	Serranidae	Epinephelidae	422	broad_pretraining	76	76	0	0.305322	129	200	reserve_backfill	near_minimum_or_projection_uncertain
+96993	Cephalopholis fulva	Cephalopholis	Serranidae	Epinephelidae	255	broad_pretraining	89	89	0	0.305322	78	200	reserve_backfill	near_minimum_or_projection_uncertain
+100119	Epinephelus marginatus	Epinephelus	Serranidae	Epinephelidae	353	broad_pretraining	128	128	0	0.305322	108	200	primary_train	v3_exact_label_count_meets_minimum
+106306	Mycteroperca fusca	Mycteroperca	Serranidae	Epinephelidae	279	broad_pretraining	42	42	0	0.305322	85	200	reserve_backfill	near_minimum_or_projection_uncertain
+118674	Serranus scriba	Serranus	Serranidae	Serranidae	593	broad_pretraining	200	200	0	0.338393	201	200	primary_train	v3_exact_label_count_meets_minimum
+132533	Acanthopagrus australis	Acanthopagrus	Sparidae	Sparidae	288	broad_pretraining	106	106	0	0.271471	78	0	context_risk_holdout	class_concentrated_dead_caught_held_or_specimen_context
+530886	Chrysophrys auratus	Chrysophrys	Sparidae	Sparidae	357	broad_pretraining	95	95	0	0.271471	97	200	reserve_backfill	near_minimum_or_projection_uncertain
+118669	Diplodus sargus	Diplodus	Sparidae	Sparidae	758	broad_pretraining	200	200	0	0.271471	206	200	primary_train	v3_exact_label_count_meets_minimum
+118667	Diplodus vulgaris	Diplodus	Sparidae	Sparidae	837	broad_pretraining	200	200	0	0.271471	227	200	primary_train	v3_exact_label_count_meets_minimum
+132473	Lagodon rhomboides	Lagodon	Sparidae	Sparidae	450	broad_pretraining	154	154	0	0.271471	122	0	context_risk_holdout	class_concentrated_dead_caught_held_or_specimen_context
+118662	Oblada melanurus	Oblada	Sparidae	Sparidae	592	broad_pretraining	157	157	0	0.271471	161	200	primary_train	v3_exact_label_count_meets_minimum
+446325	Pachymetopon blochii	Pachymetopon	Sparidae	Sparidae	280	broad_pretraining	46	46	0	0.271471	76	0	excluded_low_supply	unlikely_to_reach_100_after_current_gates
+118663	Sarpa salpa	Sarpa	Sparidae	Sparidae	956	broad_pretraining	104	104	0	0.271471	260	200	primary_train	v3_exact_label_count_meets_minimum
+47251	Sphyraena barracuda	Sphyraena	Sphyraenidae	Sphyraenidae	802	common_target_pretraining	200	200	0	0.344146	276	200	primary_train	v3_exact_label_count_meets_minimum
+102823	Hippocampus histrix	Hippocampus	Syngnathidae	Syngnathidae	501	broad_pretraining	26	26	0	0.170316	85	200	reserve_backfill	near_minimum_or_projection_uncertain
+49404	Synodus intermedius	Synodus	Synodontidae	Synodontidae	257	broad_pretraining	72	72	0	0.28553	73	200	reserve_backfill	near_minimum_or_projection_uncertain
+144017	Arothron hispidus	Arothron	Tetraodontidae	Tetraodontidae	466	common_target_pretraining	200	200	0	0.389391	181	200	primary_train	v3_exact_label_count_meets_minimum
+119385	Arothron nigropunctatus	Arothron	Tetraodontidae	Tetraodontidae	519	common_target_pretraining	200	200	0	0.389391	202	200	primary_train	v3_exact_label_count_meets_minimum
+129549	Canthigaster valentini	Canthigaster	Tetraodontidae	Tetraodontidae	298	common_target_pretraining	178	178	0	0.389391	116	200	primary_train	v3_exact_label_count_meets_minimum
+83318	Arothron meleagris	Arothron	Tetraodontidae	Tetraodontidae	688	broad_pretraining	200	200	0	0.389391	268	200	primary_train	v3_exact_label_count_meets_minimum
+128857	Canthigaster rostrata	Canthigaster	Tetraodontidae	Tetraodontidae	391	broad_pretraining	106	106	0	0.389391	152	200	primary_train	v3_exact_label_count_meets_minimum
+311414	Tetractenos glaber	Tetractenos	Tetraodontidae	Tetraodontidae	257	broad_pretraining	75	75	0	0.389391	100	0	context_risk_holdout	class_concentrated_dead_caught_held_or_specimen_context
+445691	Bellapiscis medius	Bellapiscis	Tripterygiidae	Tripterygiidae	398	broad_pretraining	17	17	0	0.152567	61	0	excluded_low_supply	unlikely_to_reach_100_after_current_gates
+410520	Forsterygion lapillum	Forsterygion	Tripterygiidae	Tripterygiidae	630	broad_pretraining	94	94	0	0.152567	96	200	reserve_backfill	near_minimum_or_projection_uncertain
+188591	Tripterygion tripteronotum	Tripterygion	Tripterygiidae	Tripterygiidae	282	broad_pretraining	21	21	0	0.152567	43	0	excluded_low_supply	unlikely_to_reach_100_after_current_gates
+83290	Zanclus cornutus	Zanclus	Zanclidae	Zanclidae	1406	broad_pretraining	200	200	0	0.289685	407	200	primary_train	v3_exact_label_count_meets_minimum

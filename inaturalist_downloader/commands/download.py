@@ -4,13 +4,14 @@ from __future__ import annotations
 
 import concurrent.futures
 import hashlib
+import json
 import time
 from pathlib import Path
 from typing import Any
 
 from ..common.inat import resolve_taxon_id
 from ..common.manifest import append_jsonl, append_species_summary
-from ..common.utils import load_species, safe_print, slugify
+from ..common.utils import SpeciesRequest, load_species_requests, safe_print, slugify
 from ..download.candidates import (
     adaptive_candidate_batch_limit,
     candidate_pages_per_batch,
@@ -107,6 +108,9 @@ def _search_signature(taxon_id: int, args, scopes: list[dict[str, Any]]) -> dict
             "blocked": sorted(getattr(args, "blocked_license_code_set", set())),
         },
         "require_taxon_membership": getattr(args, "require_taxon_membership", False),
+        "require_exact_species_taxon": getattr(
+            args, "require_exact_species_taxon", False
+        ),
         "dataset_dedup": {
             field: getattr(args, field, None)
             for field in (
@@ -241,7 +245,8 @@ def _license_reject_reason(record: dict[str, Any], args) -> str | None:
 
 
 def _taxon_reject_reason(record: dict[str, Any], args) -> str | None:
-    if not getattr(args, "require_taxon_membership", False):
+    require_exact = getattr(args, "require_exact_species_taxon", False)
+    if not require_exact and not getattr(args, "require_taxon_membership", False):
         return None
     requested_taxon_id = record.get("requested_taxon_id") or record.get("taxon_id")
     observation_taxon_id = record.get("observation_taxon_id")
@@ -254,6 +259,15 @@ def _taxon_reject_reason(record: dict[str, Any], args) -> str | None:
         for value in (record.get("observation_ancestor_ids") or [])
         if value is not None
     }
+    if require_exact and observed != requested:
+        infraspecific_ranks = {
+            "subspecies",
+            "variety",
+            "form",
+        }
+        observed_rank = str(record.get("observation_taxon_rank") or "").casefold()
+        if requested not in ancestor_ids or observed_rank not in infraspecific_ranks:
+            return "observation_species_taxon_mismatch"
     if observed != requested and requested not in ancestor_ids:
         return "observation_taxon_mismatch"
     return None
@@ -338,6 +352,43 @@ def _flush_batch(
     append_jsonl(rejected_path, rejected_records)
 
 
+def _bootstrap_progress_from_manifest(
+    progress,
+    accepted_path: Path,
+    *,
+    taxon_id: int,
+    canonical_name: str,
+) -> int:
+    """Seed a new exact-taxon state from already accepted manifest records."""
+    if not accepted_path.exists() or progress.target_count("observation") > 0:
+        return 0
+    seeded = 0
+    with accepted_path.open(encoding="utf-8") as handle:
+        for line in handle:
+            if not line.strip():
+                continue
+            record = json.loads(line)
+            record_taxon_id = record.get("training_taxon_id") or record.get("taxon_id")
+            if int(record_taxon_id or 0) != taxon_id:
+                continue
+            if str(record.get("canonical_name") or "") != canonical_name:
+                continue
+            output_path = record.get("saved_output_path")
+            if not output_path or not Path(output_path).exists():
+                continue
+            observation_id = record.get("observation_id")
+            photo_id = record.get("photo_id")
+            if observation_id is None or photo_id is None:
+                continue
+            if int(observation_id) in progress.accepted_observation_ids:
+                continue
+            progress.seen_observation_ids.add(int(observation_id))
+            progress.seen_photo_ids.add(int(photo_id))
+            progress.mark_accepted(record)
+            seeded += 1
+    return seeded
+
+
 def download_species_images(
     species_name: str,
     args,
@@ -345,13 +396,29 @@ def download_species_images(
     raw_dir: Path,
     manifest_dir: Path,
     dataset_deduplicator: DatasetDeduplicator | None = None,
+    *,
+    requested_taxon_id: int | None = None,
+    accepted_target: int | None = None,
 ) -> None:
-    """Refill one species until its accepted image/observation target is met."""
-    taxon_id, canonical_name = resolve_taxon_id(
-        species_name,
-        include_subspecies=args.include_subspecies,
-        retries=args.retries,
-    )
+    """Refill one species until its accepted image/observation target is met.
+
+    A structured plan passes ``requested_taxon_id`` and bypasses autocomplete.
+    ``accepted_target`` overrides the profile's fallback target for this class.
+    """
+    if requested_taxon_id is None:
+        taxon_id, canonical_name = resolve_taxon_id(
+            species_name,
+            include_subspecies=args.include_subspecies,
+            retries=args.retries,
+        )
+    else:
+        taxon_id, canonical_name = int(requested_taxon_id), species_name
+    target = int(accepted_target or args.images_per_species)
+    if args.max_candidates_per_species is not None and target > args.max_candidates_per_species:
+        raise ValueError(
+            f"Accepted target {target} for {species_name} exceeds "
+            f"max_candidates_per_species={args.max_candidates_per_species}"
+        )
     species_slug = slugify(canonical_name)
     accepted_species_dir = output_dir / species_slug
     raw_species_dir = raw_dir / species_slug
@@ -387,9 +454,19 @@ def download_species_images(
         resume=bool(getattr(args, "resume", False) and not args.overwrite),
     )
     target_unit = getattr(args, "target_unit", "image")
+    if bool(getattr(args, "resume", False) and not args.overwrite):
+        seeded = _bootstrap_progress_from_manifest(
+            progress,
+            accepted_path,
+            taxon_id=taxon_id,
+            canonical_name=canonical_name,
+        )
+        if seeded:
+            safe_print(f"  bootstrapped {seeded} accepted observations from manifest")
+            save_progress(state_path, progress)
     if (
         getattr(args, "refresh_exhausted_scopes", False)
-        and progress.target_count(target_unit) < args.images_per_species
+        and progress.target_count(target_unit) < target
         and all(progress.exhausted_scopes.values())
     ):
         progress.refresh_exhausted_scopes()
@@ -399,7 +476,7 @@ def download_species_images(
         )
     stop_reason = None
 
-    while progress.target_count(target_unit) < args.images_per_species:
+    while progress.target_count(target_unit) < target:
         active_scope = next(
             (scope for scope in scopes if not progress.exhausted_scopes[scope["key"]]),
             None,
@@ -416,7 +493,7 @@ def download_species_images(
             break
 
         accepted_before = progress.target_count(target_unit)
-        remaining_target = args.images_per_species - accepted_before
+        remaining_target = target - accepted_before
         batch_limit = adaptive_candidate_batch_limit(
             args,
             remaining_target=remaining_target,
@@ -588,7 +665,7 @@ def download_species_images(
                 progress.rejected += 1
                 continue
 
-            if progress.target_count(target_unit) >= args.images_per_species:
+            if progress.target_count(target_unit) >= target:
                 record["status"] = "unused"
                 record["reject_reason"] = "accepted_target_reached"
                 batch_rejected.append(record)
@@ -599,7 +676,7 @@ def download_species_images(
             if args.enable_detection:
                 max_outputs = getattr(args, "max_crops_per_observation", None)
                 if max_outputs is None and target_unit == "image":
-                    max_outputs = args.images_per_species - progress.target_count(target_unit)
+                    max_outputs = target - progress.target_count(target_unit)
                 detection_outputs, reject_reason, detection_metrics = (
                     run_fish_detection_outputs(
                         raw_path=raw_path,
@@ -672,7 +749,7 @@ def download_species_images(
                 progress.rejected += 1
                 continue
 
-            if progress.target_count(target_unit) >= args.images_per_species:
+            if progress.target_count(target_unit) >= target:
                 _remove_created_output(pending)
                 record["status"] = "unused"
                 record["reject_reason"] = "accepted_target_reached"
@@ -774,11 +851,11 @@ def download_species_images(
         save_progress(state_path, progress)
         safe_print(
             f"  batch accepted: {len(batch_accepted)}; target progress: "
-            f"{progress.target_count(target_unit)}/{args.images_per_species}; "
+            f"{progress.target_count(target_unit)}/{target}; "
             f"candidates scanned: {progress.candidates_scanned}"
         )
 
-    if progress.target_count(target_unit) >= args.images_per_species:
+    if progress.target_count(target_unit) >= target:
         stop_reason = "target_reached"
     elif stop_reason is None:
         stop_reason = (
@@ -797,7 +874,7 @@ def download_species_images(
             "canonical_name": canonical_name,
             "taxon_id": taxon_id,
             "target_unit": target_unit,
-            "target": args.images_per_species,
+            "target": target,
             "candidates": progress.candidates_scanned,
             "scanned_candidates": progress.candidates_scanned,
             "downloaded": progress.downloaded,
@@ -813,7 +890,7 @@ def download_species_images(
     )
     safe_print(
         f"  accepted {target_unit}s: {progress.target_count(target_unit)}/"
-        f"{args.images_per_species}; outputs: {progress.accepted_outputs}; "
+        f"{target}; outputs: {progress.accepted_outputs}; "
         f"candidates: {progress.candidates_scanned}; stop_reason: {stop_reason}"
     )
 
@@ -852,9 +929,38 @@ def main() -> None:
         ],
     )
 
-    species_list = load_species(species_file)
-    if not species_list:
+    species_requests = load_species_requests(species_file)
+    if not species_requests:
         raise SystemExit(f"No species found in {species_file}")
+    exact_request_count = sum(request.taxon_id is not None for request in species_requests)
+    per_species_target_count = sum(request.target is not None for request in species_requests)
+    safe_print(
+        f"Loaded {len(species_requests)} species requests: "
+        f"{exact_request_count} exact taxon IDs, "
+        f"{per_species_target_count} per-species targets."
+    )
+    if getattr(args, "require_exact_species_taxon", False) and (
+        exact_request_count != len(species_requests)
+    ):
+        raise SystemExit(
+            "This profile requires exact species taxa, but the species file has "
+            f"{len(species_requests) - exact_request_count} row(s) without taxon_id. "
+            "Use a TSV/CSV plan with taxon_id, species, and optional target columns."
+        )
+    invalid_targets = [
+        request
+        for request in species_requests
+        if request.target is not None
+        and args.max_candidates_per_species is not None
+        and request.target > args.max_candidates_per_species
+    ]
+    if invalid_targets:
+        raise SystemExit(
+            "Species-plan targets cannot exceed max_candidates_per_species: "
+            + ", ".join(
+                f"{request.species}={request.target}" for request in invalid_targets[:10]
+            )
+        )
 
     dataset_deduplicator = DatasetDeduplicator(
         manifest_dir / "accepted.jsonl",
@@ -897,20 +1003,23 @@ def main() -> None:
         max_workers=args.species_workers
     ) as executor:
         failures = []
-        future_to_species = {
+        future_to_request = {
             executor.submit(
                 download_species_images,
-                species_name,
+                request.species,
                 args,
                 output_dir,
                 raw_dir,
                 manifest_dir,
                 dataset_deduplicator,
-            ): species_name
-            for species_name in species_list
+                requested_taxon_id=request.taxon_id,
+                accepted_target=request.target,
+            ): request
+            for request in species_requests
         }
-        for future in concurrent.futures.as_completed(future_to_species):
-            species_name = future_to_species[future]
+        for future in concurrent.futures.as_completed(future_to_request):
+            request = future_to_request[future]
+            species_name = request.species
             try:
                 future.result()
             except Exception as exc:

@@ -81,6 +81,43 @@ class DatasetSafetyTests(unittest.TestCase):
             )
         )
 
+    def test_exact_species_taxon_rejects_descendants_of_a_complex(self):
+        args = argparse.Namespace(
+            require_taxon_membership=True,
+            require_exact_species_taxon=True,
+        )
+        record = {
+            "taxon_id": 100,
+            "requested_taxon_id": 100,
+            "observation_taxon_id": 101,
+            "observation_ancestor_ids": [100],
+        }
+
+        self.assertEqual(
+            _taxon_reject_reason(record, args),
+            "observation_species_taxon_mismatch",
+        )
+        self.assertIsNone(
+            _taxon_reject_reason(
+                {
+                    **record,
+                    "observation_taxon_id": 100,
+                    "observation_taxon_rank": "species",
+                },
+                args,
+            )
+        )
+        self.assertIsNone(
+            _taxon_reject_reason(
+                {
+                    **record,
+                    "observation_taxon_id": 102,
+                    "observation_taxon_rank": "subspecies",
+                },
+                args,
+            )
+        )
+
     def test_cross_species_photo_and_exact_content_conflicts_are_rejected(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)

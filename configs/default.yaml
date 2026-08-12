@@ -29,6 +29,9 @@ inat:
   enforce_allowed_licenses: true
   # Record and verify the observation's actual taxon against the requested taxon.
   require_taxon_membership: true
+  # Species-classification plans should enable this so a same-named complex
+  # cannot mix descendant species into one folder.
+  require_exact_species_taxon: false
   sleep_seconds: 0.0
   include_subspecies: false
   retries: 5

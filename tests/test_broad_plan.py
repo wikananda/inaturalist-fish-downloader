@@ -134,10 +134,13 @@ class BroadPlanTests(unittest.TestCase):
             )
             proposal = (Path(temp_dir) / "broad_species_proposal.tsv").read_text()
             train_names = (Path(temp_dir) / "broad_train_species.txt").read_text()
+            train_plan = (Path(temp_dir) / "broad_train_species.tsv").read_text()
 
         self.assertIn("Example fish", proposal)
         self.assertNotIn("\r\n", proposal)
         self.assertEqual(train_names.strip(), "Example fish")
+        self.assertIn("taxon_id\tspecies\ttarget", train_plan)
+        self.assertIn("11\tExample fish", train_plan)
         self.assertEqual(summary["broad_train_species"], 1)
         self.assertEqual(summary["eligible_species"], 1)
         self.assertEqual(summary["max_global_observations"], 900)

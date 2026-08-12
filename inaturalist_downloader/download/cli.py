@@ -57,6 +57,7 @@ CLI_FIELD_TO_PATH = {
     "license_code": "inat.license_code",
     "enforce_allowed_licenses": "inat.enforce_allowed_licenses",
     "require_taxon_membership": "inat.require_taxon_membership",
+    "require_exact_species_taxon": "inat.require_exact_species_taxon",
     "sleep_seconds": "inat.sleep_seconds",
     "include_subspecies": "inat.include_subspecies",
     "overwrite": "download.overwrite",
@@ -161,6 +162,7 @@ BOOL_FIELDS = {
     "enable_clip_filter",
     "enforce_allowed_licenses",
     "require_taxon_membership",
+    "require_exact_species_taxon",
     "enable_dataset_dedup",
     "deduplicate_observation_ids",
     "deduplicate_photo_ids",
@@ -240,7 +242,7 @@ CHOICE_FIELDS = {
 }
 
 HELP_TEXT = {
-    "species_file": "Path to a text file containing one species per line.",
+    "species_file": "Path to a name-only text file or TSV/CSV plan with species, exact taxon_id, and optional target columns.",
     "output_dir": "Directory to store accepted images after phase-2 validation.",
     "raw_dir": "Directory to store raw downloaded candidate images before validation.",
     "manifest_dir": "Directory to store candidates, accepted, rejected, and summary manifests.",
@@ -343,6 +345,7 @@ HELP_TEXT = {
     "clip_prompts_file": "Optional JSON file defining positive/negative CLIP prompts.",
     "enforce_allowed_licenses": "Reject photos whose returned photo licence is missing or outside the configured allowed set.",
     "require_taxon_membership": "Require the observation taxon to equal or descend from the requested species taxon.",
+    "require_exact_species_taxon": "Require an accepted observation to have the exact requested species taxon ID; rejects descendant species from same-named complexes.",
     "enable_dataset_dedup": "Protect the accepted dataset from duplicate or conflicting source identities across all species.",
     "deduplicate_observation_ids": "Reject an observation ID already accepted elsewhere in the dataset.",
     "deduplicate_photo_ids": "Reject a photo ID already accepted elsewhere in the dataset.",
@@ -654,6 +657,7 @@ def validate_args(args: argparse.Namespace) -> None:
         "clip_backend": "clip",
         "enforce_allowed_licenses": False,
         "require_taxon_membership": False,
+        "require_exact_species_taxon": False,
         "enable_dataset_dedup": False,
         "deduplicate_observation_ids": True,
         "deduplicate_photo_ids": True,

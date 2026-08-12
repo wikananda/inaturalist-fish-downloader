@@ -362,6 +362,36 @@ def _write_name_list(path: Path, rows: Iterable[dict[str, Any]]) -> None:
     path.write_text("\n".join(names) + ("\n" if names else ""), encoding="utf-8")
 
 
+def _write_download_plan(
+    path: Path,
+    rows: Iterable[dict[str, Any]],
+    *,
+    target_override: int | None = None,
+) -> None:
+    """Write exact taxon IDs and per-species targets for the downloader."""
+    selected = sorted(rows, key=lambda row: str(row["species"]))
+    with path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(
+            handle,
+            fieldnames=["taxon_id", "species", "target"],
+            delimiter="\t",
+            lineterminator="\n",
+        )
+        writer.writeheader()
+        for row in selected:
+            writer.writerow(
+                {
+                    "taxon_id": int(row["taxon_id"]),
+                    "species": row["species"],
+                    "target": int(
+                        target_override
+                        if target_override is not None
+                        else row.get("planned_accepted_target") or 0
+                    ),
+                }
+            )
+
+
 def write_species_proposal(
     output_dir: Path,
     rows: list[dict[str, Any]],
@@ -389,9 +419,11 @@ def write_species_proposal(
     rare_rows = [row for row in rows if row["dataset_role"] == "rare_target_holdout"]
     download_rows = [row for row in rows if row["dataset_role"] in DOWNLOAD_ROLES]
     _write_name_list(output / "broad_train_species.txt", train_rows)
+    _write_download_plan(output / "broad_train_species.tsv", train_rows)
     _write_name_list(output / "novel_evaluation_species.txt", novel_rows)
     _write_name_list(output / "rare_target_species.txt", rare_rows)
     _write_name_list(output / "selected_download_species.txt", download_rows)
+    _write_download_plan(output / "selected_download_species.tsv", download_rows)
     target_tiers = sorted(
         {
             int(tier["target_accepted_observations"])
@@ -405,6 +437,11 @@ def write_species_proposal(
             if int(row.get("planned_accepted_target") or 0) >= target
         ]
         _write_name_list(output / f"target_{target}_train_species.txt", tier_rows)
+        _write_download_plan(
+            output / f"target_{target}_train_species.tsv",
+            tier_rows,
+            target_override=target,
+        )
     (output / "unmatched_target_species.txt").write_text(
         "\n".join(sorted(unmatched_targets)) + ("\n" if unmatched_targets else ""),
         encoding="utf-8",

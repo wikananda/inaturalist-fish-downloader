@@ -167,12 +167,32 @@ After reviewing `plans/broad_baseline/broad_species_proposal.tsv`, run a small
 pilot and then the resumable accepted-observation download:
 
 ```bash
-inat-download --config broad_baseline --species-file pilot_species.txt --images-per-species 30
+inat-download --config broad_baseline \
+  --species-file plans/broad_coral_global_v4/broad_train_species.tsv
 inat-download --config broad_baseline
 ```
 
 See `docs/broad_baseline.md` for the confirmed family crosswalk, selection rules,
 output files, adaptive refill behavior, and resume semantics.
+
+After a completed broad run, refine the next plan with measured per-family yield
+and exact-label counts:
+
+```bash
+inat-refine-broad-plan
+inat-migrate-exact-taxa
+inat-download --config broad_baseline
+```
+
+The generated V4 TSV contains `taxon_id`, `species`, and a per-class `target`.
+The downloader uses these exact IDs instead of resolving the names again, and
+the broad profile requires exact species membership. This prevents a same-named
+iNaturalist species complex from silently contributing other descendant species.
+Download `reserve_backfill_species.tsv` separately only if the primary V4 run
+finishes with fewer completed classes than required.
+
+See `docs/broad_v4_exact_taxon_plan.md` for the 116-class primary plan, corrected
+V3 migration, 57-class reserve workflow, and the final 100-image training gate.
 
 See `docs/automatic_crop_quality.md` for the deterministic crop gates, SigLIP 2
 calibration, optional strict SAM cascade, rejection reasons, quality-report

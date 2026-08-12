@@ -1,0 +1,25 @@
+{
+  "collection_target_per_selected_species": 200,
+  "context_risk_holdout_species": 7,
+  "method_note": "Primary selection uses exact-label V3 counts where available and a family-smoothed empirical yield for previously unselected species. Reserve classes are downloaded only if the primary set finishes below the desired breadth; its TSV is ordered by exact V3 count and then projected supply. Projections are estimates, not guarantees.",
+  "new_primary_species": 28,
+  "plan_name": "broad_coral_fish_global_pretraining_v4_empirical",
+  "primary_by_target": {
+    "200": 116
+  },
+  "primary_existing_exact_at_least_100": 88,
+  "primary_planned_accepted_observations": 23200,
+  "primary_train_species": 116,
+  "recommended_post_download_thresholds": [
+    100,
+    150,
+    200
+  ],
+  "reserve_backfill_species": 57,
+  "role_counts": {
+    "context_risk_holdout": 7,
+    "excluded_low_supply": 24,
+    "primary_train": 116,
+    "reserve_backfill": 57
+  }
+}

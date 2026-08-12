@@ -1,10 +1,10 @@
 paths:
-  # The default pass builds every training class to 100 independent observations.
-  # Use the generated target_200/target_300 lists for progressive top-up passes.
-  species_file: plans/broad_coral_global_v3/broad_train_species.txt
-  output_dir: broad_coral_global_downloads
-  raw_dir: broad_coral_global_downloads_raw
-  manifest_dir: manifests/broad_coral_global_v3
+  # Every selected class attempts 200 independent observations. Reaching 200 is
+  # a collection ceiling, not a training inclusion requirement.
+  species_file: plans/broad_coral_global_v4/broad_train_species.tsv
+  output_dir: broad_coral_global_v4_primary_downloads
+  raw_dir: broad_coral_global_v4_primary_downloads_raw
+  manifest_dir: manifests/broad_coral_global_v4
 
 inat:
   # Broad fish-domain pretraining starts globally. Indonesia is a later fine-tune.
@@ -18,12 +18,16 @@ inat:
   order: desc
   per_page: 64
   max_pages: 100
+  # The broad plan provides exact iNaturalist taxon IDs. Do not accept another
+  # descendant species merely because autocomplete returns a species complex.
+  require_exact_species_taxon: true
 
 download:
-  # First pass. Abundant subsets can resume in the same manifest with CLI target
-  # overrides of 200 and 300; images_per_species is not part of the resume signature.
-  images_per_species: 100
-  max_candidates_per_species: 1500
+  # Fallback for legacy files. V4 plan rows explicitly carry the same target.
+  images_per_species: 200
+  # At the V3 acceptance rate, a 200-image class may need well above 1,500
+  # candidates. This is a safety ceiling, not a request to download all 3,000.
+  max_candidates_per_species: 3000
   adaptive_batching: true
   min_candidate_batch_size: 32
   max_candidate_batch_size: 128

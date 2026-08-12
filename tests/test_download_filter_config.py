@@ -848,6 +848,35 @@ class DownloadFilterConfigTests(unittest.TestCase):
 
         self.assertEqual(calls, ["cc0", "cc-by"])
 
+    def test_exact_plan_taxon_id_bypasses_name_autocomplete_and_uses_plan_target(self):
+        args = self._download_args(images_per_species=200)
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_path = Path(temp_dir)
+            manifest_dir = temp_path / "manifests"
+            manifest_dir.mkdir()
+            with patch(
+                "inaturalist_downloader.commands.download.resolve_taxon_id"
+            ) as resolve_taxon_id, patch(
+                "inaturalist_downloader.commands.download.collect_photo_jobs",
+                return_value=([], 2, True),
+            ) as collect_photo_jobs:
+                download_species_images(
+                    "Acanthurus triostegus",
+                    args,
+                    temp_path / "downloads",
+                    temp_path / "raw",
+                    manifest_dir,
+                    requested_taxon_id=59931,
+                    accepted_target=100,
+                )
+
+            summary = (manifest_dir / "species_summary.tsv").read_text()
+
+        resolve_taxon_id.assert_not_called()
+        self.assertEqual(collect_photo_jobs.call_args.kwargs["taxon_id"], 59931)
+        self.assertIn("\t100\t", summary)
+
     def test_download_species_images_skips_blocked_license_before_download(self):
         args = self._download_args(images_per_species=1)
         args.license_preference = ["cc0"]
