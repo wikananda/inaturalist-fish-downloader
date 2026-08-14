@@ -167,6 +167,63 @@ class ExactTaxonMigrationTests(unittest.TestCase):
         self.assertEqual(report["newly_migrated_records"], 1)
         self.assertEqual(len(rows), 2)
 
+    def test_include_manifest_limits_migration_to_cleaned_keys(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            source_dir = root / "source"
+            source_dir.mkdir()
+            kept_image = source_dir / "kept.jpg"
+            rejected_image = source_dir / "rejected.jpg"
+            kept_image.write_bytes(b"kept")
+            rejected_image.write_bytes(b"rejected")
+            source_manifest = root / "accepted.jsonl"
+            source_manifest.write_text(
+                "\n".join(
+                    json.dumps(
+                        {
+                            "canonical_name": "Fish novel",
+                            "observation_taxon_id": 200,
+                            "observation_taxon_rank": "species",
+                            "observation_id": observation_id,
+                            "photo_id": photo_id,
+                            "saved_output_path": str(path),
+                        }
+                    )
+                    for observation_id, photo_id, path in (
+                        (1, 11, kept_image),
+                        (2, 22, rejected_image),
+                    )
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            include_manifest = root / "cleaned.jsonl"
+            include_manifest.write_text(
+                json.dumps({"observation_id": 1, "photo_id": 11}) + "\n",
+                encoding="utf-8",
+            )
+            plan = root / "plan.tsv"
+            plan.write_text(
+                "taxon_id\tspecies\ttarget\n200\tFish novel\t120\n",
+                encoding="utf-8",
+            )
+            output_manifest = root / "manifest" / "accepted.jsonl"
+
+            report = migrate(
+                source_manifest,
+                root,
+                plan,
+                root / "output",
+                output_manifest,
+                include_manifest=include_manifest,
+            )
+            rows = [json.loads(line) for line in output_manifest.read_text().splitlines()]
+
+        self.assertEqual(report["include_manifest_keys"], 1)
+        self.assertEqual(report["newly_migrated_records"], 1)
+        self.assertEqual(report["skipped"]["not_in_include_manifest"], 1)
+        self.assertEqual(rows[0]["observation_id"], 1)
+
 
 if __name__ == "__main__":
     unittest.main()

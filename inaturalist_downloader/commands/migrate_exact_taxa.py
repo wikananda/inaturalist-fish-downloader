@@ -35,6 +35,22 @@ def _load_plan(path: Path) -> dict[int, dict[str, Any]]:
         }
 
 
+def _load_manifest_keys(path: Path) -> set[tuple[int, int]]:
+    """Load observation/photo pairs from a compact or full JSONL manifest."""
+    keys: set[tuple[int, int]] = set()
+    with path.open(encoding="utf-8") as handle:
+        for line in handle:
+            if not line.strip():
+                continue
+            record = json.loads(line)
+            observation_id = record.get("observation_id")
+            photo_id = record.get("photo_id")
+            if observation_id is None or photo_id is None:
+                continue
+            keys.add((int(observation_id), int(photo_id)))
+    return keys
+
+
 def migrate(
     source_manifest: Path,
     source_root: Path,
@@ -44,8 +60,12 @@ def migrate(
     *,
     copy_files: bool = False,
     merge_existing: bool = False,
+    include_manifest: Path | None = None,
 ) -> dict[str, Any]:
     plan = _load_plan(plan_path)
+    included_keys = (
+        _load_manifest_keys(include_manifest) if include_manifest is not None else None
+    )
     rows: list[dict[str, Any]] = []
     manifest_keys: set[tuple[int, int]] = set()
     linked = Counter()
@@ -91,6 +111,15 @@ def migrate(
             if not line.strip():
                 continue
             record = json.loads(line)
+            observation_id = record.get("observation_id")
+            photo_id = record.get("photo_id")
+            if observation_id is None or photo_id is None:
+                skipped["missing_observation_or_photo_id"] += 1
+                continue
+            manifest_key = (int(observation_id), int(photo_id))
+            if included_keys is not None and manifest_key not in included_keys:
+                skipped["not_in_include_manifest"] += 1
+                continue
             observed_taxon_id = record.get("observation_taxon_id")
             target = plan.get(int(observed_taxon_id or 0))
             if target is None:
@@ -117,10 +146,6 @@ def migrate(
                 skipped["missing_source_file"] += 1
                 continue
 
-            manifest_key = (
-                int(record.get("observation_id")),
-                int(record.get("photo_id")),
-            )
             if manifest_key in manifest_keys:
                 skipped["already_in_output_manifest"] += 1
                 continue
@@ -167,6 +192,8 @@ def migrate(
     temporary.replace(output_manifest)
     report = {
         "source_manifest": str(source_manifest),
+        "include_manifest": str(include_manifest) if include_manifest else None,
+        "include_manifest_keys": len(included_keys) if included_keys is not None else None,
         "plan": str(plan_path),
         "output_dir": str(output_dir),
         "output_manifest": str(output_manifest),
@@ -191,6 +218,15 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--source-manifest", type=Path, default=DEFAULT_SOURCE_MANIFEST)
     parser.add_argument("--source-root", type=Path, default=DEFAULT_SOURCE_ROOT)
+    parser.add_argument(
+        "--include-manifest",
+        type=Path,
+        default=None,
+        help=(
+            "Optional compact/full JSONL manifest. Only source rows with matching "
+            "observation_id and photo_id pairs are migrated."
+        ),
+    )
     parser.add_argument("--plan", type=Path, default=DEFAULT_PLAN)
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
     parser.add_argument("--output-manifest", type=Path, default=DEFAULT_OUTPUT_MANIFEST)
@@ -215,6 +251,7 @@ def main() -> None:
                 args.output_manifest,
                 copy_files=args.copy,
                 merge_existing=args.merge_existing,
+                include_manifest=args.include_manifest,
             ),
             indent=2,
             sort_keys=True,

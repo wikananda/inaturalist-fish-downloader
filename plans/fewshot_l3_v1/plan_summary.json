@@ -1,0 +1,15 @@
+{
+  "base_train_species": 124,
+  "created_at": "2026-08-14",
+  "existing_clean_meta_test_images": 2576,
+  "meta_test_existing_clean_max": 97,
+  "meta_test_existing_clean_median": 86,
+  "meta_test_existing_clean_min": 70,
+  "novel_meta_test_species": 30,
+  "novel_meta_validation_species": 10,
+  "plan_name": "fewshot_l3_novel_v1",
+  "preferred_accepted_observations_per_species": "100-150",
+  "selection_note": "Test taxa are coral, reef, marine, or conservation-relevant fishes absent from the frozen 124-class baseline and the 10 validation taxa. Counts were selected from the 2026-08-12 commercial-license V4 proposal and the V4 automatic cleanup output.",
+  "target_accepted_observations_per_species": 120,
+  "usable_minimum_accepted_observations_per_species": 60
+}

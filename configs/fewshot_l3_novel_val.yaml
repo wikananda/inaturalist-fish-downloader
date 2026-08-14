@@ -1,0 +1,88 @@
+paths:
+  species_file: plans/fewshot_l3_v1/novel_meta_validation_species.tsv
+  output_dir: fewshot_l3_v1_val_downloads
+  raw_dir: fewshot_l3_v1_val_downloads_raw
+  manifest_dir: manifests/fewshot_l3_v1_val
+
+inat:
+  place_preference: [null]
+  filter_files:
+    - commercial_licenses
+  quality_grade: research
+  photo_size: large
+  exclude_captive: true
+  order_by: observed_on
+  order: desc
+  per_page: 64
+  max_pages: 100
+  require_exact_species_taxon: true
+
+download:
+  # Structured plan rows also carry target=120. This is the legacy fallback.
+  images_per_species: 120
+  max_candidates_per_species: 3000
+  adaptive_batching: true
+  min_candidate_batch_size: 32
+  max_candidate_batch_size: 128
+  initial_acceptance_rate: 0.25
+  acceptance_rate_floor: 0.10
+  batch_safety_factor: 1.10
+  target_unit: observation
+  max_photos_per_observation: 1
+  max_crops_per_observation: 1
+  max_images_per_observer_per_species: 20
+  resume: true
+  rejected_raw_policy: sample
+  rejected_raw_sample_rate: 0.05
+  species_workers: 4
+  download_workers: 12
+
+detection:
+  enable: true
+  backend: yolo
+  device: auto
+  confidence: 0.35
+  imgsz: 960
+  allow_multiple_fish: false
+  min_fish_area_ratio: 0.02
+  crop_padding: 0.20
+  sam_score_threshold: 0.30
+  sam_min_mask_area_ratio: 0.005
+  sam_min_yolo_iou: 0.40
+  sam_allow_yolo_fallback: false
+  sam_crop_padding: 0.20
+  sam_save_all_instances: false
+  sam_max_instances_per_image: 1
+  sam_preload: true
+  sam_dtype: bfloat16
+  sam_autocast: true
+
+crop_quality:
+  enable: true
+  min_short_side: 96
+  min_long_side: 160
+  min_fish_bbox_width: 64
+  min_fish_bbox_height: 32
+  min_fish_crop_area_ratio: 0.20
+  max_fish_crop_area_ratio: 0.90
+  min_source_edge_margin_ratio: 0.003
+  min_crop_edge_margin_ratio: 0.01
+  min_edge_variance: 8.0
+  min_entropy: 2.5
+  sam_min_mask_crop_area_ratio: 0.12
+  sam_max_mask_crop_area_ratio: 0.85
+  redetect: true
+  redetect_confidence: 0.35
+  redetect_require_single: true
+  redetect_min_area_ratio: 0.18
+  redetect_max_area_ratio: 0.90
+  redetect_min_iou: 0.35
+  redetect_min_edge_margin_ratio: 0.005
+
+clip:
+  enable: true
+  backend: siglip2
+  model: google/siglip2-base-patch16-384
+  batch_size: 8
+  threshold: 0.0
+  prompts_file: configs/prompts/fish_crop_quality.json

@@ -201,3 +201,19 @@ command, and all automated and real-model tests.
 See `docs/downloader_dataset_safety.md` for the pilot issues, strict returned
 licence/taxon validation, dataset-wide ID/content deduplication, global abundance
 planning, truthful resume/failure reporting, and remaining limitations.
+
+## L3 few-shot novel species
+
+The frozen few-shot V1 plan keeps the 124 broad-training species, ten tuning
+species, and 30 final evaluation species class-disjoint. Each novel species
+attempts 120 independent accepted observations:
+
+```bash
+inat-download --config fewshot_l3_novel_val
+inat-download --config fewshot_l3_novel_test
+```
+
+If the cleaned V4 artifacts are available, seed the test plan with clean hard
+links before downloading the shortfall. See
+`plans/fewshot_l3_v1/README.md` for the exact migration command, frozen species
+lists, completion thresholds, and support/query leakage rules.
